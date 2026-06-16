@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Notificaciones — Manual Operativo Reina Madre</title>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#f4f4fb;--card:#fff;--primary:#ed80a8;--secondary:#a25cbf;--accent:#d9d8f5;--border:#d6d9f3;--text:#373644;--muted:#565386;--success:#afd393;--warning:#fac186;--danger:#ff3759}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--bg);color:var(--text);line-height:1.6}
+.header{background:linear-gradient(135deg,var(--primary),var(--secondary));color:#fff;padding:2rem 2.5rem;display:flex;align-items:center;gap:1rem}
+.header-icon{font-size:2.5rem}
+.header h1{font-size:1.8rem;font-weight:700;margin-bottom:.25rem}
+.header p{opacity:.9;font-size:1rem}
+.nav{background:var(--card);border-bottom:1px solid var(--border);padding:.75rem 2.5rem;display:flex;gap:.5rem;flex-wrap:wrap;align-items:center}
+.nav a{color:var(--secondary);text-decoration:none;font-size:.85rem;padding:.3rem .7rem;border-radius:1rem;transition:all .2s}
+.nav a:hover{background:var(--accent);color:var(--text)}
+.nav .active{background:var(--primary);color:#fff}
+.main{max-width:1200px;margin:0 auto;padding:2rem 2.5rem}
+.section-intro{background:var(--card);border-radius:12px;border:1px solid var(--border);padding:1.5rem;margin-bottom:2rem}
+.section-intro h2{color:var(--secondary);font-size:1.2rem;margin-bottom:.5rem}
+.scenario-card{background:var(--card);border-radius:12px;border:1px solid var(--border);margin-bottom:2rem;overflow:hidden;box-shadow:0 1px 3px rgba(162,92,191,.08)}
+.scenario-header{background:var(--accent);padding:1.25rem 1.5rem;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;gap:1rem}
+.scenario-number{background:var(--primary);color:#fff;width:2rem;height:2rem;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.85rem;flex-shrink:0;margin-top:.1rem}
+.scenario-header h3{font-size:1.1rem;color:var(--text);font-weight:600;margin-bottom:.2rem}
+.scenario-header .actors{font-size:.8rem;color:var(--muted)}
+.actor-badge{display:inline-block;padding:.15rem .5rem;border-radius:.5rem;font-size:.75rem;font-weight:500;margin-right:.25rem}
+.scenario-body{padding:1.5rem;display:grid;grid-template-columns:1fr 1fr;gap:1.5rem}
+@media(max-width:768px){.scenario-body{grid-template-columns:1fr}}
+.steps h4{color:var(--secondary);font-size:.9rem;font-weight:600;margin-bottom:.75rem;text-transform:uppercase;letter-spacing:.05em}
+.step-list{list-style:none}
+.step-list li{padding:.5rem .75rem;margin-bottom:.4rem;border-radius:.5rem;border-left:3px solid var(--border);font-size:.9rem;background:#fafafe}
+.step-list li.system{border-color:var(--muted);background:#f0f0f8}
+.step-list li.decision{border-color:var(--warning);background:#fff9f2}
+.step-list li.success{border-color:var(--success);background:#f6fbf2}
+.step-list li.error{border-color:var(--danger);background:#fff5f6}
+.diagram-wrap{overflow:auto}
+.diagram-wrap h4{color:var(--secondary);font-size:.9rem;font-weight:600;margin-bottom:.75rem;text-transform:uppercase;letter-spacing:.05em}
+.mermaid{font-size:13px}
+.notes{margin-top:1rem;padding:.75rem 1rem;background:#fff8e1;border-radius:.5rem;border-left:3px solid var(--warning);font-size:.85rem;color:var(--text)}
+.notes strong{color:#b45309}
+.footer{text-align:center;padding:2rem;color:var(--muted);font-size:.8rem;border-top:1px solid var(--border);margin-top:2rem}
+</style>
+</head>
+<body>
+<div class="header">
+  <div class="header-icon">🔔</div>
+  <div>
+    <h1>Notificaciones</h1>
+    <p>Manual Operativo — Grupo Reina Madre · Reina Madre | María Linda | Piel Sana</p>
+  </div>
+</div>
+<nav class="nav">
+  <a href="index.html">🏠 Inicio</a>
+  <a href="01-autenticacion.html">🔐 Acceso</a>
+  <a href="02-pacientes.html">👩‍⚕️ Pacientes</a>
+  <a href="03-agenda.html">📅 Agenda</a>
+  <a href="04-contratos.html">📋 Contratos</a>
+  <a href="05-staff.html">👥 Staff</a>
+  <a href="06-bot-whatsapp.html">💬 Bot WA</a>
+  <a href="07-notificaciones.html" class="active">🔔 Notificaciones</a>
+  <a href="08-configuracion.html">⚙️ Configuración</a>
+  <a href="09-procesos.html">⚡ Procesos</a>
+</nav>
+<main class="main">
+
+  <div class="section-intro">
+    <h2>¿De qué trata esta sección?</h2>
+    <p>Las notificaciones son los mensajes automáticos que el sistema envía a pacientes y personal por WhatsApp, correo electrónico u otros canales. Cubren desde el recordatorio de una cita hasta el aviso de cancelación y los resúmenes diarios de agenda para el equipo. Principalmente las gestionan el sistema de forma automática, aunque recepcionistas y gerentes pueden configurar preferencias por paciente.</p>
+  </div>
+
+  <!-- ESCENARIO 1 -->
+  <div class="scenario-card">
+    <div class="scenario-header">
+      <div class="scenario-number">1</div>
+      <div>
+        <h3>Recordatorio de cita próxima</h3>
+        <div class="actors">
+          <span class="actor-badge" style="background:#d6d9f3;color:#373644">Sistema</span>
+          <span class="actor-badge" style="background:#afd393;color:#2d5a1b">Paciente</span>
+        </div>
+      </div>
+    </div>
+    <div class="scenario-body">
+      <div class="steps">
+        <h4>¿Cómo funciona?</h4>
+        <ul class="step-list">
+          <li class="system">🤖 El sistema revisa automáticamente todas las citas programadas para el día siguiente.</li>
+          <li class="decision">🔀 Verifica si la paciente tiene activada la notificación por WhatsApp, correo o ambos canales.</li>
+          <li class="system">🤖 Prepara el mensaje con los datos de la cita: fecha, hora, nombre de la médica y dirección de la sucursal.</li>
+          <li class="system">🤖 Envía el recordatorio 24 horas antes de la cita a través del canal preferido de la paciente.</li>
+          <li class="decision">🔀 Verifica que el mensaje fue entregado correctamente.</li>
+          <li class="success">✅ La paciente recibe el recordatorio y puede confirmar o contactar a la sucursal si necesita cambios.</li>
+          <li class="error">❌ Si el mensaje no llega, el sistema registra el fallo e intentará reenviar más tarde (ver Escenario 7).</li>
+        </ul>
+        <div class="notes">
+          <strong>Nota operativa:</strong> Las pacientes NO necesitan hacer nada para recibir el recordatorio. El envío es completamente automático. Si una paciente reporta que no lo recibió, verificar sus preferencias de notificación (ver Escenario 8).
+        </div>
+      </div>
+      <div class="diagram-wrap">
+        <h4>Diagrama de flujo</h4>
+        <div class="mermaid">
+flowchart TD
+    A([Inicio: 24 hrs antes de la cita]) --> B[🤖 El sistema identifica citas del día siguiente]
+    B --> C{¿Canal preferido de la paciente?}
+    C -- WhatsApp --> D[📱 Envía mensaje por WhatsApp]
+    C -- Correo --> E[📧 Envía correo electrónico]
+    C -- Ambos --> F[📱📧 Envía por ambos canales]
+    D --> G{¿Entrega exitosa?}
+    E --> G
+    F --> G
+    G -- Sí --> H([✅ Recordatorio entregado])
+    G -- No --> I([❌ Registro de fallo → reintento automático])
+    style A fill:#d6d9f3,color:#373644,stroke:#a25cbf
+    style B fill:#d6d9f3,color:#373644,stroke:#a25cbf
+    style C fill:#fac186,color:#373644,stroke:#a25cbf
+    style D fill:#25D366,color:#fff,stroke:#1a8a44
+    style E fill:#d6d9f3,color:#373644,stroke:#a25cbf
+    style F fill:#25D366,color:#fff,stroke:#1a8a44
+    style G fill:#fac186,color:#373644,stroke:#a25cbf
+    style H fill:#afd393,color:#2d5a1b,stroke:#5a9a3a
+    style I fill:#ff3759,color:#fff,stroke:#c02040
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ESCENARIO 2 -->
+  <div class="scenario-card">
+    <div class="scenario-header">
+      <div class="scenario-number">2</div>
+      <div>
+        <h3>Confirmación de nueva cita agendada</h3>
+        <div class="actors">
+          <span class="actor-badge" style="background:#d6d9f3;color:#373644">Sistema</span>
+          <span class="actor-badge" style="background:#afd393;color:#2d5a1b">Paciente</span>
+          <span class="actor-badge" style="background:#7eb8f7;color:#1a3a5c">Recepcionista</span>
+        </div>
+      </div>
+    </div>
+    <div class="scenario-body">
+      <div class="steps">
+        <h4>¿Cómo funciona?</h4>
+        <ul class="step-list">
+          <li>La recepcionista agenda una cita para la paciente desde el sistema.</li>
+          <li class="system">🤖 En cuanto la cita queda registrada, el sistema genera automáticamente un mensaje de confirmación.</li>
+          <li class="system">🤖 El mensaje incluye: fecha y hora de la cita, nombre de la médica asignada, nombre y dirección de la sucursal, y teléfono de contacto.</li>
+          <li class="system">🤖 El sistema envía la confirmación por el canal preferido de la paciente (WhatsApp y/o correo).</li>
+          <li class="decision">🔀 Verifica que el mensaje fue entregado.</li>
+          <li class="success">✅ La paciente recibe todos los detalles de su cita de inmediato y puede guardarlos o compartirlos.</li>
+          <li class="error">❌ Si el canal de la paciente no está disponible, el sistema lo registra e intenta por un canal alternativo.</li>
+        </ul>
+        <div class="notes">
+          <strong>Nota operativa:</strong> Este mensaje se dispara automáticamente sin que la recepcionista deba hacer nada adicional. La confirmación llega en cuestión de segundos tras registrar la cita.
+        </div>
+      </div>
+      <div class="diagram-wrap">
+        <h4>Diagrama de flujo</h4>
+        <div class="mermaid">
+sequenceDiagram
+    participant R as Recepcionista
+    participant S as Sistema
+    participant P as Paciente
+    R->>S: Registra la nueva cita en el sistema
+    S->>S: Genera mensaje de confirmación con todos los datos
+    S-->>P: Envía confirmación por WhatsApp y/o correo
+    P-->>R: (La paciente ya tiene los datos de su cita)
+    Note over S,P: El envío es automático e inmediato
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ESCENARIO 3 -->
+  <div class="scenario-card">
+    <div class="scenario-header">
+      <div class="scenario-number">3</div>
+      <div>
+        <h3>Notificación de cancelación de cita</h3>
+        <div class="actors">
+          <span class="actor-badge" style="background:#d6d9f3;color:#373644">Sistema</span>
+          <span class="actor-badge" style="background:#afd393;color:#2d5a1b">Paciente</span>
+          <span class="actor-badge" style="background:#7eb8f7;color:#1a3a5c">Recepcionista</span>
+        </div>
+      </div>
+    </div>
+    <div class="scenario-body">
+      <div class="steps">
+        <h4>¿Cómo funciona?</h4>
+        <ul class="step-list">
+          <li>La recepcionista (o la propia paciente a través del bot de WhatsApp) cancela la cita en el sistema.</li>
+          <li class="system">🤖 El sistema detecta la cancelación y genera un aviso inmediato.</li>
+          <li class="system">🤖 El mensaje incluye: nombre de la paciente, fecha y hora de la cita cancelada, nombre de la médica, e invitación a reagendar cuando lo desee.</li>
+          <li class="system">🤖 El sistema envía el aviso por el canal preferido de la paciente al instante.</li>
+          <li class="decision">🔀 Verifica si el mensaje fue entregado correctamente.</li>
+          <li class="success">✅ La paciente recibe el aviso de cancelación con todos los datos y el mensaje de invitación a volver a agendar.</li>
+          <li class="error">❌ Si el aviso no puede entregarse, el sistema registra el intento fallido para reintentarlo.</li>
+        </ul>
+        <div class="notes">
+          <strong>Nota operativa:</strong> El aviso de cancelación se envía sin importar quién canceló la cita (la recepcionista, la gerente o la propia paciente). Esto evita malentendidos y facilita que la paciente reagende oportunamente.
+        </div>
+      </div>
+      <div class="diagram-wrap">
+        <h4>Diagrama de flujo</h4>
+        <div class="mermaid">
+flowchart TD
+    A([Cita cancelada en el sistema]) --> B[🤖 Sistema detecta la cancelación]
+    B --> C[🤖 Genera aviso con datos de la cita cancelada]
+    C --> D[🤖 Agrega invitación a reagendar]
+    D --> E{¿Canal preferido?}
+    E -- WhatsApp --> F[📱 Envía aviso por WhatsApp]
+    E -- Correo --> G[📧 Envía aviso por correo]
+    E -- Ambos --> H[📱📧 Envía por ambos]
+    F --> I{¿Entrega exitosa?}
+    G --> I
+    H --> I
+    I -- Sí --> J([✅ Paciente notificada])
+    I -- No --> K([❌ Fallo registrado → reintento])
+    style A fill:#fac186,color:#373644,stroke:#a25cbf
+    style B fill:#d6d9f3,color:#373644,stroke:#a25cbf
+    style C fill:#d6d9f3,color:#373644,stroke:#a25cbf
+    style D fill:#d6d9f3,color:#373644,stroke:#a25cbf
+    style E fill:#fac186,color:#373644,stroke:#a25cbf
+    style F fill:#25D366,color:#fff,stroke:#1a8a44
+    style G fill:#d6d9f3,color:#373644,stroke:#a25cbf
+    style H fill:#25D366,color:#fff,stroke:#1a8a44
+    style I fill:#fac186,color:#373644,stroke:#a25cbf
+    style J fill:#afd393,color:#2d5a1b,stroke:#5a9a3a
+    style K fill:#ff3759,color:#fff,stroke:#c02040
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ESCENARIO 4 -->
+  <div class="scenario-card">
+    <div class="scenario-header">
+      <div class="scenario-number">4</div>
+      <div>
+        <h3>Correo de bienvenida a paciente nueva</h3>
+        <div class="actors">
+          <span class="actor-badge" style="background:#d6d9f3;color:#373644">Sistema</span>
+          <span class="actor-badge" style="background:#afd393;color:#2d5a1b">Paciente</span>
+        </div>
+      </div>
+    </div>
+    <div class="scenario-body">
+      <div class="steps">
+        <h4>¿Cómo funciona?</h4>
+        <ul class="step-list">
+          <li>Una recepcionista registra a una nueva paciente en el sistema por primera vez.</li>
+          <li class="system">🤖 El sistema detecta que es un registro nuevo y activa el flujo de bienvenida automáticamente.</li>
+          <li class="system">🤖 Genera un correo electrónico personalizado con el nombre de la paciente.</li>
+          <li class="system">🤖 El correo incluye: saludo de bienvenida al grupo médico, descripción breve de los servicios disponibles, teléfono y horario de atención de la sucursal donde fue registrada, y el número de WhatsApp para contactar al bot de atención.</li>
+          <li class="system">🤖 El sistema envía el correo al momento del registro.</li>
+          <li class="decision">🔀 Verifica que el correo llegó a la bandeja de entrada de la paciente.</li>
+          <li class="success">✅ La paciente recibe una bienvenida cálida con toda la información que necesita para comunicarse con la clínica.</li>
+          <li class="error">❌ Si el correo rebota (dirección incorrecta), el sistema registra el error; la recepcionista puede corregir el correo y reenviar desde el perfil de la paciente.</li>
+        </ul>
+        <div class="notes">
+          <strong>Nota operativa:</strong> Este correo solo se envía UNA sola vez, en el momento del primer registro. Si la paciente ya existía en el sistema y se actualiza su información, el correo de bienvenida NO se reenvía.
+        </div>
+      </div>
+      <div class="diagram-wrap">
+        <h4>Diagrama de flujo</h4>
+        <div class="mermaid">
+sequenceDiagram
+    participant R as Recepcionista
+    participant S as Sistema
+    participant P as Paciente
+    R->>S: Registra a la paciente nueva
+    S->>S: Detecta: es un registro nuevo
+    S->>S: Genera correo de bienvenida personalizado
+    S-->>P: Envía correo con info del grupo médico
+    Note over P: La paciente recibe bienvenida,<br/>datos de contacto y servicios disponibles
+    P-->>R: (Paciente informada y bienvenida)
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ESCENARIO 5 -->
+  <div class="scenario-card">
+    <div class="scenario-header">
+      <div class="scenario-number">5</div>
+      <div>
+        <h3>Notificación a staff — resumen de agenda del día</h3>
+        <div class="actors">
+          <span class="actor-badge" style="background:#d6d9f3;color:#373644">Sistema</span>
+          <span class="actor-badge" style="background:#c58fe8;color:#3a1a5c">Médica</span>
+          <span class="actor-badge" style="background:#7eb8f7;color:#1a3a5c">Recepcionista</span>
+        </div>
+      </div>
+    </div>
+    <div class="scenario-body">
+      <div class="steps">
+        <h4>¿Cómo funciona?</h4>
+        <ul class="step-list">
+          <li class="system">🤖 Cada mañana, el sistema consulta automáticamente la agenda de cada sucursal para el día en curso.</li>
+          <li class="system">🤖 Genera un resumen por médica con la lista de pacientes, horarios y tipo de consulta programada.</li>
+          <li class="system">🤖 Genera también un resumen general para la recepcionista con el total de citas del día en la sucursal.</li>
+          <li class="system">🤖 Envía cada resumen al destinatario correspondiente (por correo o WhatsApp, según preferencias del staff).</li>
+          <li class="decision">🔀 Si hay algún cambio de último momento (cita cancelada o nueva), el sistema actualiza el resumen en tiempo real desde el módulo de agenda, pero no reenvía el correo automáticamente.</li>
+          <li class="success">✅ Cada médica y recepcionista inicia el día con visibilidad clara de su agenda sin necesidad de buscar la información manualmente.</li>
+          <li class="error">❌ Si el correo o mensaje no puede enviarse a algún miembro del staff, el sistema registra el fallo y lo marca para revisión por la gerente.</li>
+        </ul>
+        <div class="notes">
+          <strong>Nota operativa:</strong> El resumen se envía una sola vez al inicio del día. Para ver cambios de último momento durante el día, consultar directamente el módulo de Agenda en el sistema.
+        </div>
+      </div>
+      <div class="diagram-wrap">
+        <h4>Diagrama de flujo</h4>
+        <div class="mermaid">
+flowchart TD
+    A([Inicio del día — hora programada]) --> B[🤖 Sistema consulta agenda del día por sucursal]
+    B --> C[🤖 Genera resumen por médica]
+    B --> D[🤖 Genera resumen general para recepcionista]
+    C --> E[🤖 Envía resumen a cada médica]
+    D --> F[🤖 Envía resumen a recepcionista]
+    E --> G{¿Entrega exitosa?}
+    F --> G
+    G -- Sí --> H([✅ Staff informado al inicio del día])
+    G -- No --> I([❌ Fallo registrado → alerta a gerente])
+    style A fill:#d6d9f3,color:#373644,stroke:#a25cbf
+    style B fill:#d6d9f3,color:#373644,stroke:#a25cbf
+    style C fill:#c58fe8,color:#fff,stroke:#7a3a9a
+    style D fill:#7eb8f7,color:#1a3a5c,stroke:#3a6ab0
+    style E fill:#c58fe8,color:#fff,stroke:#7a3a9a
+    style F fill:#7eb8f7,color:#1a3a5c,stroke:#3a6ab0
+    style G fill:#fac186,color:#373644,stroke:#a25cbf
+    style H fill:#afd393,color:#2d5a1b,stroke:#5a9a3a
+    style I fill:#ff3759,color:#fff,stroke:#c02040
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ESCENARIO 6 -->
+  <div class="scenario-card">
+    <div class="scenario-header">
+      <div class="scenario-number">6</div>
+      <div>
+        <h3>Fallo en el envío de una notificación</h3>
+        <div class="actors">
+          <span class="actor-badge" style="background:#d6d9f3;color:#373644">Sistema</span>
+        </div>
+      </div>
+    </div>
+    <div class="scenario-body">
+      <div class="steps">
+        <h4>¿Cómo funciona?</h4>
+        <ul class="step-list">
+          <li class="system">🤖 El sistema intenta enviar una notificación (recordatorio, confirmación, aviso de cancelación, etc.).</li>
+          <li class="decision">🔀 El canal de destino no está disponible: el número de WhatsApp es incorrecto, la dirección de correo no existe, o hay un problema momentáneo en la red.</li>
+          <li class="system">🤖 El sistema registra el intento fallido con la hora exacta, el tipo de notificación y el motivo del fallo.</li>
+          <li class="system">🤖 Marca la notificación como "pendiente de reenvío" para que el proceso de reintento automático la tome (ver Escenario 7).</li>
+          <li class="decision">🔀 Si el fallo es por datos incorrectos (número o correo inválidos), el sistema añade una alerta visible en el perfil de la paciente.</li>
+          <li class="error">❌ La recepcionista o gerente puede ver las alertas de notificaciones fallidas desde el panel del sistema y corregir los datos de contacto.</li>
+          <li class="success">✅ Una vez corregidos los datos, el sistema intentará el reenvío en el siguiente ciclo automático.</li>
+        </ul>
+        <div class="notes">
+          <strong>Nota operativa:</strong> Las notificaciones fallidas no se pierden. El sistema las guarda y las reintenta automáticamente. Si una paciente reporta que nunca recibió un mensaje, buscar su perfil y revisar si hay una alerta de fallo de entrega para corregir su número o correo.
+        </div>
+      </div>
+      <div class="diagram-wrap">
+        <h4>Diagrama de flujo</h4>
+        <div class="mermaid">
+flowchart TD
+    A[🤖 Sistema intenta enviar notificación] --> B{¿Envío exitoso?}
+    B -- Sí --> C([✅ Notificación entregada])
+    B -- No --> D[🤖 Registra fallo con hora y motivo]
+    D --> E{¿Motivo del fallo?}
+    E -- Datos incorrectos --> F[🚨 Alerta en perfil de la paciente]
+    E -- Falla temporal de red --> G[🤖 Marca para reintento automático]
+    F --> H[Recepcionista corrige número o correo]
+    H --> G
+    G --> I([🔄 Reintento programado — ver Esc. 7])
+    style A fill:#d6d9f3,color:#373644,stroke:#a25cbf
+    style B fill:#fac186,color:#373644,stroke:#a25cbf
+    style C fill:#afd393,color:#2d5a1b,stroke:#5a9a3a
+    style D fill:#d6d9f3,color:#373644,stroke:#a25cbf
+    style E fill:#fac186,color:#373644,stroke:#a25cbf
+    style F fill:#ff3759,color:#fff,stroke:#c02040
+    style G fill:#d6d9f3,color:#373644,stroke:#a25cbf
+    style H fill:#7eb8f7,color:#1a3a5c,stroke:#3a6ab0
+    style I fill:#fac186,color:#373644,stroke:#a25cbf
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ESCENARIO 7 -->
+  <div class="scenario-card">
+    <div class="scenario-header">
+      <div class="scenario-number">7</div>
+      <div>
+        <h3>Reintento automático de notificación fallida</h3>
+        <div class="actors">
+          <span class="actor-badge" style="background:#d6d9f3;color:#373644">Sistema</span>
+        </div>
+      </div>
+    </div>
+    <div class="scenario-body">
+      <div class="steps">
+        <h4>¿Cómo funciona?</h4>
+        <ul class="step-list">
+          <li class="system">🤖 El sistema identifica las notificaciones que fallaron y están marcadas para reintento.</li>
+          <li class="system">🤖 Espera un tiempo antes del primer reintento (por ejemplo, 15 minutos después del primer fallo).</li>
+          <li class="system">🤖 Intenta enviar nuevamente el mensaje por el mismo canal.</li>
+          <li class="decision">🔀 Si falla de nuevo, amplía el tiempo de espera antes del siguiente intento (30 minutos, luego 1 hora, etc.).</li>
+          <li class="system">🤖 Repite el proceso hasta un máximo de intentos establecido (por ejemplo, 3 reintentos).</li>
+          <li class="success">✅ Si en algún intento el mensaje se entrega, el sistema lo marca como "entregado" y detiene los reintentos.</li>
+          <li class="error">❌ Si se agotan todos los intentos sin éxito, la notificación se marca como "no entregada" y se genera una alerta para que el staff contacte a la paciente por otro medio.</li>
+        </ul>
+        <div class="notes">
+          <strong>Nota operativa:</strong> Si el sistema reporta una notificación como "no entregada" después de varios intentos, la recepcionista debe contactar a la paciente directamente por teléfono para confirmar o reagendar la cita, y aprovechar para actualizar los datos de contacto en el perfil.
+        </div>
+      </div>
+      <div class="diagram-wrap">
+        <h4>Diagrama de flujo</h4>
+        <div class="mermaid">
+stateDiagram-v2
+    [*] --> Pendiente: Notificación fallida registrada
+    Pendiente --> Reintento1: Espera 15 min → 1er reintento
+    Reintento1 --> Entregada: Envío exitoso
+    Reintento1 --> Reintento2: Fallo → espera 30 min
+    Reintento2 --> Entregada: Envío exitoso
+    Reintento2 --> Reintento3: Fallo → espera 1 hora
+    Reintento3 --> Entregada: Envío exitoso
+    Reintento3 --> NoEntregada: Fallo — máximo de intentos alcanzado
+    Entregada --> [*]
+    NoEntregada --> [*]
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ESCENARIO 8 -->
+  <div class="scenario-card">
+    <div class="scenario-header">
+      <div class="scenario-number">8</div>
+      <div>
+        <h3>Preferencias de notificación de la paciente</h3>
+        <div class="actors">
+          <span class="actor-badge" style="background:#afd393;color:#2d5a1b">Paciente</span>
+          <span class="actor-badge" style="background:#7eb8f7;color:#1a3a5c">Recepcionista</span>
+          <span class="actor-badge" style="background:#d6d9f3;color:#373644">Sistema</span>
+        </div>
+      </div>
+    </div>
+    <div class="scenario-body">
+      <div class="steps">
+        <h4>¿Cómo funciona?</h4>
+        <ul class="step-list">
+          <li>La paciente le indica a la recepcionista cómo prefiere recibir sus notificaciones: solo WhatsApp, solo correo electrónico, o ambos canales.</li>
+          <li>La recepcionista abre el perfil de la paciente en el sistema y actualiza las preferencias en la sección de contacto.</li>
+          <li class="system">🤖 El sistema guarda la preferencia y la aplica a partir de ese momento para todos los mensajes futuros (recordatorios, confirmaciones, avisos, etc.).</li>
+          <li class="decision">🔀 Si la paciente no tiene un número de WhatsApp registrado, solo se le puede asignar la opción de correo electrónico.</li>
+          <li class="decision">🔀 Si la paciente no tiene correo electrónico registrado, solo se le puede asignar la opción de WhatsApp.</li>
+          <li class="success">✅ A partir de la actualización, todas las notificaciones del sistema respetan la preferencia indicada por la paciente.</li>
+          <li class="error">❌ Si la paciente no tiene ningún canal de contacto válido registrado, el sistema alertará a la recepcionista para que solicite al menos uno antes de poder agendar citas.</li>
+        </ul>
+        <div class="notes">
+          <strong>Nota operativa:</strong> Se recomienda confirmar las preferencias de notificación en cada visita, especialmente si la paciente cambia de número o de correo. Mantener los datos actualizados garantiza que los mensajes lleguen y evita el problema de notificaciones fallidas.
+        </div>
+      </div>
+      <div class="diagram-wrap">
+        <h4>Diagrama de flujo</h4>
+        <div class="mermaid">
+flowchart TD
+    A([Paciente indica su preferencia]) --> B[Recepcionista abre perfil en el sistema]
+    B --> C{¿Canales disponibles registrados?}
+    C -- Solo WhatsApp --> D[Asigna: solo WhatsApp]
+    C -- Solo correo --> E[Asigna: solo correo]
+    C -- Ambos --> F[Asigna: WhatsApp y correo]
+    C -- Ninguno --> G[❌ Alerta: registrar al menos un canal]
+    D --> H[🤖 Sistema guarda preferencia]
+    E --> H
+    F --> H
+    G --> I[Recepcionista solicita datos de contacto a la paciente]
+    I --> C
+    H --> J([✅ Notificaciones futuras respetan la preferencia])
+    style A fill:#afd393,color:#2d5a1b,stroke:#5a9a3a
+    style B fill:#7eb8f7,color:#1a3a5c,stroke:#3a6ab0
+    style C fill:#fac186,color:#373644,stroke:#a25cbf
+    style D fill:#25D366,color:#fff,stroke:#1a8a44
+    style E fill:#d6d9f3,color:#373644,stroke:#a25cbf
+    style F fill:#25D366,color:#fff,stroke:#1a8a44
+    style G fill:#ff3759,color:#fff,stroke:#c02040
+    style H fill:#d6d9f3,color:#373644,stroke:#a25cbf
+    style I fill:#7eb8f7,color:#1a3a5c,stroke:#3a6ab0
+    style J fill:#afd393,color:#2d5a1b,stroke:#5a9a3a
+        </div>
+      </div>
+    </div>
+  </div>
+
+</main>
+<div class="footer">Manual Operativo · Grupo Reina Madre · Actualizado 2026 · Para uso interno</div>
+<script>
+mermaid.initialize({
+  startOnLoad:true,
+  theme:'base',
+  themeVariables:{
+    primaryColor:'#d9d8f5',
+    primaryTextColor:'#373644',
+    primaryBorderColor:'#a25cbf',
+    lineColor:'#a25cbf',
+    secondaryColor:'#fce4ef',
+    tertiaryColor:'#f4f4fb',
+    fontFamily:'-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif',
+    fontSize:'13px'
+  }
+});
+</script>
+</body>
+</html>

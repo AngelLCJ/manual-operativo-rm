@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Contratos y Planes — Manual Operativo Reina Madre</title>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#f4f4fb;--card:#fff;--primary:#ed80a8;--secondary:#a25cbf;--accent:#d9d8f5;--border:#d6d9f3;--text:#373644;--muted:#565386;--success:#afd393;--warning:#fac186;--danger:#ff3759}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--bg);color:var(--text);line-height:1.6}
+.header{background:linear-gradient(135deg,var(--primary),var(--secondary));color:#fff;padding:2rem 2.5rem;display:flex;align-items:center;gap:1rem}
+.header-icon{font-size:2.5rem}
+.header h1{font-size:1.8rem;font-weight:700;margin-bottom:.25rem}
+.header p{opacity:.9;font-size:1rem}
+.nav{background:var(--card);border-bottom:1px solid var(--border);padding:.75rem 2.5rem;display:flex;gap:.5rem;flex-wrap:wrap;align-items:center}
+.nav a{color:var(--secondary);text-decoration:none;font-size:.85rem;padding:.3rem .7rem;border-radius:1rem;transition:all .2s}
+.nav a:hover{background:var(--accent);color:var(--text)}
+.nav .active{background:var(--primary);color:#fff}
+.main{max-width:1200px;margin:0 auto;padding:2rem 2.5rem}
+.section-intro{background:var(--card);border-radius:12px;border:1px solid var(--border);padding:1.5rem;margin-bottom:2rem}
+.section-intro h2{color:var(--secondary);font-size:1.2rem;margin-bottom:.5rem}
+.scenario-card{background:var(--card);border-radius:12px;border:1px solid var(--border);margin-bottom:2rem;overflow:hidden;box-shadow:0 1px 3px rgba(162,92,191,.08)}
+.scenario-header{background:var(--accent);padding:1.25rem 1.5rem;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;gap:1rem}
+.scenario-number{background:var(--primary);color:#fff;width:2rem;height:2rem;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.85rem;flex-shrink:0;margin-top:.1rem}
+.scenario-header h3{font-size:1.1rem;color:var(--text);font-weight:600;margin-bottom:.2rem}
+.scenario-header .actors{font-size:.8rem;color:var(--muted)}
+.actor-badge{display:inline-block;padding:.15rem .5rem;border-radius:.5rem;font-size:.75rem;font-weight:500;margin-right:.25rem}
+.scenario-body{padding:1.5rem;display:grid;grid-template-columns:1fr 1fr;gap:1.5rem}
+@media(max-width:768px){.scenario-body{grid-template-columns:1fr}}
+.steps h4{color:var(--secondary);font-size:.9rem;font-weight:600;margin-bottom:.75rem;text-transform:uppercase;letter-spacing:.05em}
+.step-list{list-style:none}
+.step-list li{padding:.5rem .75rem;margin-bottom:.4rem;border-radius:.5rem;border-left:3px solid var(--border);font-size:.9rem;background:#fafafe}
+.step-list li.system{border-color:var(--muted);background:#f0f0f8}
+.step-list li.decision{border-color:var(--warning);background:#fff9f2}
+.step-list li.success{border-color:var(--success);background:#f6fbf2}
+.step-list li.error{border-color:var(--danger);background:#fff5f6}
+.diagram-wrap{overflow:auto}
+.diagram-wrap h4{color:var(--secondary);font-size:.9rem;font-weight:600;margin-bottom:.75rem;text-transform:uppercase;letter-spacing:.05em}
+.mermaid{font-size:13px}
+.notes{margin-top:1rem;padding:.75rem 1rem;background:#fff8e1;border-radius:.5rem;border-left:3px solid var(--warning);font-size:.85rem;color:var(--text)}
+.notes strong{color:#b45309}
+.footer{text-align:center;padding:2rem;color:var(--muted);font-size:.8rem;border-top:1px solid var(--border);margin-top:2rem}
+.state-legend{display:flex;gap:.75rem;flex-wrap:wrap;margin-top:1rem}
+.state-pill{display:inline-flex;align-items:center;gap:.4rem;padding:.3rem .8rem;border-radius:1rem;font-size:.8rem;font-weight:500;border:1px solid transparent}
+</style>
+</head>
+<body>
+<div class="header">
+  <div class="header-icon">📋</div>
+  <div>
+    <h1>Contratos y Planes</h1>
+    <p>Manual Operativo — Grupo Reina Madre · Reina Madre | María Linda | Piel Sana</p>
+  </div>
+</div>
+<nav class="nav">
+  <a href="index.html">🏠 Inicio</a>
+  <a href="01-autenticacion.html">🔐 Acceso</a>
+  <a href="02-pacientes.html">👩‍⚕️ Pacientes</a>
+  <a href="03-agenda.html">📅 Agenda</a>
+  <a href="04-contratos.html" class="active">📋 Contratos</a>
+  <a href="05-staff.html">👥 Staff</a>
+  <a href="06-bot-whatsapp.html">💬 Bot WA</a>
+  <a href="07-notificaciones.html">🔔 Notificaciones</a>
+  <a href="08-configuracion.html">⚙️ Configuración</a>
+  <a href="09-procesos.html">⚡ Procesos</a>
+</nav>
+<main class="main">
+
+  <div class="section-intro">
+    <h2>¿De qué trata esta sección?</h2>
+    <p>Los <strong>contratos y planes de servicios</strong> son acuerdos formales entre Grupo Reina Madre y una paciente, en los que se definen los servicios médicos incluidos (consultas, estudios, procedimientos) y la cantidad de citas pactadas. Un contrato pasa por distintos estados a lo largo de su vida: borrador, activo, suspendido, completado o cancelado. Esta sección explica cómo gestionar cada etapa del contrato, quién puede hacer qué acción y qué registra el sistema automáticamente. La usan principalmente <strong>consejeras, recepcionistas, gerentes de sucursal y administradores corporativos</strong>.</p>
+
+    <div class="state-legend">
+      <span class="state-pill" style="background:#f0f0f8;border-color:#565386;color:#373644">Borrador</span>
+      <span class="state-pill" style="background:#f6fbf2;border-color:#afd393;color:#2d5a1b">Activo</span>
+      <span class="state-pill" style="background:#fff9f2;border-color:#fac186;color:#7a4a00">Suspendido</span>
+      <span class="state-pill" style="background:#e8f4fd;border-color:#7eb8f7;color:#1a3a5c">Completado</span>
+      <span class="state-pill" style="background:#fff5f6;border-color:#ff3759;color:#8b0000">Cancelado</span>
+    </div>
+  </div>
+
+  <!-- ESCENARIO 1 -->
+  <div class="scenario-card">
+    <div class="scenario-header">
+      <div class="scenario-number">1</div>
+      <div>
+        <h3>Crear nuevo contrato o plan de servicios</h3>
+        <div class="actors">
+          <span class="actor-badge" style="background:#c58fe8;color:#3b0764">Consejera</span>
+          <span class="actor-badge" style="background:#7eb8f7;color:#1a3a5c">Recepcionista</span>
+          <span class="actor-badge" style="background:#ed80a8;color:#5a0028">Admin Corporativo</span>
+        </div>
+      </div>
+    </div>
+    <div class="scenario-body">
+      <div class="steps">
+        <h4>¿Cómo funciona?</h4>
+        <ul class="step-list">
+          <li>La consejera o recepcionista abre la sección de Contratos en el sistema.</li>
+          <li>Busca a la paciente por nombre o número de expediente y la selecciona.</li>
+          <li>Elige el tipo de plan médico (por ejemplo: Plan Maternidad, Plan Pediatría, Plan Piel).</li>
+          <li>Selecciona los servicios incluidos en el plan: consultas, estudios y procedimientos.</li>
+          <li>Indica la cantidad de citas pactadas para cada servicio.</li>
+          <li class="decision">🔀 ¿Se requiere revisión del admin corporativo antes de activar?</li>
+          <li class="system">🤖 El sistema guarda el contrato en estado <strong>Borrador</strong> y genera un número de contrato único.</li>
+          <li class="success">✅ El contrato aparece en la lista de la paciente listo para ser revisado y activado.</li>
+        </ul>
+        <div class="notes">
+          <strong>Nota:</strong> Un contrato en Borrador no permite agendar citas todavía. Primero debe activarse (Escenario 2).
+        </div>
+      </div>
+      <div class="diagram-wrap">
+        <h4>Diagrama de flujo</h4>
+        <div class="mermaid">
+flowchart TD
+    A([Inicio]) --> B[Abrir sección Contratos]
+    B --> C[Buscar y seleccionar paciente]
+    C --> D[Elegir tipo de plan]
+    D --> E[Seleccionar servicios incluidos]
+    E --> F[Indicar cantidad de citas por servicio]
+    F --> G{¿Requiere revisión?}
+    G -- Sí --> H[Guardar como Borrador\npara revisión]
+    G -- No --> I[Guardar como Borrador\nlisto para activar]
+    H --> J([Contrato creado en Borrador])
+    I --> J
+    style A fill:#d9d8f5,color:#373644,stroke:#a25cbf
+    style B fill:#c58fe8,color:#fff,stroke:#a25cbf
+    style C fill:#c58fe8,color:#fff,stroke:#a25cbf
+    style D fill:#c58fe8,color:#fff,stroke:#a25cbf
+    style E fill:#7eb8f7,color:#1a3a5c,stroke:#3a7bd5
+    style F fill:#7eb8f7,color:#1a3a5c,stroke:#3a7bd5
+    style G fill:#fac186,color:#7a4a00,stroke:#d97706
+    style H fill:#d6d9f3,color:#373644,stroke:#a25cbf
+    style I fill:#d6d9f3,color:#373644,stroke:#a25cbf
+    style J fill:#afd393,color:#2d5a1b,stroke:#5a9a3a
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ESCENARIO 2 -->
+  <div class="scenario-card">
+    <div class="scenario-header">
+      <div class="scenario-number">2</div>
+      <div>
+        <h3>Activar un contrato (de Borrador a Vigente)</h3>
+        <div class="actors">
+          <span class="actor-badge" style="background:#c58fe8;color:#3b0764">Consejera</span>
+          <span class="actor-badge" style="background:#ed80a8;color:#5a0028">Admin Corporativo</span>
+          <span class="actor-badge" style="background:#d6d9f3;color:#373644">Sistema</span>
+        </div>
+      </div>
+    </div>
+    <div class="scenario-body">
+      <div class="steps">
+        <h4>¿Cómo funciona?</h4>
+        <ul class="step-list">
+          <li>La consejera o el admin corporativo abre el contrato en estado Borrador.</li>
+          <li>Revisa que los servicios, la paciente asignada y la consejera responsable sean correctos.</li>
+          <li class="decision">🔀 ¿El contrato tiene consejera asignada?</li>
+          <li class="error">❌ Si no tiene consejera asignada, el sistema no permite activarlo hasta que se asigne (ver Escenario 8).</li>
+          <li>Si todo está en orden, hace clic en el botón <strong>Activar contrato</strong>.</li>
+          <li class="system">🤖 El sistema cambia el estado a <strong>Activo</strong> y registra la fecha y hora de activación.</li>
+          <li class="success">✅ A partir de este momento, la recepcionista puede agendar citas del plan para la paciente.</li>
+        </ul>
+        <div class="notes">
+          <strong>Nota:</strong> La activación es un paso deliberado: nadie puede empezar a usar el plan hasta que alguien con el permiso correcto lo active de forma explícita.
+        </div>
+      </div>
+      <div class="diagram-wrap">
+        <h4>Diagrama de flujo</h4>
+        <div class="mermaid">
+flowchart TD
+    A([Contrato en Borrador]) --> B[Abrir contrato]
+    B --> C[Revisar datos: paciente, servicios, consejera]
+    C --> D{¿Tiene consejera\nasignada?}
+    D -- No --> E[Asignar consejera primero]
+    E --> C
+    D -- Sí --> F{¿Datos correctos?}
+    F -- No --> G[Corregir datos]
+    G --> C
+    F -- Sí --> H[Clic: Activar contrato]
+    H --> I[🤖 Sistema registra\nfecha de activación]
+    I --> J([Contrato Activo\nCitas disponibles])
+    style A fill:#d6d9f3,color:#373644,stroke:#a25cbf
+    style B fill:#c58fe8,color:#fff,stroke:#a25cbf
+    style C fill:#c58fe8,color:#fff,stroke:#a25cbf
+    style D fill:#fac186,color:#7a4a00,stroke:#d97706
+    style E fill:#ff3759,color:#fff,stroke:#8b0000
+    style F fill:#fac186,color:#7a4a00,stroke:#d97706
+    style G fill:#fac186,color:#7a4a00,stroke:#d97706
+    style H fill:#ed80a8,color:#fff,stroke:#a25cbf
+    style I fill:#d6d9f3,color:#373644,stroke:#a25cbf
+    style J fill:#afd393,color:#2d5a1b,stroke:#5a9a3a
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ESCENARIO 3 -->
+  <div class="scenario-card">
+    <div class="scenario-header">
+      <div class="scenario-number">3</div>
+      <div>
+        <h3>Suspender un contrato temporalmente</h3>
+        <div class="actors">
+          <span class="actor-badge" style="background:#c58fe8;color:#3b0764">Consejera</span>
+          <span class="actor-badge" style="background:#fac186;color:#7a4a00">Gerente de Sucursal</span>
+          <span class="actor-badge" style="background:#d6d9f3;color:#373644">Sistema</span>
+        </div>
+      </div>
+    </div>
+    <div class="scenario-body">
+      <div class="steps">
+        <h4>¿Cómo funciona?</h4>
+        <ul class="step-list">
+          <li>La consejera detecta que la paciente tiene un impedimento temporal (viaje, enfermedad, situación personal) y necesita pausar su plan.</li>
+          <li>Abre el contrato activo de la paciente y selecciona la opción <strong>Suspender</strong>.</li>
+          <li>Escribe el motivo de la suspensión (queda guardado en el historial).</li>
+          <li class="decision">🔀 ¿La suspensión requiere autorización del gerente de sucursal?</li>
+          <li>Si aplica, el gerente revisa y confirma la suspensión.</li>
+          <li class="system">🤖 El sistema cambia el estado a <strong>Suspendido</strong> y bloquea el uso de las citas restantes del plan.</li>
+          <li class="error">❌ Mientras el contrato esté suspendido, no se pueden agendar nuevas citas de ese plan.</li>
+          <li class="success">✅ La paciente conserva sus citas pendientes; solo quedan en pausa hasta que se reactive.</li>
+        </ul>
+        <div class="notes">
+          <strong>Nota:</strong> Suspender un contrato NO cancela las citas ya agendadas. Esas deben manejarse por separado desde la agenda.
+        </div>
+      </div>
+      <div class="diagram-wrap">
+        <h4>Diagrama de flujo</h4>
+        <div class="mermaid">
+sequenceDiagram
+    participant C as Consejera
+    participant G as Gerente
+    participant S as Sistema
+    C->>S: Abrir contrato activo de paciente
+    C->>C: Registra motivo de suspensión
+    C->>G: Solicita autorización (si aplica)
+    G-->>C: Autoriza suspensión
+    C->>S: Confirmar: Suspender contrato
+    S-->>S: Cambia estado a Suspendido
+    S-->>C: Notificación: contrato suspendido
+    Note over S: Citas restantes quedan bloqueadas
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ESCENARIO 4 -->
+  <div class="scenario-card">
+    <div class="scenario-header">
+      <div class="scenario-number">4</div>
+      <div>
+        <h3>Reactivar un contrato suspendido</h3>
+        <div class="actors">
+          <span class="actor-badge" style="background:#c58fe8;color:#3b0764">Consejera</span>
+          <span class="actor-badge" style="background:#fac186;color:#7a4a00">Gerente de Sucursal</span>
+        </div>
+      </div>
+    </div>
+    <div class="scenario-body">
+      <div class="steps">
+        <h4>¿Cómo funciona?</h4>
+        <ul class="step-list">
+          <li>La paciente avisa que ya puede retomar su plan médico.</li>
+          <li>La consejera localiza el contrato en estado Suspendido desde la pantalla de contratos de la paciente.</li>
+          <li>Selecciona la opción <strong>Reactivar</strong>.</li>
+          <li class="decision">🔀 ¿La reactivación requiere autorización del gerente de sucursal?</li>
+          <li>Si aplica, el gerente confirma la reactivación.</li>
+          <li class="system">🤖 El sistema devuelve el contrato al estado <strong>Activo</strong> y vuelve a habilitar las citas restantes del plan.</li>
+          <li class="success">✅ La recepcionista ya puede agendar nuevas citas del plan para la paciente.</li>
+        </ul>
+        <div class="notes">
+          <strong>Nota:</strong> La reactivación no altera el conteo de citas. Si la paciente usó 3 de 8 antes de suspender, al reactivar siguen disponibles 5.
+        </div>
+      </div>
+      <div class="diagram-wrap">
+        <h4>Diagrama de flujo</h4>
+        <div class="mermaid">
+flowchart TD
+    A([Contrato Suspendido]) --> B[Paciente avisa que retoma el plan]
+    B --> C[Consejera localiza el contrato]
+    C --> D[Selecciona: Reactivar]
+    D --> E{¿Requiere autorización\ndel gerente?}
+    E -- Sí --> F[Gerente revisa y autoriza]
+    F --> G[Confirmar reactivación]
+    E -- No --> G
+    G --> H[🤖 Sistema cambia estado a Activo]
+    H --> I[🤖 Citas restantes vuelven a estar disponibles]
+    I --> J([Contrato Activo nuevamente])
+    style A fill:#fac186,color:#7a4a00,stroke:#d97706
+    style B fill:#afd393,color:#2d5a1b,stroke:#5a9a3a
+    style C fill:#c58fe8,color:#fff,stroke:#a25cbf
+    style D fill:#c58fe8,color:#fff,stroke:#a25cbf
+    style E fill:#fac186,color:#7a4a00,stroke:#d97706
+    style F fill:#fac186,color:#7a4a00,stroke:#d97706
+    style G fill:#c58fe8,color:#fff,stroke:#a25cbf
+    style H fill:#d6d9f3,color:#373644,stroke:#a25cbf
+    style I fill:#d6d9f3,color:#373644,stroke:#a25cbf
+    style J fill:#afd393,color:#2d5a1b,stroke:#5a9a3a
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ESCENARIO 5 -->
+  <div class="scenario-card">
+    <div class="scenario-header">
+      <div class="scenario-number">5</div>
+      <div>
+        <h3>Cancelar un contrato</h3>
+        <div class="actors">
+          <span class="actor-badge" style="background:#fac186;color:#7a4a00">Gerente de Sucursal</span>
+          <span class="actor-badge" style="background:#ed80a8;color:#5a0028">Admin Corporativo</span>
+          <span class="actor-badge" style="background:#d6d9f3;color:#373644">Sistema</span>
+        </div>
+      </div>
+    </div>
+    <div class="scenario-body">
+      <div class="steps">
+        <h4>¿Cómo funciona?</h4>
+        <ul class="step-list">
+          <li>El gerente de sucursal o el admin corporativo identifica que el contrato debe cerrarse de forma definitiva (por ejemplo: solicitud expresa de la paciente, incumplimiento, o error en la creación).</li>
+          <li>Abre el contrato y selecciona la opción <strong>Cancelar contrato</strong>.</li>
+          <li>Registra el motivo detallado de la cancelación.</li>
+          <li class="decision">🔀 ¿La cancelación requiere confirmación del admin corporativo?</li>
+          <li>El admin corporativo revisa el motivo y da su aprobación.</li>
+          <li class="system">🤖 El sistema cambia el estado a <strong>Cancelado</strong>, bloquea todas las citas restantes del plan y registra la acción en el historial.</li>
+          <li class="error">❌ Esta acción es irreversible: un contrato cancelado no puede volver a estado activo.</li>
+          <li class="success">✅ El historial queda completo: quién canceló, cuándo y por qué.</li>
+        </ul>
+        <div class="notes">
+          <strong>Advertencia:</strong> Antes de cancelar, verificar si hay citas ya agendadas de este plan. Esas citas deben cancelarse o reasignarse por separado desde la agenda.
+        </div>
+      </div>
+      <div class="diagram-wrap">
+        <h4>Diagrama de flujo</h4>
+        <div class="mermaid">
+sequenceDiagram
+    participant G as Gerente
+    participant A as Admin Corp.
+    participant S as Sistema
+    G->>S: Abrir contrato activo o suspendido
+    G->>G: Registra motivo de cancelación
+    G->>A: Solicita aprobación de cancelación
+    A->>A: Revisa motivo
+    A-->>G: Aprueba cancelación
+    G->>S: Confirmar: Cancelar contrato
+    S-->>S: Estado → Cancelado
+    S-->>S: Bloquea citas restantes del plan
+    S-->>S: Registra en historial (quién, cuándo, por qué)
+    S-->>G: Notificación: contrato cancelado
+    Note over S: Acción irreversible
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ESCENARIO 6 -->
+  <div class="scenario-card">
+    <div class="scenario-header">
+      <div class="scenario-number">6</div>
+      <div>
+        <h3>Contrato completado automáticamente por el sistema</h3>
+        <div class="actors">
+          <span class="actor-badge" style="background:#d6d9f3;color:#373644">Sistema</span>
+        </div>
+      </div>
+    </div>
+    <div class="scenario-body">
+      <div class="steps">
+        <h4>¿Cómo funciona?</h4>
+        <ul class="step-list">
+          <li>La paciente atiende su última cita incluida en el plan médico.</li>
+          <li class="system">🤖 El sistema detecta que todas las citas del plan han sido atendidas y marcadas como completadas.</li>
+          <li class="system">🤖 El sistema cambia automáticamente el estado del contrato a <strong>Completado</strong>.</li>
+          <li class="system">🤖 Se registra la fecha y hora de cierre en el historial del contrato.</li>
+          <li>No se requiere ninguna acción del personal: el cierre es completamente automático.</li>
+          <li class="success">✅ El contrato completado queda visible en el historial de la paciente como referencia.</li>
+          <li class="success">✅ Si la paciente desea continuar recibiendo servicios, se puede crear un nuevo contrato desde cero.</li>
+        </ul>
+        <div class="notes">
+          <strong>Nota:</strong> Un contrato completado es diferente a uno cancelado: completado significa que la paciente recibió todos los servicios pactados exitosamente.
+        </div>
+      </div>
+      <div class="diagram-wrap">
+        <h4>Diagrama de flujo</h4>
+        <div class="mermaid">
+stateDiagram-v2
+    [*] --> Borrador: Creación del contrato
+    Borrador --> Activo: Activación manual
+    Activo --> Suspendido: Suspensión (con motivo)
+    Suspendido --> Activo: Reactivación
+    Activo --> Completado: Todas las citas atendidas\n(automático)
+    Activo --> Cancelado: Cancelación definitiva
+    Suspendido --> Cancelado: Cancelación definitiva
+    Completado --> [*]
+    Cancelado --> [*]
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ESCENARIO 7 -->
+  <div class="scenario-card">
+    <div class="scenario-header">
+      <div class="scenario-number">7</div>
+      <div>
+        <h3>Ver detalle de un contrato</h3>
+        <div class="actors">
+          <span class="actor-badge" style="background:#c58fe8;color:#3b0764">Consejera</span>
+          <span class="actor-badge" style="background:#c58fe8;color:#3b0764">Médica</span>
+          <span class="actor-badge" style="background:#7eb8f7;color:#1a3a5c">Recepcionista</span>
+          <span class="actor-badge" style="background:#fac186;color:#7a4a00">Gerente</span>
+        </div>
+      </div>
+    </div>
+    <div class="scenario-body">
+      <div class="steps">
+        <h4>¿Cómo funciona?</h4>
+        <ul class="step-list">
+          <li>Cualquier persona con acceso a contratos puede entrar al expediente de la paciente y abrir la pestaña de Contratos.</li>
+          <li>Selecciona el contrato que desea revisar (puede haber más de uno si la paciente ha tenido varios planes).</li>
+          <li class="system">🤖 El sistema muestra la pantalla de detalle con toda la información del contrato.</li>
+          <li>En la pantalla de detalle se puede ver:
+            <ul style="margin-top:.3rem;margin-left:1rem;font-size:.85rem">
+              <li>Estado actual del contrato (activo, suspendido, completado, etc.)</li>
+              <li>Lista de servicios incluidos y cuántas citas tiene cada uno</li>
+              <li>Cuántas citas se han usado y cuántas restan</li>
+              <li>Consejera asignada y fecha de creación</li>
+              <li>Historial de cambios de estado</li>
+            </ul>
+          </li>
+          <li class="success">✅ Esta vista es de solo lectura para quienes no tienen permisos de edición (como médicas).</li>
+        </ul>
+      </div>
+      <div class="diagram-wrap">
+        <h4>Diagrama de flujo</h4>
+        <div class="mermaid">
+flowchart TD
+    A([Usuario con acceso]) --> B[Abrir expediente de paciente]
+    B --> C[Ir a pestaña: Contratos]
+    C --> D[Seleccionar contrato]
+    D --> E[🤖 Sistema muestra detalle]
+    E --> F{¿Qué quiere ver?}
+    F --> G[Estado actual]
+    F --> H[Servicios incluidos\ny citas usadas]
+    F --> I[Consejera asignada\ny fechas]
+    F --> J[Historial de\ncambios]
+    G --> K([Vista completada])
+    H --> K
+    I --> K
+    J --> K
+    style A fill:#d9d8f5,color:#373644,stroke:#a25cbf
+    style B fill:#7eb8f7,color:#1a3a5c,stroke:#3a7bd5
+    style C fill:#7eb8f7,color:#1a3a5c,stroke:#3a7bd5
+    style D fill:#7eb8f7,color:#1a3a5c,stroke:#3a7bd5
+    style E fill:#d6d9f3,color:#373644,stroke:#a25cbf
+    style F fill:#fac186,color:#7a4a00,stroke:#d97706
+    style G fill:#d9d8f5,color:#373644,stroke:#a25cbf
+    style H fill:#d9d8f5,color:#373644,stroke:#a25cbf
+    style I fill:#d9d8f5,color:#373644,stroke:#a25cbf
+    style J fill:#d9d8f5,color:#373644,stroke:#a25cbf
+    style K fill:#afd393,color:#2d5a1b,stroke:#5a9a3a
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ESCENARIO 8 -->
+  <div class="scenario-card">
+    <div class="scenario-header">
+      <div class="scenario-number">8</div>
+      <div>
+        <h3>Asignar consejera a un contrato</h3>
+        <div class="actors">
+          <span class="actor-badge" style="background:#fac186;color:#7a4a00">Gerente de Sucursal</span>
+          <span class="actor-badge" style="background:#c58fe8;color:#3b0764">Consejera</span>
+        </div>
+      </div>
+    </div>
+    <div class="scenario-body">
+      <div class="steps">
+        <h4>¿Cómo funciona?</h4>
+        <ul class="step-list">
+          <li>El gerente de sucursal abre el contrato en estado Borrador.</li>
+          <li>Localiza el campo <strong>Consejera asignada</strong> dentro del detalle del contrato.</li>
+          <li>Abre la lista de consejeras disponibles en esa sucursal.</li>
+          <li class="decision">🔀 ¿Hay más de una consejera disponible?</li>
+          <li>Selecciona a la consejera más adecuada según carga de trabajo y especialidad del plan.</li>
+          <li class="system">🤖 El sistema registra la asignación y notifica a la consejera seleccionada.</li>
+          <li class="success">✅ La consejera asignada aparece en el detalle del contrato y en su propia lista de contratos activos.</li>
+          <li class="success">✅ Ahora el contrato puede ser activado (Escenario 2).</li>
+        </ul>
+        <div class="notes">
+          <strong>Regla clave:</strong> Un contrato no puede activarse sin consejera asignada. La consejera es la responsable de acompañar a la paciente durante todo el plan.
+        </div>
+      </div>
+      <div class="diagram-wrap">
+        <h4>Diagrama de flujo</h4>
+        <div class="mermaid">
+sequenceDiagram
+    participant G as Gerente
+    participant S as Sistema
+    participant C as Consejera
+    G->>S: Abrir contrato en Borrador
+    G->>S: Consultar consejeras disponibles
+    S-->>G: Lista de consejeras de la sucursal
+    G->>G: Selecciona la consejera adecuada
+    G->>S: Guardar: asignar consejera X al contrato
+    S-->>S: Registra la asignación
+    S-->>C: Notificación: nuevo contrato asignado
+    S-->>G: Confirmación de asignación exitosa
+    Note over G,S: El contrato ya puede activarse
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ESCENARIO 9 -->
+  <div class="scenario-card">
+    <div class="scenario-header">
+      <div class="scenario-number">9</div>
+      <div>
+        <h3>Ver citas incluidas en un contrato</h3>
+        <div class="actors">
+          <span class="actor-badge" style="background:#7eb8f7;color:#1a3a5c">Recepcionista</span>
+          <span class="actor-badge" style="background:#c58fe8;color:#3b0764">Consejera</span>
+          <span class="actor-badge" style="background:#c58fe8;color:#3b0764">Médica</span>
+        </div>
+      </div>
+    </div>
+    <div class="scenario-body">
+      <div class="steps">
+        <h4>¿Cómo funciona?</h4>
+        <ul class="step-list">
+          <li>La recepcionista o consejera abre el detalle del contrato activo de la paciente.</li>
+          <li>Navega a la sección <strong>Citas del plan</strong> dentro del contrato.</li>
+          <li class="system">🤖 El sistema muestra la lista completa de servicios del plan con su estado individual.</li>
+          <li>Cada servicio puede estar en uno de estos estados:
+            <ul style="margin-top:.3rem;margin-left:1rem;font-size:.85rem">
+              <li><strong>Pendiente:</strong> el servicio no ha sido agendado todavía</li>
+              <li><strong>Agendado:</strong> tiene fecha y hora asignadas</li>
+              <li><strong>Completado:</strong> la cita ya fue atendida</li>
+              <li><strong>Cancelado:</strong> la cita se canceló (la paciente no asistió o se reprogramó)</li>
+            </ul>
+          </li>
+          <li class="decision">🔀 ¿Hay servicios pendientes que se deban agendar?</li>
+          <li>La recepcionista puede agendar las citas pendientes directamente desde esta vista.</li>
+          <li class="success">✅ El seguimiento del plan queda claro para todos: médica, consejera y recepcionista ven el mismo estado.</li>
+        </ul>
+      </div>
+      <div class="diagram-wrap">
+        <h4>Diagrama de flujo</h4>
+        <div class="mermaid">
+flowchart TD
+    A([Abrir contrato activo]) --> B[Ir a: Citas del plan]
+    B --> C[🤖 Sistema lista todos\nlos servicios del plan]
+    C --> D{¿Estado de cada servicio?}
+    D --> E[Pendiente\nno agendado]
+    D --> F[Agendado\ntiene fecha]
+    D --> G[Completado\natendido]
+    D --> H[Cancelado]
+    E --> I{¿Agendar ahora?}
+    I -- Sí --> J[Recepcionista\nagenda la cita]
+    I -- No --> K([Vista consultada])
+    F --> K
+    G --> K
+    H --> K
+    J --> K
+    style A fill:#d9d8f5,color:#373644,stroke:#a25cbf
+    style B fill:#7eb8f7,color:#1a3a5c,stroke:#3a7bd5
+    style C fill:#d6d9f3,color:#373644,stroke:#a25cbf
+    style D fill:#fac186,color:#7a4a00,stroke:#d97706
+    style E fill:#d6d9f3,color:#373644,stroke:#a25cbf
+    style F fill:#7eb8f7,color:#1a3a5c,stroke:#3a7bd5
+    style G fill:#afd393,color:#2d5a1b,stroke:#5a9a3a
+    style H fill:#ff3759,color:#fff,stroke:#8b0000
+    style I fill:#fac186,color:#7a4a00,stroke:#d97706
+    style J fill:#7eb8f7,color:#1a3a5c,stroke:#3a7bd5
+    style K fill:#afd393,color:#2d5a1b,stroke:#5a9a3a
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ESCENARIO 10 -->
+  <div class="scenario-card">
+    <div class="scenario-header">
+      <div class="scenario-number">10</div>
+      <div>
+        <h3>Permisos por rol para contratos</h3>
+        <div class="actors">
+          <span class="actor-badge" style="background:#ed80a8;color:#5a0028">Admin Corporativo</span>
+          <span class="actor-badge" style="background:#d6d9f3;color:#373644">Sistema</span>
+        </div>
+      </div>
+    </div>
+    <div class="scenario-body">
+      <div class="steps">
+        <h4>¿Quién puede hacer qué?</h4>
+        <ul class="step-list">
+          <li><strong>Médica:</strong> solo puede <em>ver</em> el detalle del contrato. No puede crear, editar ni cambiar estados.</li>
+          <li><strong>Recepcionista:</strong> puede ver contratos y agendar citas de un plan activo. No puede crear ni cambiar el estado del contrato.</li>
+          <li><strong>Consejera:</strong> puede crear contratos en Borrador y activarlos. No puede cancelar.</li>
+          <li><strong>Gerente de Sucursal:</strong> puede crear, activar, suspender y reactivar contratos de su sucursal. Puede asignar consejeras.</li>
+          <li><strong>Admin Corporativo:</strong> tiene acceso completo: puede crear, activar, suspender, reactivar y cancelar contratos de cualquier sucursal.</li>
+          <li class="system">🤖 El sistema aplica estos permisos automáticamente: si un rol no tiene acceso a una acción, el botón correspondiente no aparece en pantalla.</li>
+          <li class="decision">🔀 Si alguien intenta realizar una acción sin el permiso necesario...</li>
+          <li class="error">❌ El sistema muestra un mensaje de "No tienes permiso para realizar esta acción" y no ejecuta el cambio.</li>
+        </ul>
+      </div>
+      <div class="diagram-wrap">
+        <h4>Matriz de permisos</h4>
+        <div class="mermaid">
+flowchart TD
+    A[Acción sobre contrato] --> B{¿Qué rol\ntiene el usuario?}
+    B -- Médica --> C[Solo lectura\nVer detalle]
+    B -- Recepcionista --> D[Ver + agendar\ncitas del plan]
+    B -- Consejera --> E[Crear + activar\nen su sucursal]
+    B -- Gerente --> F[Crear, activar,\nsuspender, reactivar\nasignar consejera]
+    B -- Admin Corp. --> G[Acceso total:\ntodos los estados\ntodas las sucursales]
+    C --> H([🤖 Sistema muestra\nsolo lo permitido])
+    D --> H
+    E --> H
+    F --> H
+    G --> H
+    style A fill:#d9d8f5,color:#373644,stroke:#a25cbf
+    style B fill:#fac186,color:#7a4a00,stroke:#d97706
+    style C fill:#c58fe8,color:#fff,stroke:#a25cbf
+    style D fill:#7eb8f7,color:#1a3a5c,stroke:#3a7bd5
+    style E fill:#c58fe8,color:#fff,stroke:#a25cbf
+    style F fill:#fac186,color:#7a4a00,stroke:#d97706
+    style G fill:#ed80a8,color:#fff,stroke:#a25cbf
+    style H fill:#d6d9f3,color:#373644,stroke:#a25cbf
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ESCENARIO 11 -->
+  <div class="scenario-card">
+    <div class="scenario-header">
+      <div class="scenario-number">11</div>
+      <div>
+        <h3>Historial de cambios del contrato</h3>
+        <div class="actors">
+          <span class="actor-badge" style="background:#c58fe8;color:#3b0764">Consejera</span>
+          <span class="actor-badge" style="background:#fac186;color:#7a4a00">Gerente</span>
+          <span class="actor-badge" style="background:#ed80a8;color:#5a0028">Admin Corporativo</span>
+        </div>
+      </div>
+    </div>
+    <div class="scenario-body">
+      <div class="steps">
+        <h4>¿Cómo funciona?</h4>
+        <ul class="step-list">
+          <li>Cualquier persona con acceso al contrato puede consultar su historial de cambios.</li>
+          <li>Abre el detalle del contrato y navega a la sección <strong>Historial</strong>.</li>
+          <li class="system">🤖 El sistema muestra en orden cronológico todas las acciones realizadas sobre el contrato.</li>
+          <li>Cada entrada del historial incluye:
+            <ul style="margin-top:.3rem;margin-left:1rem;font-size:.85rem">
+              <li><strong>Qué cambió:</strong> estado anterior → estado nuevo (ej. Borrador → Activo)</li>
+              <li><strong>Quién lo hizo:</strong> nombre de la persona que realizó el cambio</li>
+              <li><strong>Cuándo:</strong> fecha y hora exactas del cambio</li>
+              <li><strong>Motivo (si aplica):</strong> texto registrado al suspender o cancelar</li>
+            </ul>
+          </li>
+          <li class="system">🤖 El sistema registra automáticamente cada cambio, sin que el usuario tenga que hacer nada extra.</li>
+          <li class="success">✅ El historial garantiza trazabilidad total: en caso de auditoría o disputa, siempre hay un registro claro de qué pasó y quién intervino.</li>
+          <li>Este historial es de solo lectura: nadie puede editarlo ni eliminarlo.</li>
+        </ul>
+        <div class="notes">
+          <strong>Importante:</strong> El historial incluye también los cambios de consejera asignada. Si en algún momento hubo una reasignación, queda documentada.
+        </div>
+      </div>
+      <div class="diagram-wrap">
+        <h4>Ejemplo de historial</h4>
+        <div class="mermaid">
+sequenceDiagram
+    participant U as Usuario
+    participant S as Sistema
+    participant H as Historial
+    Note over H: Registro inmutable de eventos
+    U->>S: Crear contrato
+    S-->>H: ✍️ Creado | Consejera López | 10 jun 10:30
+    U->>S: Asignar consejera
+    S-->>H: 👤 Consejera asignada: Dra. García | 10 jun 10:45
+    U->>S: Activar contrato
+    S-->>H: ▶️ Borrador→Activo | Gerente Soto | 11 jun 09:00
+    U->>S: Suspender contrato
+    S-->>H: ⏸️ Activo→Suspendido | Motivo: viaje | 15 jun 14:20
+    U->>S: Reactivar contrato
+    S-->>H: ▶️ Suspendido→Activo | Consejera López | 22 jun 09:05
+    S-->>S: Última cita completada (auto)
+    S-->>H: ✅ Activo→Completado | Sistema | 30 jun 16:00
+    U->>S: Ver historial
+    S-->>U: Muestra todos los eventos en orden
+        </div>
+      </div>
+    </div>
+  </div>
+
+</main>
+<div class="footer">Manual Operativo · Grupo Reina Madre · Actualizado 2026 · Para uso interno</div>
+<script>
+mermaid.initialize({
+  startOnLoad:true,
+  theme:'base',
+  themeVariables:{
+    primaryColor:'#d9d8f5',
+    primaryTextColor:'#373644',
+    primaryBorderColor:'#a25cbf',
+    lineColor:'#a25cbf',
+    secondaryColor:'#fce4ef',
+    tertiaryColor:'#f4f4fb',
+    fontFamily:'-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif',
+    fontSize:'13px'
+  }
+});
+</script>
+</body>
+</html>

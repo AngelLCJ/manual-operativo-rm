@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Autenticación y Acceso — Manual Operativo Reina Madre</title>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#f4f4fb;--card:#fff;--primary:#ed80a8;--secondary:#a25cbf;--accent:#d9d8f5;--border:#d6d9f3;--text:#373644;--muted:#565386;--success:#afd393;--warning:#fac186;--danger:#ff3759}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--bg);color:var(--text);line-height:1.6}
+.header{background:linear-gradient(135deg,var(--primary),var(--secondary));color:#fff;padding:2rem 2.5rem;display:flex;align-items:center;gap:1rem}
+.header-icon{font-size:2.5rem}
+.header h1{font-size:1.8rem;font-weight:700;margin-bottom:.25rem}
+.header p{opacity:.9;font-size:1rem}
+.nav{background:var(--card);border-bottom:1px solid var(--border);padding:.75rem 2.5rem;display:flex;gap:.5rem;flex-wrap:wrap;align-items:center}
+.nav a{color:var(--secondary);text-decoration:none;font-size:.85rem;padding:.3rem .7rem;border-radius:1rem;transition:all .2s}
+.nav a:hover{background:var(--accent);color:var(--text)}
+.nav .active{background:var(--primary);color:#fff}
+.main{max-width:1200px;margin:0 auto;padding:2rem 2.5rem}
+.section-intro{background:var(--card);border-radius:12px;border:1px solid var(--border);padding:1.5rem;margin-bottom:2rem}
+.section-intro h2{color:var(--secondary);font-size:1.2rem;margin-bottom:.5rem}
+.scenario-card{background:var(--card);border-radius:12px;border:1px solid var(--border);margin-bottom:2rem;overflow:hidden;box-shadow:0 1px 3px rgba(162,92,191,.08)}
+.scenario-header{background:var(--accent);padding:1.25rem 1.5rem;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;gap:1rem}
+.scenario-number{background:var(--primary);color:#fff;width:2rem;height:2rem;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.85rem;flex-shrink:0;margin-top:.1rem}
+.scenario-header h3{font-size:1.1rem;color:var(--text);font-weight:600;margin-bottom:.2rem}
+.scenario-header .actors{font-size:.8rem;color:var(--muted)}
+.actor-badge{display:inline-block;padding:.15rem .5rem;border-radius:.5rem;font-size:.75rem;font-weight:500;margin-right:.25rem}
+.scenario-body{padding:1.5rem;display:grid;grid-template-columns:1fr 1fr;gap:1.5rem}
+@media(max-width:768px){.scenario-body{grid-template-columns:1fr}}
+.steps h4{color:var(--secondary);font-size:.9rem;font-weight:600;margin-bottom:.75rem;text-transform:uppercase;letter-spacing:.05em}
+.step-list{list-style:none}
+.step-list li{padding:.5rem .75rem;margin-bottom:.4rem;border-radius:.5rem;border-left:3px solid var(--border);font-size:.9rem;background:#fafafe}
+.step-list li.system{border-color:var(--muted);background:#f0f0f8}
+.step-list li.decision{border-color:var(--warning);background:#fff9f2}
+.step-list li.success{border-color:var(--success);background:#f6fbf2}
+.step-list li.error{border-color:var(--danger);background:#fff5f6}
+.diagram-wrap{overflow:auto}
+.diagram-wrap h4{color:var(--secondary);font-size:.9rem;font-weight:600;margin-bottom:.75rem;text-transform:uppercase;letter-spacing:.05em}
+.mermaid{font-size:13px}
+.notes{margin-top:1rem;padding:.75rem 1rem;background:#fff8e1;border-radius:.5rem;border-left:3px solid var(--warning);font-size:.85rem;color:var(--text)}
+.notes strong{color:#b45309}
+.footer{text-align:center;padding:2rem;color:var(--muted);font-size:.8rem;border-top:1px solid var(--border);margin-top:2rem}
+</style>
+</head>
+<body>
+<div class="header">
+  <div class="header-icon">🔐</div>
+  <div>
+    <h1>Autenticación y Acceso</h1>
+    <p>Manual Operativo — Grupo Reina Madre · Reina Madre | María Linda | Piel Sana</p>
+  </div>
+</div>
+<nav class="nav">
+  <a href="index.html">🏠 Inicio</a>
+  <a href="01-autenticacion.html" class="active">🔐 Acceso</a>
+  <a href="02-pacientes.html">👩‍⚕️ Pacientes</a>
+  <a href="03-agenda.html">📅 Agenda</a>
+  <a href="04-contratos.html">📋 Contratos</a>
+  <a href="05-staff.html">👥 Staff</a>
+  <a href="06-bot-whatsapp.html">💬 Bot WA</a>
+  <a href="07-notificaciones.html">🔔 Notificaciones</a>
+  <a href="08-configuracion.html">⚙️ Configuración</a>
+  <a href="09-procesos.html">⚡ Procesos</a>
+</nav>
+<main class="main">
+
+  <div class="section-intro">
+    <h2>¿De qué trata esta sección?</h2>
+    <p>Esta sección describe cómo el personal y las pacientes entran y salen de la plataforma de Grupo Reina Madre, y qué ocurre cuando hay un problema de acceso. Aplica a todos los roles: recepcionistas, médicas, gerentes de sucursal, administradores corporativos y pacientes. Conocer estos flujos ayuda a resolver dudas de acceso rápidamente y a mantener la seguridad de la información de las pacientes.</p>
+  </div>
+
+  <!-- ESCENARIO 1 -->
+  <div class="scenario-card">
+    <div class="scenario-header">
+      <div class="scenario-number">1</div>
+      <div>
+        <h3>Inicio de sesión — personal de clínica</h3>
+        <div class="actors">
+          <span class="actor-badge" style="background:#7eb8f7;color:#1a3a5c">Recepcionista</span>
+          <span class="actor-badge" style="background:#c58fe8;color:#3a1a5c">Médica</span>
+          <span class="actor-badge" style="background:#fac186;color:#5c3a1a">Gerente de Sucursal</span>
+          <span class="actor-badge" style="background:#ed80a8;color:#5c1a3a">Admin Corporativo</span>
+        </div>
+      </div>
+    </div>
+    <div class="scenario-body">
+      <div class="steps">
+        <h4>¿Cómo funciona?</h4>
+        <ul class="step-list">
+          <li>El empleado abre la aplicación en su navegador o dispositivo.</li>
+          <li>Escribe su correo electrónico institucional y su contraseña.</li>
+          <li>Hace clic en el botón <strong>Entrar</strong>.</li>
+          <li class="system">🤖 El sistema verifica que el correo y la contraseña correspondan a una cuenta activa.</li>
+          <li class="decision">🔀 ¿Las credenciales son correctas y la cuenta está activa?</li>
+          <li class="success">✅ El sistema abre la pantalla principal con las opciones y sucursales que corresponden al rol del empleado.</li>
+          <li class="error">❌ Si los datos son incorrectos, aparece un aviso de error y se puede intentar de nuevo (ver Escenario 9).</li>
+        </ul>
+        <div class="notes"><strong>Nota:</strong> Cada empleado solo ve las secciones y sucursales para las que tiene permiso. Un cambio de rol o sucursal lo gestiona el Admin Corporativo.</div>
+      </div>
+      <div class="diagram-wrap">
+        <h4>Diagrama de flujo</h4>
+        <div class="mermaid">
+flowchart TD
+    A([Empleado abre la app]) --> B[Escribe correo y contraseña]
+    B --> C[Clic en Entrar]
+    C --> D{¿Credenciales\ncorrectas?}
+    D -- Sí --> E{¿Cuenta\nactiva?}
+    D -- No --> F[❌ Mensaje de error]
+    F --> B
+    E -- Sí --> G([✅ Pantalla principal\nsegun su rol])
+    E -- No --> H[❌ Cuenta desactivada\nContactar Admin]
+    style A fill:#7eb8f7,color:#1a3a5c,stroke:#1a3a5c
+    style B fill:#7eb8f7,color:#1a3a5c,stroke:#1a3a5c
+    style C fill:#7eb8f7,color:#1a3a5c,stroke:#1a3a5c
+    style D fill:#d9d8f5,color:#373644,stroke:#a25cbf
+    style E fill:#d9d8f5,color:#373644,stroke:#a25cbf
+    style F fill:#ff3759,color:#fff,stroke:#cc0033
+    style G fill:#afd393,color:#2d5a1b,stroke:#2d5a1b
+    style H fill:#ff3759,color:#fff,stroke:#cc0033
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ESCENARIO 2 -->
+  <div class="scenario-card">
+    <div class="scenario-header">
+      <div class="scenario-number">2</div>
+      <div>
+        <h3>Inicio de sesión — paciente con código SMS</h3>
+        <div class="actors">
+          <span class="actor-badge" style="background:#afd393;color:#2d5a1b">Paciente</span>
+          <span class="actor-badge" style="background:#d6d9f3;color:#373644">Sistema</span>
+        </div>
+      </div>
+    </div>
+    <div class="scenario-body">
+      <div class="steps">
+        <h4>¿Cómo funciona?</h4>
+        <ul class="step-list">
+          <li>La paciente abre el portal de pacientes o inicia una conversación con el Bot de WhatsApp.</li>
+          <li>Escribe su número de celular registrado.</li>
+          <li class="system">🤖 El sistema envía un código de 6 dígitos por SMS al celular de la paciente.</li>
+          <li>La paciente escribe el código en la pantalla antes de que expire (generalmente 5 minutos).</li>
+          <li class="decision">🔀 ¿El código ingresado es correcto y está vigente?</li>
+          <li class="success">✅ La paciente accede a su perfil, historial de citas y contratos.</li>
+          <li class="error">❌ Si el código venció o es incorrecto, la paciente puede solicitar uno nuevo.</li>
+        </ul>
+        <div class="notes"><strong>Nota:</strong> La paciente no necesita recordar contraseña. Cada vez que entra al portal, recibe un código nuevo por SMS. Si no recibe el SMS, debe verificar que su número esté registrado correctamente con la recepcionista.</div>
+      </div>
+      <div class="diagram-wrap">
+        <h4>Diagrama de flujo</h4>
+        <div class="mermaid">
+sequenceDiagram
+    participant P as Paciente
+    participant S as Sistema
+    P->>S: Abre portal e ingresa su número
+    S-->>P: Envía código de 6 dígitos por SMS
+    P->>S: Escribe el código recibido
+    S->>S: Verifica código y vigencia
+    alt Código correcto y vigente
+        S-->>P: ✅ Acceso concedido — muestra perfil
+    else Código incorrecto o expirado
+        S-->>P: ❌ Aviso de error — opción de reenviar código
+        P->>S: Solicita nuevo código
+        S-->>P: Envía código nuevo por SMS
+    end
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ESCENARIO 3 -->
+  <div class="scenario-card">
+    <div class="scenario-header">
+      <div class="scenario-number">3</div>
+      <div>
+        <h3>Cerrar sesión de forma segura</h3>
+        <div class="actors">
+          <span class="actor-badge" style="background:#7eb8f7;color:#1a3a5c">Recepcionista</span>
+          <span class="actor-badge" style="background:#c58fe8;color:#3a1a5c">Médica</span>
+          <span class="actor-badge" style="background:#fac186;color:#5c3a1a">Gerente de Sucursal</span>
+          <span class="actor-badge" style="background:#ed80a8;color:#5c1a3a">Admin Corporativo</span>
+          <span class="actor-badge" style="background:#afd393;color:#2d5a1b">Paciente</span>
+        </div>
+      </div>
+    </div>
+    <div class="scenario-body">
+      <div class="steps">
+        <h4>¿Cómo funciona?</h4>
+        <ul class="step-list">
+          <li>El usuario hace clic en su nombre o ícono de perfil, ubicado en la esquina superior de la pantalla.</li>
+          <li>Selecciona la opción <strong>Cerrar sesión</strong> del menú desplegable.</li>
+          <li class="system">🤖 El sistema borra de forma inmediata el acceso activo en ese dispositivo.</li>
+          <li class="success">✅ La pantalla regresa a la página de inicio de sesión.</li>
+          <li>El siguiente usuario que use ese dispositivo deberá entrar con sus propias credenciales.</li>
+        </ul>
+        <div class="notes"><strong>Buena práctica:</strong> Siempre cerrar sesión al terminar el turno o al dejar la computadora desatendida, especialmente en las recepciones donde varias personas comparten el mismo equipo.</div>
+      </div>
+      <div class="diagram-wrap">
+        <h4>Diagrama de flujo</h4>
+        <div class="mermaid">
+flowchart TD
+    A([Usuario en la app]) --> B[Clic en perfil / nombre]
+    B --> C[Selecciona Cerrar sesión]
+    C --> D{Sistema borra\nel acceso activo}
+    D --> E([Pantalla de\ninicio de sesión])
+    style A fill:#d9d8f5,color:#373644,stroke:#a25cbf
+    style B fill:#d9d8f5,color:#373644,stroke:#a25cbf
+    style C fill:#d9d8f5,color:#373644,stroke:#a25cbf
+    style D fill:#565386,color:#fff,stroke:#373644
+    style E fill:#afd393,color:#2d5a1b,stroke:#2d5a1b
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ESCENARIO 4 -->
+  <div class="scenario-card">
+    <div class="scenario-header">
+      <div class="scenario-number">4</div>
+      <div>
+        <h3>Sesión expirada por inactividad</h3>
+        <div class="actors">
+          <span class="actor-badge" style="background:#d6d9f3;color:#373644">Sistema</span>
+          <span class="actor-badge" style="background:#7eb8f7;color:#1a3a5c">Recepcionista</span>
+          <span class="actor-badge" style="background:#c58fe8;color:#3a1a5c">Médica</span>
+          <span class="actor-badge" style="background:#afd393;color:#2d5a1b">Paciente</span>
+        </div>
+      </div>
+    </div>
+    <div class="scenario-body">
+      <div class="steps">
+        <h4>¿Cómo funciona?</h4>
+        <ul class="step-list">
+          <li>El usuario deja de usar la aplicación por un período prolongado (pantalla inactiva, pestaña olvidada abierta, etc.).</li>
+          <li class="system">🤖 El sistema detecta la inactividad y, por seguridad, cierra la sesión automáticamente.</li>
+          <li>Al intentar realizar cualquier acción, aparece un aviso en pantalla indicando que la sesión ha expirado.</li>
+          <li class="decision">🔀 ¿El usuario quiere continuar trabajando?</li>
+          <li>Hace clic en el botón <strong>Volver a iniciar sesión</strong> y escribe sus credenciales nuevamente.</li>
+          <li class="success">✅ Recupera el acceso y puede continuar donde se quedó.</li>
+        </ul>
+        <div class="notes"><strong>Nota:</strong> Esta medida protege la información de las pacientes en caso de que alguien olvide cerrar sesión en un equipo compartido o desatendido. No es un error; es una función de seguridad normal.</div>
+      </div>
+      <div class="diagram-wrap">
+        <h4>Diagrama de flujo</h4>
+        <div class="mermaid">
+stateDiagram-v2
+    [*] --> SesionActiva: Usuario inicia sesión
+    SesionActiva --> Inactiva: Sin actividad prolongada
+    Inactiva --> SesionExpirada: El sistema cierra la sesión
+    SesionExpirada --> PantallaLogin: Muestra aviso de expiración
+    PantallaLogin --> SesionActiva: Usuario inicia sesión de nuevo
+    SesionActiva --> Cerrada: Usuario cierra sesión manualmente
+    Cerrada --> [*]
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ESCENARIO 5 -->
+  <div class="scenario-card">
+    <div class="scenario-header">
+      <div class="scenario-number">5</div>
+      <div>
+        <h3>Alta de nuevo usuario — staff</h3>
+        <div class="actors">
+          <span class="actor-badge" style="background:#ed80a8;color:#5c1a3a">Admin Corporativo</span>
+          <span class="actor-badge" style="background:#fac186;color:#5c3a1a">Gerente de Sucursal</span>
+          <span class="actor-badge" style="background:#d6d9f3;color:#373644">Sistema</span>
+        </div>
+      </div>
+    </div>
+    <div class="scenario-body">
+      <div class="steps">
+        <h4>¿Cómo funciona?</h4>
+        <ul class="step-list">
+          <li>El Admin Corporativo (o el Gerente de Sucursal con permiso) abre la sección <strong>Gestión de Staff</strong>.</li>
+          <li>Hace clic en <strong>Agregar empleado</strong> y completa el formulario: nombre, correo institucional, rol y sucursal(es) asignada(s).</li>
+          <li class="decision">🔀 ¿El correo ya existe en el sistema?</li>
+          <li class="error">❌ Si el correo ya está registrado, aparece un aviso y se detiene el proceso para evitar duplicados.</li>
+          <li class="system">🤖 El sistema crea la cuenta y envía un correo de bienvenida al nuevo empleado con instrucciones para establecer su contraseña.</li>
+          <li>El nuevo empleado sigue el enlace del correo, crea su contraseña y ya puede iniciar sesión.</li>
+          <li class="success">✅ El empleado aparece en el directorio de staff activo con su rol y sucursal asignados.</li>
+        </ul>
+        <div class="notes"><strong>Nota:</strong> Solo el Admin Corporativo puede asignar los roles de Gerente de Sucursal y Admin Corporativo. El rol de Recepcionista y Médica puede asignarlo también el Gerente de Sucursal de la clínica correspondiente.</div>
+      </div>
+      <div class="diagram-wrap">
+        <h4>Diagrama de flujo</h4>
+        <div class="mermaid">
+sequenceDiagram
+    participant A as Admin Corporativo
+    participant S as Sistema
+    participant E as Nuevo Empleado
+    A->>S: Abre Gestión de Staff y llena formulario
+    S->>S: Verifica que el correo no exista
+    alt Correo duplicado
+        S-->>A: ❌ Aviso de correo ya registrado
+    else Correo nuevo
+        S->>S: Crea la cuenta con rol y sucursal
+        S-->>E: 📧 Correo de bienvenida con enlace para crear contraseña
+        E->>S: Abre el enlace y establece su contraseña
+        S-->>E: ✅ Acceso habilitado
+        S-->>A: ✅ Empleado activo en el directorio
+    end
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ESCENARIO 6 -->
+  <div class="scenario-card">
+    <div class="scenario-header">
+      <div class="scenario-number">6</div>
+      <div>
+        <h3>Desactivar cuenta de staff</h3>
+        <div class="actors">
+          <span class="actor-badge" style="background:#ed80a8;color:#5c1a3a">Admin Corporativo</span>
+          <span class="actor-badge" style="background:#d6d9f3;color:#373644">Sistema</span>
+        </div>
+      </div>
+    </div>
+    <div class="scenario-body">
+      <div class="steps">
+        <h4>¿Cómo funciona?</h4>
+        <ul class="step-list">
+          <li>El Admin Corporativo busca al empleado en la sección <strong>Gestión de Staff</strong>.</li>
+          <li>Abre el perfil del empleado y selecciona la opción <strong>Desactivar cuenta</strong>.</li>
+          <li>El sistema pide confirmar la acción antes de proceder.</li>
+          <li class="system">🤖 El sistema desactiva la cuenta de forma inmediata: el empleado pierde el acceso en cuanto intente ingresar o al momento de la siguiente acción.</li>
+          <li class="success">✅ La cuenta queda en estado "inactivo". Su historial, notas y registros se conservan íntegros para consulta futura.</li>
+          <li>Si el empleado intenta entrar, verá un mensaje indicando que su cuenta no está activa y que contacte al administrador.</li>
+        </ul>
+        <div class="notes"><strong>Importante:</strong> Desactivar no es lo mismo que borrar. Los datos históricos del empleado (citas atendidas, notas, registros) se mantienen en el sistema para fines de auditoría y continuidad de atención. Si hay error, el Admin puede reactivar la cuenta.</div>
+      </div>
+      <div class="diagram-wrap">
+        <h4>Diagrama de flujo</h4>
+        <div class="mermaid">
+stateDiagram-v2
+    [*] --> Activa: Alta de empleado
+    Activa --> EnRevision: Admin selecciona Desactivar
+    EnRevision --> Activa: Admin cancela la acción
+    EnRevision --> Inactiva: Admin confirma desactivación
+    Inactiva --> Activa: Admin reactiva la cuenta
+    Inactiva --> [*]: Cuenta permanece inactiva
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ESCENARIO 7 -->
+  <div class="scenario-card">
+    <div class="scenario-header">
+      <div class="scenario-number">7</div>
+      <div>
+        <h3>Recuperar contraseña olvidada</h3>
+        <div class="actors">
+          <span class="actor-badge" style="background:#7eb8f7;color:#1a3a5c">Recepcionista</span>
+          <span class="actor-badge" style="background:#c58fe8;color:#3a1a5c">Médica</span>
+          <span class="actor-badge" style="background:#fac186;color:#5c3a1a">Gerente de Sucursal</span>
+          <span class="actor-badge" style="background:#d6d9f3;color:#373644">Sistema</span>
+        </div>
+      </div>
+    </div>
+    <div class="scenario-body">
+      <div class="steps">
+        <h4>¿Cómo funciona?</h4>
+        <ul class="step-list">
+          <li>En la pantalla de inicio de sesión, el empleado hace clic en el enlace <strong>¿Olvidaste tu contraseña?</strong></li>
+          <li>Escribe su correo electrónico institucional y hace clic en <strong>Enviar instrucciones</strong>.</li>
+          <li class="system">🤖 El sistema verifica que el correo corresponda a una cuenta activa y envía un correo con un enlace seguro de restablecimiento (el enlace tiene una vigencia limitada, generalmente 24 horas).</li>
+          <li>El empleado abre su correo, encuentra el mensaje de Reina Madre y hace clic en el enlace.</li>
+          <li>Escribe su nueva contraseña dos veces para confirmarla.</li>
+          <li class="decision">🔀 ¿La nueva contraseña cumple los requisitos mínimos de seguridad?</li>
+          <li class="success">✅ La contraseña se actualiza y el empleado puede iniciar sesión normalmente.</li>
+          <li class="error">❌ Si el enlace ya venció, debe repetir el proceso desde el paso 1.</li>
+        </ul>
+        <div class="notes"><strong>Nota:</strong> Si el correo de restablecimiento no llega en unos minutos, revisar la carpeta de correo no deseado (spam). Si el problema persiste, contactar al Admin Corporativo para que restablezca la cuenta manualmente desde el panel de staff.</div>
+      </div>
+      <div class="diagram-wrap">
+        <h4>Diagrama de flujo</h4>
+        <div class="mermaid">
+sequenceDiagram
+    participant U as Staff
+    participant S as Sistema
+    U->>S: Clic en Olvidaste tu contraseña
+    U->>S: Escribe correo institucional
+    S->>S: Verifica que el correo existe y está activo
+    S-->>U: 📧 Correo con enlace de restablecimiento
+    U->>S: Abre el enlace y escribe nueva contraseña
+    S->>S: Verifica vigencia del enlace y fortaleza de contraseña
+    alt Enlace vigente y contraseña válida
+        S-->>U: ✅ Contraseña actualizada — puede iniciar sesión
+    else Enlace vencido
+        S-->>U: ❌ Enlace expirado — solicitar uno nuevo
+    end
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ESCENARIO 8 -->
+  <div class="scenario-card">
+    <div class="scenario-header">
+      <div class="scenario-number">8</div>
+      <div>
+        <h3>Staff asignado a varias sucursales</h3>
+        <div class="actors">
+          <span class="actor-badge" style="background:#ed80a8;color:#5c1a3a">Admin Corporativo</span>
+          <span class="actor-badge" style="background:#c58fe8;color:#3a1a5c">Médica</span>
+          <span class="actor-badge" style="background:#fac186;color:#5c3a1a">Gerente de Sucursal</span>
+        </div>
+      </div>
+    </div>
+    <div class="scenario-body">
+      <div class="steps">
+        <h4>¿Cómo funciona?</h4>
+        <ul class="step-list">
+          <li>El Admin Corporativo abre el perfil de un médico o gerente en <strong>Gestión de Staff</strong>.</li>
+          <li>En el apartado de sucursales, hace clic en <strong>Agregar sucursal</strong> y selecciona las clínicas donde debe tener acceso.</li>
+          <li class="system">🤖 El sistema actualiza los permisos del empleado para que pueda ver y gestionar la agenda de cada sucursal asignada.</li>
+          <li>Al iniciar sesión, el empleado ve un selector o menú donde puede elegir en qué sucursal está trabajando en ese momento.</li>
+          <li class="decision">🔀 ¿El empleado cambia de sucursal dentro de la misma sesión?</li>
+          <li>Puede cambiar la sucursal activa desde el menú superior sin necesidad de cerrar sesión.</li>
+          <li class="success">✅ La agenda, las citas y los datos que ve corresponden siempre a la sucursal seleccionada en ese momento.</li>
+        </ul>
+        <div class="notes"><strong>Ejemplo práctico:</strong> Una médica que atiende en la sucursal Patriotismo los lunes y en Satélite los jueves tiene acceso a ambas agendas. Al llegar a cada clínica, selecciona la sucursal correspondiente desde el menú y trabaja con los datos de esa clínica.</div>
+      </div>
+      <div class="diagram-wrap">
+        <h4>Diagrama de flujo</h4>
+        <div class="mermaid">
+flowchart TD
+    A([Admin abre perfil del empleado]) --> B[Agrega sucursales al perfil]
+    B --> C{Sistema actualiza\nlos permisos}
+    C --> D([Empleado inicia sesión])
+    D --> E{Selecciona sucursal\nactiva}
+    E --> F[Ve agenda de\nSucursal A]
+    E --> G[Ve agenda de\nSucursal B]
+    F --> H{¿Cambia de sucursal\nen la misma sesión?}
+    G --> H
+    H -- Sí --> E
+    H -- No --> I([Continúa trabajando])
+    style A fill:#ed80a8,color:#fff,stroke:#a25cbf
+    style B fill:#ed80a8,color:#fff,stroke:#a25cbf
+    style C fill:#d6d9f3,color:#373644,stroke:#a25cbf
+    style D fill:#c58fe8,color:#fff,stroke:#7a3a9c
+    style E fill:#d9d8f5,color:#373644,stroke:#a25cbf
+    style F fill:#c58fe8,color:#fff,stroke:#7a3a9c
+    style G fill:#c58fe8,color:#fff,stroke:#7a3a9c
+    style H fill:#d9d8f5,color:#373644,stroke:#a25cbf
+    style I fill:#afd393,color:#2d5a1b,stroke:#2d5a1b
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ESCENARIO 9 -->
+  <div class="scenario-card">
+    <div class="scenario-header">
+      <div class="scenario-number">9</div>
+      <div>
+        <h3>Error de acceso — credenciales incorrectas</h3>
+        <div class="actors">
+          <span class="actor-badge" style="background:#7eb8f7;color:#1a3a5c">Recepcionista</span>
+          <span class="actor-badge" style="background:#c58fe8;color:#3a1a5c">Médica</span>
+          <span class="actor-badge" style="background:#fac186;color:#5c3a1a">Gerente de Sucursal</span>
+          <span class="actor-badge" style="background:#d6d9f3;color:#373644">Sistema</span>
+        </div>
+      </div>
+    </div>
+    <div class="scenario-body">
+      <div class="steps">
+        <h4>¿Cómo funciona?</h4>
+        <ul class="step-list">
+          <li>El usuario escribe su correo y contraseña, pero uno o ambos datos son incorrectos.</li>
+          <li class="system">🤖 El sistema detecta que las credenciales no coinciden con ninguna cuenta activa.</li>
+          <li class="error">❌ Aparece un mensaje claro en pantalla: <em>"El correo o la contraseña no son correctos. Por favor verifica tus datos."</em></li>
+          <li>El usuario puede intentarlo de nuevo. El sistema lleva un conteo de intentos fallidos consecutivos.</li>
+          <li class="decision">🔀 ¿El usuario ha fallado varias veces seguidas (generalmente 5 intentos)?</li>
+          <li class="system">🤖 El sistema bloquea el acceso de esa cuenta temporalmente como medida de seguridad.</li>
+          <li class="error">❌ Aparece un aviso indicando que la cuenta está bloqueada temporalmente y que se puede intentar de nuevo después de unos minutos, o usar la opción de recuperar contraseña.</li>
+          <li class="success">✅ Si el usuario escribe las credenciales correctas antes de agotar los intentos, entra normalmente y el contador se reinicia.</li>
+        </ul>
+        <div class="notes"><strong>Qué hacer:</strong> Si no recuerdas tu contraseña, usa la opción <strong>¿Olvidaste tu contraseña?</strong> (Escenario 7) en lugar de seguir intentando, para evitar el bloqueo temporal.</div>
+      </div>
+      <div class="diagram-wrap">
+        <h4>Diagrama de flujo</h4>
+        <div class="mermaid">
+flowchart TD
+    A([Usuario escribe credenciales]) --> B{¿Credenciales\ncorrectas?}
+    B -- Sí --> C([✅ Acceso concedido])
+    B -- No --> D[❌ Mensaje de error en pantalla]
+    D --> E{¿Alcanzó el\nlímite de intentos?}
+    E -- No --> F[Usuario puede\nintentar de nuevo]
+    F --> A
+    E -- Sí --> G[🔒 Cuenta bloqueada\ntemporalmente]
+    G --> H{¿Qué desea hacer?}
+    H -- Esperar --> I([Intentar de nuevo\ndespués])
+    H -- Recuperar --> J([Ir a Recuperar\ncontraseña])
+    style A fill:#d9d8f5,color:#373644,stroke:#a25cbf
+    style B fill:#d9d8f5,color:#373644,stroke:#a25cbf
+    style C fill:#afd393,color:#2d5a1b,stroke:#2d5a1b
+    style D fill:#ff3759,color:#fff,stroke:#cc0033
+    style E fill:#d9d8f5,color:#373644,stroke:#a25cbf
+    style F fill:#fac186,color:#5c3a1a,stroke:#b8762a
+    style G fill:#ff3759,color:#fff,stroke:#cc0033
+    style H fill:#d9d8f5,color:#373644,stroke:#a25cbf
+    style I fill:#d9d8f5,color:#373644,stroke:#a25cbf
+    style J fill:#7eb8f7,color:#1a3a5c,stroke:#1a3a5c
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ESCENARIO 10 -->
+  <div class="scenario-card">
+    <div class="scenario-header">
+      <div class="scenario-number">10</div>
+      <div>
+        <h3>Acceso denegado — permisos insuficientes</h3>
+        <div class="actors">
+          <span class="actor-badge" style="background:#7eb8f7;color:#1a3a5c">Recepcionista</span>
+          <span class="actor-badge" style="background:#c58fe8;color:#3a1a5c">Médica</span>
+          <span class="actor-badge" style="background:#d6d9f3;color:#373644">Sistema</span>
+        </div>
+      </div>
+    </div>
+    <div class="scenario-body">
+      <div class="steps">
+        <h4>¿Cómo funciona?</h4>
+        <ul class="step-list">
+          <li>El usuario ya está dentro de la aplicación (su sesión es válida) e intenta navegar a una sección para la que su rol no tiene permiso.</li>
+          <li class="system">🤖 El sistema comprueba automáticamente si el rol del usuario tiene acceso a esa pantalla o acción.</li>
+          <li class="error">❌ En lugar de mostrar la pantalla solicitada, aparece un mensaje de acceso denegado: <em>"No tienes permiso para ver esta sección. Si crees que es un error, contacta a tu administrador."</em></li>
+          <li>El resto de la aplicación sigue funcionando con normalidad; solo esa sección está restringida.</li>
+          <li class="decision">🔀 ¿El usuario necesita acceso a esa sección para realizar su trabajo?</li>
+          <li>Debe solicitar al Admin Corporativo o al Gerente de Sucursal que ajuste su rol o sus permisos.</li>
+          <li class="success">✅ Una vez actualizado el permiso por el administrador, el usuario puede acceder a esa sección sin necesidad de cerrar sesión.</li>
+        </ul>
+        <div class="notes"><strong>Ejemplo:</strong> Una recepcionista que intenta abrir el módulo de reportes financieros (solo disponible para Gerentes y Admin Corporativo) verá el mensaje de acceso denegado. Esto es correcto y esperado — cada rol tiene acceso solo a las herramientas que necesita para su trabajo.</div>
+      </div>
+      <div class="diagram-wrap">
+        <h4>Diagrama de flujo</h4>
+        <div class="mermaid">
+sequenceDiagram
+    participant U as Usuario
+    participant S as Sistema
+    participant A as Admin Corporativo
+    U->>S: Intenta abrir una sección restringida
+    S->>S: Verifica permisos del rol del usuario
+    alt El rol tiene permiso
+        S-->>U: ✅ Muestra la sección normalmente
+    else El rol NO tiene permiso
+        S-->>U: ❌ Pantalla de acceso denegado
+        U->>A: Solicita que le amplíen el acceso
+        A->>S: Actualiza el rol o permisos del usuario
+        S-->>A: ✅ Cambio guardado
+        S-->>U: ✅ Puede acceder sin cerrar sesión
+    end
+        </div>
+      </div>
+    </div>
+  </div>
+
+</main>
+<div class="footer">Manual Operativo · Grupo Reina Madre · Actualizado 2026 · Para uso interno</div>
+<script>
+mermaid.initialize({
+  startOnLoad:true,
+  theme:'base',
+  themeVariables:{
+    primaryColor:'#d9d8f5',
+    primaryTextColor:'#373644',
+    primaryBorderColor:'#a25cbf',
+    lineColor:'#a25cbf',
+    secondaryColor:'#fce4ef',
+    tertiaryColor:'#f4f4fb',
+    fontFamily:'-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif',
+    fontSize:'13px'
+  }
+});
+</script>
+</body>
+</html>

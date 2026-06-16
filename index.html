@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Manual Operativo — Grupo Reina Madre</title>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#f4f4fb;--card:#fff;--primary:#ed80a8;--secondary:#a25cbf;--accent:#d9d8f5;--border:#d6d9f3;--text:#373644;--muted:#565386;--success:#afd393;--warning:#fac186;--danger:#ff3759}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--bg);color:var(--text);line-height:1.6}
+.header{background:linear-gradient(135deg,var(--primary),var(--secondary));color:#fff;padding:2rem 2.5rem;display:flex;align-items:center;gap:1rem}
+.header-icon{font-size:2.5rem}
+.header h1{font-size:1.8rem;font-weight:700;margin-bottom:.25rem}
+.header p{opacity:.9;font-size:1rem}
+.nav{background:var(--card);border-bottom:1px solid var(--border);padding:.75rem 2.5rem;display:flex;gap:.5rem;flex-wrap:wrap;align-items:center}
+.nav a{color:var(--secondary);text-decoration:none;font-size:.85rem;padding:.3rem .7rem;border-radius:1rem;transition:all .2s}
+.nav a:hover{background:var(--accent);color:var(--text)}
+.nav .active{background:var(--primary);color:#fff}
+.main{max-width:1200px;margin:0 auto;padding:2rem 2.5rem}
+.section-intro{background:var(--card);border-radius:12px;border:1px solid var(--border);padding:1.75rem 2rem;margin-bottom:2rem}
+.section-intro h2{color:var(--secondary);font-size:1.25rem;margin-bottom:.75rem;font-weight:700}
+.section-intro p{color:var(--text);font-size:.95rem;margin-bottom:.6rem}
+.section-intro ul{margin:.5rem 0 0 1.25rem;color:var(--muted);font-size:.9rem}
+.section-intro ul li{margin-bottom:.25rem}
+.section-title{font-size:1.1rem;font-weight:700;color:var(--secondary);margin:2rem 0 1rem;text-transform:uppercase;letter-spacing:.06em;border-bottom:2px solid var(--accent);padding-bottom:.4rem}
+
+/* Domain grid */
+.domain-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;margin:0 0 2.5rem}
+@media(max-width:900px){.domain-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:600px){.domain-grid{grid-template-columns:1fr}}
+.domain-card{background:#fff;border-radius:12px;border:1px solid #d6d9f3;padding:1.5rem;text-decoration:none;color:#373644;transition:all .2s;display:block}
+.domain-card:hover{box-shadow:0 4px 20px rgba(162,92,191,.15);transform:translateY(-2px);border-color:#a25cbf}
+.domain-icon{font-size:2.5rem;margin-bottom:.75rem}
+.domain-card h3{color:#373644;font-size:1.05rem;margin-bottom:.4rem;font-weight:600}
+.domain-card p{color:#565386;font-size:.85rem;margin-bottom:.75rem}
+.domain-meta{font-size:.78rem;color:#a25cbf;font-weight:600}
+.domain-cta{display:inline-block;margin-top:.75rem;color:#ed80a8;font-size:.85rem;font-weight:600}
+
+/* Actors table */
+.actors-table{width:100%;border-collapse:collapse;background:var(--card);border-radius:12px;overflow:hidden;border:1px solid var(--border);margin-bottom:2.5rem}
+.actors-table th{background:var(--accent);color:var(--secondary);font-size:.82rem;text-transform:uppercase;letter-spacing:.05em;padding:.75rem 1rem;text-align:left;font-weight:700}
+.actors-table td{padding:.75rem 1rem;font-size:.9rem;border-top:1px solid var(--border);vertical-align:middle}
+.actors-table tr:hover td{background:#fafafe}
+.actor-badge{display:inline-block;padding:.2rem .7rem;border-radius:1rem;font-size:.8rem;font-weight:600;letter-spacing:.01em}
+
+/* Quick-start tips */
+.tips-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:1rem;margin-bottom:2rem}
+@media(max-width:700px){.tips-grid{grid-template-columns:1fr}}
+.tip-card{background:var(--card);border-radius:10px;border:1px solid var(--border);padding:1.1rem 1.3rem;display:flex;gap:.75rem;align-items:flex-start}
+.tip-icon{font-size:1.5rem;flex-shrink:0}
+.tip-card h4{font-size:.9rem;font-weight:600;color:var(--text);margin-bottom:.2rem}
+.tip-card p{font-size:.82rem;color:var(--muted)}
+
+.footer{text-align:center;padding:2rem;color:var(--muted);font-size:.8rem;border-top:1px solid var(--border);margin-top:2rem}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-icon">📖</div>
+  <div>
+    <h1>Manual Operativo</h1>
+    <p>Grupo Reina Madre · Reina Madre | María Linda | Piel Sana</p>
+  </div>
+</div>
+
+<nav class="nav">
+  <a href="index.html" class="active">🏠 Inicio</a>
+  <a href="01-autenticacion.html">🔐 Acceso</a>
+  <a href="02-pacientes.html">👩‍⚕️ Pacientes</a>
+  <a href="03-agenda.html">📅 Agenda</a>
+  <a href="04-contratos.html">📋 Contratos</a>
+  <a href="05-staff.html">👥 Staff</a>
+  <a href="06-bot-whatsapp.html">💬 Bot WA</a>
+  <a href="07-notificaciones.html">🔔 Notificaciones</a>
+  <a href="08-configuracion.html">⚙️ Configuración</a>
+  <a href="09-procesos.html">⚡ Procesos</a>
+</nav>
+
+<main class="main">
+
+  <!-- BIENVENIDA -->
+  <div class="section-intro">
+    <h2>Bienvenida al Manual Operativo</h2>
+    <p>
+      Este manual explica, en lenguaje claro y sin tecnicismos, cómo se realizan todas las operaciones del día a día
+      en Grupo Reina Madre: desde registrar una paciente nueva hasta configurar la agenda de una médica, gestionar
+      contratos y atender mensajes por WhatsApp.
+    </p>
+    <p>
+      Está pensado para <strong>todo el personal</strong>: recepcionistas, médicas, consejeras, gerentes de sucursal
+      y administradores corporativos. No importa si es tu primer día o llevas años en la empresa — aquí encontrarás
+      el paso a paso de cada proceso con diagramas visuales que lo hacen fácil de seguir.
+    </p>
+    <p><strong>¿Cómo usar este manual?</strong></p>
+    <ul>
+      <li>Usa el menú de arriba para ir directamente a la sección que necesitas.</li>
+      <li>Cada sección agrupa los escenarios por tema (agenda, pacientes, notificaciones, etc.).</li>
+      <li>Cada escenario tiene un paso a paso en texto y un diagrama de flujo para visualizarlo.</li>
+      <li>Los pasos del sistema (automáticos, sin intervención humana) están marcados con 🤖.</li>
+      <li>Las decisiones importantes están marcadas con 🔀 para que sepas qué revisar.</li>
+    </ul>
+  </div>
+
+  <!-- DOMINIOS -->
+  <div class="section-title">Secciones del manual</div>
+  <div class="domain-grid">
+
+    <a class="domain-card" href="01-autenticacion.html">
+      <div class="domain-icon">🔐</div>
+      <h3>Acceso al sistema</h3>
+      <p>Cómo ingresar, recuperar contraseña, cambiar de sucursal y cerrar sesión de forma segura.</p>
+      <div class="domain-meta">10 escenarios</div>
+      <div class="domain-cta">Ver sección →</div>
+    </a>
+
+    <a class="domain-card" href="02-pacientes.html">
+      <div class="domain-icon">👩‍⚕️</div>
+      <h3>Pacientes</h3>
+      <p>Registro, búsqueda, actualización de datos y gestión del expediente de cada paciente.</p>
+      <div class="domain-meta">12 escenarios</div>
+      <div class="domain-cta">Ver sección →</div>
+    </a>
+
+    <a class="domain-card" href="03-agenda.html">
+      <div class="domain-icon">📅</div>
+      <h3>Agenda y citas</h3>
+      <p>Agendar, reprogramar, cancelar y confirmar citas; manejo de disponibilidad y servicios.</p>
+      <div class="domain-meta">13 escenarios</div>
+      <div class="domain-cta">Ver sección →</div>
+    </a>
+
+    <a class="domain-card" href="04-contratos.html">
+      <div class="domain-icon">📋</div>
+      <h3>Contratos y planes</h3>
+      <p>Alta, renovación, suspensión y seguimiento de los planes médicos de las pacientes.</p>
+      <div class="domain-meta">11 escenarios</div>
+      <div class="domain-cta">Ver sección →</div>
+    </a>
+
+    <a class="domain-card" href="05-staff.html">
+      <div class="domain-icon">👥</div>
+      <h3>Personal (Staff)</h3>
+      <p>Alta de colaboradores, asignación de roles, cambio de sucursal y baja del sistema.</p>
+      <div class="domain-meta">8 escenarios</div>
+      <div class="domain-cta">Ver sección →</div>
+    </a>
+
+    <a class="domain-card" href="06-bot-whatsapp.html">
+      <div class="domain-icon">💬</div>
+      <h3>Bot de WhatsApp</h3>
+      <p>Flujos de atención automática: agendar cita, consultar información y escalar a recepción.</p>
+      <div class="domain-meta">13 escenarios</div>
+      <div class="domain-cta">Ver sección →</div>
+    </a>
+
+    <a class="domain-card" href="07-notificaciones.html">
+      <div class="domain-icon">🔔</div>
+      <h3>Notificaciones</h3>
+      <p>Recordatorios automáticos de cita, confirmaciones y alertas que llegan por WhatsApp o correo.</p>
+      <div class="domain-meta">8 escenarios</div>
+      <div class="domain-cta">Ver sección →</div>
+    </a>
+
+    <a class="domain-card" href="08-configuracion.html">
+      <div class="domain-icon">⚙️</div>
+      <h3>Configuración</h3>
+      <p>Ajustes de la sucursal, catálogo de servicios, horarios y preferencias del sistema.</p>
+      <div class="domain-meta">7 escenarios</div>
+      <div class="domain-cta">Ver sección →</div>
+    </a>
+
+    <a class="domain-card" href="09-procesos.html">
+      <div class="domain-icon">⚡</div>
+      <h3>Procesos especiales</h3>
+      <p>Operaciones administrativas avanzadas: auditorías, reportes, permisos y flujos de excepción.</p>
+      <div class="domain-meta">8 escenarios</div>
+      <div class="domain-cta">Ver sección →</div>
+    </a>
+
+  </div>
+
+  <!-- ACTORES -->
+  <div class="section-title">Actores del sistema</div>
+  <p style="color:var(--muted);font-size:.9rem;margin-bottom:1rem;">
+    Estos son los participantes que aparecen en todos los diagramas y escenarios del manual.
+    Cada uno tiene un color único para que sea fácil identificarlo de un vistazo.
+  </p>
+  <table class="actors-table">
+    <thead>
+      <tr>
+        <th>Actor</th>
+        <th>¿Quién es?</th>
+        <th>¿Qué hace en el sistema?</th>
+        <th>Color en diagramas</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="actor-badge" style="background:#afd393;color:#2d5a1b">Paciente</span></td>
+        <td>La persona que recibe la atención médica</td>
+        <td>Agenda citas por WhatsApp o presencialmente, recibe notificaciones y confirmaciones</td>
+        <td><span style="color:#2d5a1b;font-weight:600;">#afd393 — verde</span></td>
+      </tr>
+      <tr>
+        <td><span class="actor-badge" style="background:#7eb8f7;color:#1a3a5c">Recepcionista</span></td>
+        <td>Personal de atención en mostrador de cada sucursal</td>
+        <td>Registra pacientes, gestiona la agenda, responde preguntas y coordina con médicas</td>
+        <td><span style="color:#1a3a5c;font-weight:600;">#7eb8f7 — azul</span></td>
+      </tr>
+      <tr>
+        <td><span class="actor-badge" style="background:#c58fe8;color:#3b0d66">Médica</span></td>
+        <td>Doctora o profesional de salud que atiende a las pacientes</td>
+        <td>Consulta su agenda, registra notas de consulta y autoriza procedimientos</td>
+        <td><span style="color:#3b0d66;font-weight:600;">#c58fe8 — violeta</span></td>
+      </tr>
+      <tr>
+        <td><span class="actor-badge" style="background:#fac186;color:#6b3300">Gerente de Sucursal</span></td>
+        <td>Responsable de la operación de una clínica específica</td>
+        <td>Supervisa al personal, ajusta configuraciones de la sucursal y aprueba excepciones</td>
+        <td><span style="color:#6b3300;font-weight:600;">#fac186 — naranja</span></td>
+      </tr>
+      <tr>
+        <td><span class="actor-badge" style="background:#ed80a8;color:#6b0030">Admin Corporativo</span></td>
+        <td>Administrador con acceso a todas las sucursales del grupo</td>
+        <td>Gestiona usuarios, permisos, catálogos globales y reportes de toda la operación</td>
+        <td><span style="color:#6b0030;font-weight:600;">#ed80a8 — rosa</span></td>
+      </tr>
+      <tr>
+        <td><span class="actor-badge" style="background:#25D366;color:#fff">Bot WA</span></td>
+        <td>Asistente automático de WhatsApp del grupo</td>
+        <td>Atiende mensajes de las pacientes fuera de horario, ofrece opciones y agenda citas</td>
+        <td><span style="color:#128C42;font-weight:600;">#25D366 — verde WhatsApp</span></td>
+      </tr>
+      <tr>
+        <td><span class="actor-badge" style="background:#d6d9f3;color:#373644">Sistema</span></td>
+        <td>La plataforma digital interna de Grupo Reina Madre</td>
+        <td>Valida datos, envía notificaciones automáticas, registra movimientos y sincroniza información</td>
+        <td><span style="color:#373644;font-weight:600;">#d6d9f3 — gris lila</span></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- TIPS RAPIDOS -->
+  <div class="section-title">Consejos para usar el manual</div>
+  <div class="tips-grid">
+    <div class="tip-card">
+      <div class="tip-icon">🔍</div>
+      <div>
+        <h4>Busca por escenario</h4>
+        <p>Cada sección empieza con un índice de los escenarios que cubre. Lee los títulos para encontrar el que necesitas rápido.</p>
+      </div>
+    </div>
+    <div class="tip-card">
+      <div class="tip-icon">🤖</div>
+      <div>
+        <h4>Pasos automáticos</h4>
+        <p>Los pasos marcados con 🤖 los hace el sistema solo. No tienes que hacer nada; solo espera el resultado o el mensaje de confirmación.</p>
+      </div>
+    </div>
+    <div class="tip-card">
+      <div class="tip-icon">🔀</div>
+      <div>
+        <h4>Decisiones del proceso</h4>
+        <p>Cuando ves 🔀 significa que el flujo puede ir por dos caminos distintos. Lee ambas opciones para saber qué hacer en cada caso.</p>
+      </div>
+    </div>
+    <div class="tip-card">
+      <div class="tip-icon">⚠️</div>
+      <div>
+        <h4>Notas importantes</h4>
+        <p>Los recuadros de color amarillo en cada escenario contienen advertencias o excepciones que conviene revisar antes de proceder.</p>
+      </div>
+    </div>
+    <div class="tip-card">
+      <div class="tip-icon">📞</div>
+      <div>
+        <h4>¿Algo no cubierto aquí?</h4>
+        <p>Si tu situación no aparece en ningún escenario, escala con tu gerente de sucursal o con el equipo de soporte corporativo.</p>
+      </div>
+    </div>
+    <div class="tip-card">
+      <div class="tip-icon">🔄</div>
+      <div>
+        <h4>Manual en constante actualización</h4>
+        <p>Este manual se actualiza cuando cambian los procesos. Si detectas un paso desactualizado, repórtalo para que lo corrijamos.</p>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<div class="footer">Manual Operativo · Grupo Reina Madre · Actualizado 2026 · Para uso interno</div>
+
+<script>
+mermaid.initialize({
+  startOnLoad:true,
+  theme:'base',
+  themeVariables:{
+    primaryColor:'#d9d8f5',
+    primaryTextColor:'#373644',
+    primaryBorderColor:'#a25cbf',
+    lineColor:'#a25cbf',
+    secondaryColor:'#fce4ef',
+    tertiaryColor:'#f4f4fb',
+    fontFamily:'-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif',
+    fontSize:'13px'
+  }
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bot de WhatsApp — Manual Operativo Reina Madre</title>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#f4f4fb;--card:#fff;--primary:#ed80a8;--secondary:#a25cbf;--accent:#d9d8f5;--border:#d6d9f3;--text:#373644;--muted:#565386;--success:#afd393;--warning:#fac186;--danger:#ff3759}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--bg);color:var(--text);line-height:1.6}
+.header{background:linear-gradient(135deg,var(--primary),var(--secondary));color:#fff;padding:2rem 2.5rem;display:flex;align-items:center;gap:1rem}
+.header-icon{font-size:2.5rem}
+.header h1{font-size:1.8rem;font-weight:700;margin-bottom:.25rem}
+.header p{opacity:.9;font-size:1rem}
+.nav{background:var(--card);border-bottom:1px solid var(--border);padding:.75rem 2.5rem;display:flex;gap:.5rem;flex-wrap:wrap;align-items:center}
+.nav a{color:var(--secondary);text-decoration:none;font-size:.85rem;padding:.3rem .7rem;border-radius:1rem;transition:all .2s}
+.nav a:hover{background:var(--accent);color:var(--text)}
+.nav .active{background:var(--primary);color:#fff}
+.main{max-width:1200px;margin:0 auto;padding:2rem 2.5rem}
+.section-intro{background:var(--card);border-radius:12px;border:1px solid var(--border);padding:1.5rem;margin-bottom:2rem}
+.section-intro h2{color:var(--secondary);font-size:1.2rem;margin-bottom:.5rem}
+.scenario-card{background:var(--card);border-radius:12px;border:1px solid var(--border);margin-bottom:2rem;overflow:hidden;box-shadow:0 1px 3px rgba(162,92,191,.08)}
+.scenario-header{background:var(--accent);padding:1.25rem 1.5rem;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;gap:1rem}
+.scenario-number{background:var(--primary);color:#fff;width:2rem;height:2rem;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.85rem;flex-shrink:0;margin-top:.1rem}
+.scenario-header h3{font-size:1.1rem;color:var(--text);font-weight:600;margin-bottom:.2rem}
+.scenario-header .actors{font-size:.8rem;color:var(--muted)}
+.actor-badge{display:inline-block;padding:.15rem .5rem;border-radius:.5rem;font-size:.75rem;font-weight:500;margin-right:.25rem}
+.scenario-body{padding:1.5rem;display:grid;grid-template-columns:1fr 1fr;gap:1.5rem}
+@media(max-width:768px){.scenario-body{grid-template-columns:1fr}}
+.steps h4{color:var(--secondary);font-size:.9rem;font-weight:600;margin-bottom:.75rem;text-transform:uppercase;letter-spacing:.05em}
+.step-list{list-style:none}
+.step-list li{padding:.5rem .75rem;margin-bottom:.4rem;border-radius:.5rem;border-left:3px solid var(--border);font-size:.9rem;background:#fafafe}
+.step-list li.system{border-color:var(--muted);background:#f0f0f8}
+.step-list li.decision{border-color:var(--warning);background:#fff9f2}
+.step-list li.success{border-color:var(--success);background:#f6fbf2}
+.step-list li.error{border-color:var(--danger);background:#fff5f6}
+.diagram-wrap{overflow:auto}
+.diagram-wrap h4{color:var(--secondary);font-size:.9rem;font-weight:600;margin-bottom:.75rem;text-transform:uppercase;letter-spacing:.05em}
+.mermaid{font-size:13px}
+.notes{margin-top:1rem;padding:.75rem 1rem;background:#fff8e1;border-radius:.5rem;border-left:3px solid var(--warning);font-size:.85rem;color:var(--text)}
+.notes strong{color:#b45309}
+.footer{text-align:center;padding:2rem;color:var(--muted);font-size:.8rem;border-top:1px solid var(--border);margin-top:2rem}
+</style>
+</head>
+<body>
+<div class="header">
+  <div class="header-icon">💬</div>
+  <div>
+    <h1>Bot de WhatsApp</h1>
+    <p>Manual Operativo — Grupo Reina Madre · Reina Madre | María Linda | Piel Sana</p>
+  </div>
+</div>
+<nav class="nav">
+  <a href="index.html">🏠 Inicio</a>
+  <a href="01-autenticacion.html">🔐 Acceso</a>
+  <a href="02-pacientes.html">👩‍⚕️ Pacientes</a>
+  <a href="03-agenda.html">📅 Agenda</a>
+  <a href="04-contratos.html">📋 Contratos</a>
+  <a href="05-staff.html">👥 Staff</a>
+  <a href="06-bot-whatsapp.html" class="active">💬 Bot WA</a>
+  <a href="07-notificaciones.html">🔔 Notificaciones</a>
+  <a href="08-configuracion.html">⚙️ Configuración</a>
+  <a href="09-procesos.html">⚡ Procesos</a>
+</nav>
+<main class="main">
+
+  <div class="section-intro">
+    <h2>¿De qué trata esta sección?</h2>
+    <p>El bot de WhatsApp es el canal de autoservicio de Grupo Reina Madre: las pacientes pueden agendar, ver, reagendar o cancelar citas directamente desde su teléfono sin necesidad de llamar o visitar la sucursal. Esta sección describe cómo funciona el bot paso a paso — desde el primer mensaje de una paciente nueva hasta los casos excepcionales como solicitudes fuera de horario o intentos de uso indebido. La usan principalmente las pacientes como canal de autoatención, y el equipo de recepción como destino cuando el bot escala una conversación a atención humana.</p>
+  </div>
+
+  <!-- ESCENARIO 1 -->
+  <div class="scenario-card">
+    <div class="scenario-header">
+      <div class="scenario-number">1</div>
+      <div>
+        <h3>Paciente nueva escribe al bot por primera vez</h3>
+        <div class="actors">
+          <span class="actor-badge" style="background:#afd393;color:#2d5a1b">Paciente</span>
+          <span class="actor-badge" style="background:#25D366;color:#fff">Bot WA</span>
+          <span class="actor-badge" style="background:#d6d9f3;color:#373644">Sistema</span>
+        </div>
+      </div>
+    </div>
+    <div class="scenario-body">
+      <div class="steps">
+        <h4>¿Cómo funciona?</h4>
+        <ul class="step-list">
+          <li>La paciente escribe cualquier mensaje al número de WhatsApp de la clínica.</li>
+          <li class="system">🤖 El sistema verifica si el número de teléfono ya tiene cuenta registrada.</li>
+          <li class="decision">🔀 ¿Tiene cuenta? Si no tiene cuenta, continúa con el saludo de bienvenida a persona nueva.</li>
+          <li class="system">🤖 El bot responde con un saludo, se presenta como asistente automático de Grupo Reina Madre, y explica brevemente qué puede hacer.</li>
+          <li>El bot muestra las opciones disponibles: Agendar cita, Ver mis citas, Hablar con recepción.</li>
+          <li class="decision">🔀 Si la paciente elige agendar, el bot la lleva al flujo de registro antes de continuar (ver Escenario 8).</li>
+          <li class="success">✅ La paciente queda orientada y puede elegir qué necesita.</li>
+        </ul>
+        <div class="notes"><strong>Nota:</strong> El bot siempre se identifica como asistente automático. Nunca se hace pasar por una persona del equipo.</div>
+      </div>
+      <div class="diagram-wrap">
+        <h4>Diagrama de flujo</h4>
+        <div class="mermaid">
+flowchart TD
+    A([Paciente escribe\nprimer mensaje]) --> B{¿Tiene cuenta\nregistrada?}
+    B -- No --> C[Bot saluda\ny se presenta]
+    B -- Sí --> Z([Ver Escenario 2])
+    C --> D[Bot muestra opciones:\nAgendar / Ver citas /\nHablar con recepción]
+    D --> E{¿Qué elige?}
+    E -- Agendar --> F([Flujo de registro\nEscenario 8])
+    E -- Ver citas --> G([Flujo Escenario 4])
+    E -- Recepción --> H([Handoff Escenario 7])
+    style A fill:#afd393,color:#2d5a1b,stroke:#afd393
+    style B fill:#d9d8f5,color:#373644,stroke:#a25cbf
+    style C fill:#25D366,color:#fff,stroke:#1ea352
+    style D fill:#25D366,color:#fff,stroke:#1ea352
+    style E fill:#d9d8f5,color:#373644,stroke:#a25cbf
+    style F fill:#d6d9f3,color:#373644,stroke:#a25cbf
+    style G fill:#d6d9f3,color:#373644,stroke:#a25cbf
+    style H fill:#d6d9f3,color:#373644,stroke:#a25cbf
+    style Z fill:#d6d9f3,color:#373644,stroke:#a25cbf
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ESCENARIO 2 -->
+  <div class="scenario-card">
+    <div class="scenario-header">
+      <div class="scenario-number">2</div>
+      <div>
+        <h3>Paciente registrada inicia conversación</h3>
+        <div class="actors">
+          <span class="actor-badge" style="background:#afd393;color:#2d5a1b">Paciente</span>
+          <span class="actor-badge" style="background:#25D366;color:#fff">Bot WA</span>
+          <span class="actor-badge" style="background:#d6d9f3;color:#373644">Sistema</span>
+        </div>
+      </div>
+    </div>
+    <div class="scenario-body">
+      <div class="steps">
+        <h4>¿Cómo funciona?</h4>
+        <ul class="step-list">
+          <li>La paciente escribe al número de WhatsApp de la clínica.</li>
+          <li class="system">🤖 El sistema identifica su número de teléfono y encuentra su expediente.</li>
+          <li class="system">🤖 El bot la saluda por su nombre: "¡Hola, María! ¿En qué te puedo ayudar hoy?"</li>
+          <li>El bot despliega el menú principal: Agendar cita, Ver mis citas, Reagendar, Cancelar, Hablar con recepción.</li>
+          <li class="decision">🔀 La paciente elige una opción y el bot la lleva al flujo correspondiente.</li>
+          <li class="success">✅ La paciente accede a sus opciones de forma personalizada sin tener que identificarse manualmente.</li>
+        </ul>
+      </div>
+      <div class="diagram-wrap">
+        <h4>Diagrama de flujo</h4>
+        <div class="mermaid">
+sequenceDiagram
+    participant P as Paciente
+    participant B as Bot WA
+    participant S as Sistema
+    P->>B: Escribe cualquier mensaje
+    B->>S: Busca número en base de pacientes
+    S-->>B: Paciente encontrada (nombre, datos)
+    B-->>P: "¡Hola, [Nombre]! ¿En qué te ayudo?"
+    B-->>P: Menú: Agendar / Ver citas / Reagendar / Cancelar / Recepción
+    P->>B: Elige opción del menú
+    B-->>P: Lleva al flujo elegido
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ESCENARIO 3 -->
+  <div class="scenario-card">
+    <div class="scenario-header">
+      <div class="scenario-number">3</div>
+      <div>
+        <h3>Agendar cita desde WhatsApp — flujo completo</h3>
+        <div class="actors">
+          <span class="actor-badge" style="background:#afd393;color:#2d5a1b">Paciente</span>
+          <span class="actor-badge" style="background:#25D366;color:#fff">Bot WA</span>
+          <span class="actor-badge" style="background:#d6d9f3;color:#373644">Sistema</span>
+        </div>
+      </div>
+    </div>
+    <div class="scenario-body">
+      <div class="steps">
+        <h4>¿Cómo funciona?</h4>
+        <ul class="step-list">
+          <li>La paciente elige "Agendar cita" en el menú principal.</li>
+          <li class="system">🤖 El bot muestra los servicios disponibles que tienen citas en los próximos 14 días.</li>
+          <li>La paciente selecciona el servicio que necesita (ej. Consulta de Ginecología).</li>
+          <li class="system">🤖 El sistema muestra únicamente las sucursales donde ese servicio tiene médicas disponibles.</li>
+          <li>La paciente elige la sucursal de su preferencia.</li>
+          <li class="system">🤖 El sistema muestra las médicas disponibles para ese servicio en esa sucursal.</li>
+          <li>La paciente elige la médica (o acepta cualquier disponible).</li>
+          <li class="system">🤖 El sistema muestra hasta 8 horarios disponibles en los próximos días.</li>
+          <li>La paciente selecciona fecha y hora.</li>
+          <li class="system">🤖 El sistema registra la cita y envía una confirmación con todos los detalles.</li>
+          <li class="success">✅ La cita queda agendada y aparece en la agenda de la sucursal.</li>
+          <li class="error">❌ Si en algún paso no hay opciones disponibles, el bot lo notifica y ofrece escalar a recepción (ver Escenario 11).</li>
+        </ul>
+      </div>
+      <div class="diagram-wrap">
+        <h4>Embudo de agendamiento</h4>
+        <div class="mermaid">
+flowchart TD
+    A([Paciente elige\nAgendar]) --> B[Bot muestra\nservicios disponibles]
+    B --> C[Paciente elige\nservicio]
+    C --> D{¿Hay sucursales\ncon disponibilidad?}
+    D -- No --> E([Sin disponibilidad\nEscenario 11])
+    D -- Sí --> F[Bot muestra\nsucursales]
+    F --> G[Paciente elige\nsucursal]
+    G --> H[Bot muestra\nmédicas disponibles]
+    H --> I[Paciente elige\nmédica]
+    I --> J[Bot muestra\nhorarios libres]
+    J --> K[Paciente elige\nfecha y hora]
+    K --> L[Sistema registra\nla cita]
+    L --> M[Bot envía\nconfirmación]
+    M --> N([Cita agendada ✅])
+    style A fill:#afd393,color:#2d5a1b,stroke:#afd393
+    style B fill:#25D366,color:#fff,stroke:#1ea352
+    style C fill:#afd393,color:#2d5a1b,stroke:#afd393
+    style D fill:#d9d8f5,color:#373644,stroke:#a25cbf
+    style E fill:#fac186,color:#373644,stroke:#e0a050
+    style F fill:#25D366,color:#fff,stroke:#1ea352
+    style G fill:#afd393,color:#2d5a1b,stroke:#afd393
+    style H fill:#25D366,color:#fff,stroke:#1ea352
+    style I fill:#afd393,color:#2d5a1b,stroke:#afd393
+    style J fill:#25D366,color:#fff,stroke:#1ea352
+    style K fill:#afd393,color:#2d5a1b,stroke:#afd393
+    style L fill:#d6d9f3,color:#373644,stroke:#a25cbf
+    style M fill:#25D366,color:#fff,stroke:#1ea352
+    style N fill:#afd393,color:#2d5a1b,stroke:#afd393
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ESCENARIO 4 -->
+  <div class="scenario-card">
+    <div class="scenario-header">
+      <div class="scenario-number">4</div>
+      <div>
+        <h3>Ver mis citas por WhatsApp</h3>
+        <div class="actors">
+          <span class="actor-badge" style="background:#afd393;color:#2d5a1b">Paciente</span>
+          <span class="actor-badge" style="background:#25D366;color:#fff">Bot WA</span>
+          <span class="actor-badge" style="background:#d6d9f3;color:#373644">Sistema</span>
+        </div>
+      </div>
+    </div>
+    <div class="scenario-body">
+      <div class="steps">
+        <h4>¿Cómo funciona?</h4>
+        <ul class="step-list">
+          <li>La paciente elige "Ver mis citas" en el menú.</li>
+          <li class="system">🤖 El sistema busca las próximas citas registradas a nombre de esa paciente.</li>
+          <li class="decision">🔀 ¿Tiene citas próximas? Si no tiene ninguna, el bot lo indica y ofrece agendar.</li>
+          <li class="system">🤖 El bot muestra cada cita con: fecha, hora, nombre de la médica y sucursal.</li>
+          <li>La paciente puede elegir una cita para reagendar o cancelar desde aquí.</li>
+          <li class="success">✅ La paciente ve únicamente sus propias citas — no puede ver citas de otras personas.</li>
+        </ul>
+        <div class="notes"><strong>Nota:</strong> Se muestran máximo 5 citas próximas para mantener el mensaje claro y legible en WhatsApp.</div>
+      </div>
+      <div class="diagram-wrap">
+        <h4>Diagrama de flujo</h4>
+        <div class="mermaid">
+sequenceDiagram
+    participant P as Paciente
+    participant B as Bot WA
+    participant S as Sistema
+    P->>B: "Ver mis citas"
+    B->>S: Consulta citas próximas de la paciente
+    S-->>B: Lista de citas (máx. 5)
+    alt Tiene citas
+        B-->>P: Muestra cada cita:\nfecha · hora · médica · sucursal
+        P->>B: Elige una cita (opcional)
+        B-->>P: Opciones: Reagendar / Cancelar
+    else Sin citas próximas
+        B-->>P: "No tienes citas próximas.\n¿Deseas agendar una?"
+    end
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ESCENARIO 5 -->
+  <div class="scenario-card">
+    <div class="scenario-header">
+      <div class="scenario-number">5</div>
+      <div>
+        <h3>Reagendar cita por WhatsApp</h3>
+        <div class="actors">
+          <span class="actor-badge" style="background:#afd393;color:#2d5a1b">Paciente</span>
+          <span class="actor-badge" style="background:#25D366;color:#fff">Bot WA</span>
+          <span class="actor-badge" style="background:#d6d9f3;color:#373644">Sistema</span>
+        </div>
+      </div>
+    </div>
+    <div class="scenario-body">
+      <div class="steps">
+        <h4>¿Cómo funciona?</h4>
+        <ul class="step-list">
+          <li>La paciente elige "Reagendar" en el menú o desde la vista de sus citas.</li>
+          <li>Si tiene más de una cita, el bot le pregunta cuál desea mover.</li>
+          <li>La paciente selecciona la cita que quiere reagendar.</li>
+          <li class="system">🤖 El sistema busca nuevos horarios disponibles con la misma médica.</li>
+          <li class="decision">🔀 ¿Hay horarios con la misma médica? Si no hay, ofrece horarios con otras médicas del mismo servicio.</li>
+          <li>La paciente elige la nueva fecha y hora.</li>
+          <li class="system">🤖 El sistema mueve la cita al nuevo horario de forma atómica (cancela la anterior y crea la nueva en un solo paso).</li>
+          <li class="success">✅ La paciente recibe confirmación con los datos del nuevo horario.</li>
+          <li class="error">❌ Si no hay ningún horario disponible, el bot ofrece escalar a recepción.</li>
+        </ul>
+      </div>
+      <div class="diagram-wrap">
+        <h4>Diagrama de flujo</h4>
+        <div class="mermaid">
+flowchart TD
+    A([Paciente elige\nReagendar]) --> B{¿Tiene más\nde 1 cita?}
+    B -- Sí --> C[Bot pregunta\ncuál cita mover]
+    B -- No --> D[Bot muestra\nla única cita]
+    C --> E[Paciente elige\nla cita]
+    D --> E
+    E --> F[Sistema busca\nnuevos horarios]
+    F --> G{¿Hay horarios\ncon la misma médica?}
+    G -- Sí --> H[Bot muestra\nhorarios disponibles]
+    G -- No --> I[Bot ofrece\notras médicas]
+    I --> H
+    H --> J[Paciente elige\nnueva fecha y hora]
+    J --> K[Sistema mueve\nla cita]
+    K --> L([Confirmación\nnuevo horario ✅])
+    style A fill:#afd393,color:#2d5a1b,stroke:#afd393
+    style B fill:#d9d8f5,color:#373644,stroke:#a25cbf
+    style C fill:#25D366,color:#fff,stroke:#1ea352
+    style D fill:#25D366,color:#fff,stroke:#1ea352
+    style E fill:#afd393,color:#2d5a1b,stroke:#afd393
+    style F fill:#d6d9f3,color:#373644,stroke:#a25cbf
+    style G fill:#d9d8f5,color:#373644,stroke:#a25cbf
+    style H fill:#25D366,color:#fff,stroke:#1ea352
+    style I fill:#25D366,color:#fff,stroke:#1ea352
+    style J fill:#afd393,color:#2d5a1b,stroke:#afd393
+    style K fill:#d6d9f3,color:#373644,stroke:#a25cbf
+    style L fill:#afd393,color:#2d5a1b,stroke:#afd393
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ESCENARIO 6 -->
+  <div class="scenario-card">
+    <div class="scenario-header">
+      <div class="scenario-number">6</div>
+      <div>
+        <h3>Cancelar cita por WhatsApp</h3>
+        <div class="actors">
+          <span class="actor-badge" style="background:#afd393;color:#2d5a1b">Paciente</span>
+          <span class="actor-badge" style="background:#25D366;color:#fff">Bot WA</span>
+          <span class="actor-badge" style="background:#d6d9f3;color:#373644">Sistema</span>
+        </div>
+      </div>
+    </div>
+    <div class="scenario-body">
+      <div class="steps">
+        <h4>¿Cómo funciona?</h4>
+        <ul class="step-list">
+          <li>La paciente elige "Cancelar cita" en el menú o desde la vista de sus citas.</li>
+          <li>Si tiene más de una cita próxima, el bot le pregunta cuál desea cancelar.</li>
+          <li>La paciente indica la cita que quiere cancelar.</li>
+          <li class="system">🤖 El bot muestra el resumen de esa cita (fecha, hora, médica, sucursal) y pide confirmación explícita.</li>
+          <li class="decision">🔀 ¿La paciente confirma la cancelación?</li>
+          <li class="system">🤖 El sistema cancela la cita y libera ese horario para otras pacientes.</li>
+          <li class="system">🤖 El sistema notifica a la sucursal sobre la cancelación.</li>
+          <li class="success">✅ La paciente recibe confirmación de que su cita fue cancelada.</li>
+          <li class="error">❌ Si la paciente no confirma, la cita permanece activa sin cambios.</li>
+        </ul>
+        <div class="notes"><strong>Nota:</strong> La doble confirmación protege a la paciente de cancelaciones accidentales por un toque de pantalla equivocado.</div>
+      </div>
+      <div class="diagram-wrap">
+        <h4>Diagrama de flujo</h4>
+        <div class="mermaid">
+flowchart TD
+    A([Paciente elige\nCancelar cita]) --> B[Paciente indica\ncuál cita cancelar]
+    B --> C[Bot muestra resumen\ny pide confirmación]
+    C --> D{¿Paciente\nconfirma?}
+    D -- Sí --> E[Sistema cancela\nla cita]
+    D -- No --> F([Cita permanece\nactiva — sin cambios])
+    E --> G[Sistema libera\nel horario]
+    G --> H[Sistema avisa\na la sucursal]
+    H --> I([Confirmación de\ncancelación ✅])
+    style A fill:#afd393,color:#2d5a1b,stroke:#afd393
+    style B fill:#afd393,color:#2d5a1b,stroke:#afd393
+    style C fill:#25D366,color:#fff,stroke:#1ea352
+    style D fill:#d9d8f5,color:#373644,stroke:#a25cbf
+    style E fill:#d6d9f3,color:#373644,stroke:#a25cbf
+    style F fill:#fac186,color:#373644,stroke:#e0a050
+    style G fill:#d6d9f3,color:#373644,stroke:#a25cbf
+    style H fill:#d6d9f3,color:#373644,stroke:#a25cbf
+    style I fill:#afd393,color:#2d5a1b,stroke:#afd393
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ESCENARIO 7 -->
+  <div class="scenario-card">
+    <div class="scenario-header">
+      <div class="scenario-number">7</div>
+      <div>
+        <h3>Escalar a recepción humana (handoff)</h3>
+        <div class="actors">
+          <span class="actor-badge" style="background:#afd393;color:#2d5a1b">Paciente</span>
+          <span class="actor-badge" style="background:#25D366;color:#fff">Bot WA</span>
+          <span class="actor-badge" style="background:#7eb8f7;color:#1a3a5c">Recepcionista</span>
+        </div>
+      </div>
+    </div>
+    <div class="scenario-body">
+      <div class="steps">
+        <h4>¿Cómo funciona?</h4>
+        <ul class="step-list">
+          <li>La paciente escribe "quiero hablar con una persona" o elige "Hablar con recepción".</li>
+          <li class="decision">🔀 También puede ocurrir de forma automática si el bot no puede resolver la solicitud (ver Escenario 19).</li>
+          <li class="system">🤖 El bot confirma a la paciente que su conversación será atendida por una persona del equipo.</li>
+          <li class="system">🤖 El sistema registra la escalación y notifica al equipo de recepción de la sucursal correspondiente.</li>
+          <li>La recepcionista recibe el aviso y puede ver el historial de la conversación con el bot para entender el contexto.</li>
+          <li>La recepcionista retoma la conversación directamente en WhatsApp.</li>
+          <li class="success">✅ La paciente es atendida por una persona real sin necesidad de repetir todo lo que ya explicó al bot.</li>
+        </ul>
+        <div class="notes"><strong>Nota:</strong> El equipo de recepción recibe una notificación inmediata. Si están fuera de horario, el bot avisa a la paciente que será atendida en el siguiente turno (ver Escenario 12).</div>
+      </div>
+      <div class="diagram-wrap">
+        <h4>Diagrama de flujo</h4>
+        <div class="mermaid">
+sequenceDiagram
+    participant P as Paciente
+    participant B as Bot WA
+    participant S as Sistema
+    participant R as Recepcionista
+    P->>B: "Quiero hablar con una persona"
+    B-->>P: "Con gusto te comunico con\nnuestro equipo de recepción"
+    B->>S: Registra escalación
+    S->>R: Notifica handoff con contexto\nde la conversación
+    R-->>P: Retoma la conversación\nen WhatsApp
+    P->>R: Continúa con atención humana
+    R-->>P: Resolución del tema
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ESCENARIO 8 -->
+  <div class="scenario-card">
+    <div class="scenario-header">
+      <div class="scenario-number">8</div>
+      <div>
+        <h3>Onboarding de paciente nueva durante agendamiento</h3>
+        <div class="actors">
+          <span class="actor-badge" style="background:#afd393;color:#2d5a1b">Paciente</span>
+          <span class="actor-badge" style="background:#25D366;color:#fff">Bot WA</span>
+          <span class="actor-badge" style="background:#d6d9f3;color:#373644">Sistema</span>
+        </div>
+      </div>
+    </div>
+    <div class="scenario-body">
+      <div class="steps">
+        <h4>¿Cómo funciona?</h4>
+        <ul class="step-list">
+          <li>La paciente elige "Agendar cita" pero su número de teléfono no está en el sistema.</li>
+          <li class="system">🤖 El bot la informa que primero necesita crear su perfil y le pide su nombre completo.</li>
+          <li>La paciente escribe su nombre.</li>
+          <li>El bot solicita su correo electrónico.</li>
+          <li>El bot solicita su fecha de nacimiento y muestra una vista previa legible ("15 de marzo de 1990") para que confirme que es correcta.</li>
+          <li class="decision">🔀 ¿Los datos son correctos? Si la paciente corrige algún dato, el bot lo acepta antes de continuar.</li>
+          <li class="system">🤖 El sistema crea el perfil de la paciente con esos datos.</li>
+          <li class="success">✅ La paciente queda registrada y el bot continúa inmediatamente con el flujo de agendamiento (Escenario 3).</li>
+          <li class="error">❌ Si el correo ya existe en el sistema con otra cuenta, el bot avisa y escala a recepción.</li>
+        </ul>
+      </div>
+      <div class="diagram-wrap">
+        <h4>Diagrama de flujo</h4>
+        <div class="mermaid">
+flowchart TD
+    A([Paciente nueva\nquiere agendar]) --> B[Bot solicita\nnombre completo]
+    B --> C[Bot solicita\ncorreo electrónico]
+    C --> D[Bot solicita\nfecha de nacimiento]
+    D --> E[Bot muestra vista previa\nde fecha en español]
+    E --> F{¿Datos\ncorrectos?}
+    F -- Corrige --> D
+    F -- Correctos --> G{¿Correo ya\nexiste?}
+    G -- Sí --> H([Escala a\nRecepción])
+    G -- No --> I[Sistema crea\nperfil de paciente]
+    I --> J([Continúa\nagendamiento ✅])
+    style A fill:#afd393,color:#2d5a1b,stroke:#afd393
+    style B fill:#25D366,color:#fff,stroke:#1ea352
+    style C fill:#25D366,color:#fff,stroke:#1ea352
+    style D fill:#25D366,color:#fff,stroke:#1ea352
+    style E fill:#25D366,color:#fff,stroke:#1ea352
+    style F fill:#d9d8f5,color:#373644,stroke:#a25cbf
+    style G fill:#d9d8f5,color:#373644,stroke:#a25cbf
+    style H fill:#fac186,color:#373644,stroke:#e0a050
+    style I fill:#d6d9f3,color:#373644,stroke:#a25cbf
+    style J fill:#afd393,color:#2d5a1b,stroke:#afd393
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ESCENARIO 9 -->
+  <div class="scenario-card">
+    <div class="scenario-header">
+      <div class="scenario-number">9</div>
+      <div>
+        <h3>Intento de manipulación del bot (seguridad)</h3>
+        <div class="actors">
+          <span class="actor-badge" style="background:#afd393;color:#2d5a1b">Paciente</span>
+          <span class="actor-badge" style="background:#25D366;color:#fff">Bot WA</span>
+        </div>
+      </div>
+    </div>
+    <div class="scenario-body">
+      <div class="steps">
+        <h4>¿Cómo funciona?</h4>
+        <ul class="step-list">
+          <li>Alguien intenta darle instrucciones al bot para cambiar su comportamiento, pedir datos de otras personas, o engañarlo para que responda fuera de su función.</li>
+          <li class="system">🤖 El bot detecta que el mensaje intenta alterar sus reglas o pedir información que no le corresponde.</li>
+          <li class="system">🤖 El bot responde una sola vez con un mensaje claro: "Solo puedo ayudarte con información sobre tus propias citas."</li>
+          <li class="system">🤖 El sistema registra el intento y escala la conversación automáticamente al equipo de seguridad.</li>
+          <li>El bot no responde a más intentos del mismo tipo en esa conversación.</li>
+          <li class="success">✅ La información de otras pacientes queda protegida en todo momento.</li>
+        </ul>
+        <div class="notes"><strong>Nota:</strong> Esta protección aplica también si alguien intenta pedirle al bot que "actúe como" otra persona o que ignore sus instrucciones originales.</div>
+      </div>
+      <div class="diagram-wrap">
+        <h4>Diagrama de flujo</h4>
+        <div class="mermaid">
+flowchart TD
+    A([Mensaje intenta\nmanipular el bot]) --> B{¿Tipo de\nintento?}
+    B -- Cambiar instrucciones --> C[Bot responde una vez:\n"Solo puedo ayudarte\ncon tus citas"]
+    B -- Pedir datos de otra persona --> C
+    B -- Inyección de instrucciones --> C
+    C --> D[Sistema registra\nel intento]
+    D --> E[Escalación automática\na seguridad]
+    E --> F[Bot no responde\na más intentos iguales]
+    F --> G([Conversación\nprotegida ✅])
+    style A fill:#ff3759,color:#fff,stroke:#cc2040
+    style B fill:#d9d8f5,color:#373644,stroke:#a25cbf
+    style C fill:#25D366,color:#fff,stroke:#1ea352
+    style D fill:#d6d9f3,color:#373644,stroke:#a25cbf
+    style E fill:#d6d9f3,color:#373644,stroke:#a25cbf
+    style F fill:#25D366,color:#fff,stroke:#1ea352
+    style G fill:#afd393,color:#2d5a1b,stroke:#afd393
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ESCENARIO 10 -->
+  <div class="scenario-card">
+    <div class="scenario-header">
+      <div class="scenario-number">10</div>
+      <div>
+        <h3>Paciente escribe en otro idioma</h3>
+        <div class="actors">
+          <span class="actor-badge" style="background:#afd393;color:#2d5a1b">Paciente</span>
+          <span class="actor-badge" style="background:#25D366;color:#fff">Bot WA</span>
+          <span class="actor-badge" style="background:#7eb8f7;color:#1a3a5c">Recepcionista</span>
+        </div>
+      </div>
+    </div>
+    <div class="scenario-body">
+      <div class="steps">
+        <h4>¿Cómo funciona?</h4>
+        <ul class="step-list">
+          <li>La paciente escribe al bot en un idioma diferente al español (inglés, francés, etc.).</li>
+          <li class="system">🤖 El bot responde siempre en español, explicando amablemente que opera en ese idioma.</li>
+          <li class="decision">🔀 ¿La paciente insiste en otro idioma?</li>
+          <li class="system">🤖 El bot escala la conversación a recepción para que una persona pueda atenderla de forma personalizada.</li>
+          <li>La recepcionista retoma la conversación y ofrece atención en el idioma que se pueda.</li>
+          <li class="success">✅ La paciente no queda sin respuesta por la barrera del idioma.</li>
+        </ul>
+      </div>
+      <div class="diagram-wrap">
+        <h4>Diagrama de flujo</h4>
+        <div class="mermaid">
+flowchart TD
+    A([Paciente escribe\nen otro idioma]) --> B[Bot responde\nen español]
+    B --> C{¿Paciente sigue\nen otro idioma?}
+    C -- Sí --> D[Bot escala a\nrecepción humana]
+    C -- No --> E([Conversación\ncontinúa en español ✅])
+    D --> F[Recepcionista\nretoma la atención]
+    F --> G([Atención\npersonalizada ✅])
+    style A fill:#afd393,color:#2d5a1b,stroke:#afd393
+    style B fill:#25D366,color:#fff,stroke:#1ea352
+    style C fill:#d9d8f5,color:#373644,stroke:#a25cbf
+    style D fill:#25D366,color:#fff,stroke:#1ea352
+    style E fill:#afd393,color:#2d5a1b,stroke:#afd393
+    style F fill:#7eb8f7,color:#1a3a5c,stroke:#4a8fd6
+    style G fill:#afd393,color:#2d5a1b,stroke:#afd393
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ESCENARIO 11 -->
+  <div class="scenario-card">
+    <div class="scenario-header">
+      <div class="scenario-number">11</div>
+      <div>
+        <h3>Sin disponibilidad para el servicio solicitado</h3>
+        <div class="actors">
+          <span class="actor-badge" style="background:#afd393;color:#2d5a1b">Paciente</span>
+          <span class="actor-badge" style="background:#25D366;color:#fff">Bot WA</span>
+          <span class="actor-badge" style="background:#d6d9f3;color:#373644">Sistema</span>
+          <span class="actor-badge" style="background:#7eb8f7;color:#1a3a5c">Recepcionista</span>
+        </div>
+      </div>
+    </div>
+    <div class="scenario-body">
+      <div class="steps">
+        <h4>¿Cómo funciona?</h4>
+        <ul class="step-list">
+          <li>La paciente elige un servicio o una sucursal durante el agendamiento.</li>
+          <li class="system">🤖 El sistema revisa si hay médicas disponibles con horarios libres en los próximos 14 días.</li>
+          <li class="decision">🔀 No hay ningún horario disponible para esa combinación de servicio y sucursal.</li>
+          <li class="system">🤖 El bot informa a la paciente que en este momento no hay citas disponibles para lo que está buscando.</li>
+          <li>El bot ofrece dos alternativas: intentar con otra sucursal, o escalar a recepción para que el equipo busque opciones.</li>
+          <li class="decision">🔀 ¿La paciente elige escalar?</li>
+          <li class="success">✅ Si elige recepción, la conversación pasa a una persona del equipo (ver Escenario 7).</li>
+          <li class="success">✅ Si elige otra sucursal, el bot reinicia el embudo desde la selección de sucursal.</li>
+        </ul>
+      </div>
+      <div class="diagram-wrap">
+        <h4>Diagrama de flujo</h4>
+        <div class="mermaid">
+flowchart TD
+    A([Paciente elige\nservicio o sucursal]) --> B[Sistema revisa\ndisponibilidad]
+    B --> C{¿Hay horarios\ndisponibles?}
+    C -- Sí --> D([Continúa\nagendamiento ✅])
+    C -- No --> E[Bot informa:\nno hay citas disponibles]
+    E --> F[Bot ofrece alternativas]
+    F --> G{¿Qué elige\nla paciente?}
+    G -- Otra sucursal --> H([Reinicia desde\nselección de sucursal])
+    G -- Hablar con recepción --> I([Handoff a\nrecepcionista Escenario 7])
+    G -- Ninguna --> J([Conversación\nfinaliza])
+    style A fill:#afd393,color:#2d5a1b,stroke:#afd393
+    style B fill:#d6d9f3,color:#373644,stroke:#a25cbf
+    style C fill:#d9d8f5,color:#373644,stroke:#a25cbf
+    style D fill:#afd393,color:#2d5a1b,stroke:#afd393
+    style E fill:#25D366,color:#fff,stroke:#1ea352
+    style F fill:#25D366,color:#fff,stroke:#1ea352
+    style G fill:#d9d8f5,color:#373644,stroke:#a25cbf
+    style H fill:#fac186,color:#373644,stroke:#e0a050
+    style I fill:#7eb8f7,color:#1a3a5c,stroke:#4a8fd6
+    style J fill:#d6d9f3,color:#373644,stroke:#a25cbf
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ESCENARIO 12 -->
+  <div class="scenario-card">
+    <div class="scenario-header">
+      <div class="scenario-number">12</div>
+      <div>
+        <h3>Bot en modo handoff forzado (fuera de horario)</h3>
+        <div class="actors">
+          <span class="actor-badge" style="background:#afd393;color:#2d5a1b">Paciente</span>
+          <span class="actor-badge" style="background:#25D366;color:#fff">Bot WA</span>
+          <span class="actor-badge" style="background:#7eb8f7;color:#1a3a5c">Recepcionista</span>
+        </div>
+      </div>
+    </div>
+    <div class="scenario-body">
+      <div class="steps">
+        <h4>¿Cómo funciona?</h4>
+        <ul class="step-list">
+          <li>La paciente escribe al bot fuera del horario de atención de la sucursal (por ejemplo, a las 11 pm).</li>
+          <li class="system">🤖 El bot verifica el horario actual y confirma que está fuera del turno de recepción.</li>
+          <li class="system">🤖 El bot responde a la paciente que el equipo de atención no está disponible en este momento y le indica el horario de atención.</li>
+          <li class="system">🤖 El sistema deja registrada la conversación para que recepción la vea al iniciar el siguiente turno.</li>
+          <li>La recepcionista al llegar a su turno revisa las conversaciones pendientes y retoma la atención.</li>
+          <li>La paciente recibe respuesta en cuanto el equipo inicia el turno.</li>
+          <li class="success">✅ Ninguna conversación se pierde aunque llegue fuera de horario.</li>
+        </ul>
+        <div class="notes"><strong>Nota:</strong> Para urgencias médicas reales, el bot siempre incluye el recordatorio de llamar a los servicios de emergencia (911).</div>
+      </div>
+      <div class="diagram-wrap">
+        <h4>Diagrama de flujo</h4>
+        <div class="mermaid">
+flowchart TD
+    A([Paciente escribe\nfuera de horario]) --> B[Sistema revisa\nhorario de atención]
+    B --> C{¿Dentro de\nhorario?}
+    C -- Sí --> D([Atención\nnormal])
+    C -- No --> E[Bot avisa a paciente:\nfuera de horario]
+    E --> F[Bot indica\nhorario de atención]
+    F --> G[Sistema guarda\nconversación pendiente]
+    G --> H([Recepcionista atiende\nal iniciar turno ✅])
+    style A fill:#afd393,color:#2d5a1b,stroke:#afd393
+    style B fill:#d6d9f3,color:#373644,stroke:#a25cbf
+    style C fill:#d9d8f5,color:#373644,stroke:#a25cbf
+    style D fill:#afd393,color:#2d5a1b,stroke:#afd393
+    style E fill:#25D366,color:#fff,stroke:#1ea352
+    style F fill:#25D366,color:#fff,stroke:#1ea352
+    style G fill:#d6d9f3,color:#373644,stroke:#a25cbf
+    style H fill:#7eb8f7,color:#1a3a5c,stroke:#4a8fd6
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ESCENARIO 13 -->
+  <div class="scenario-card">
+    <div class="scenario-header">
+      <div class="scenario-number">13</div>
+      <div>
+        <h3>Confirmación automática de acción realizada</h3>
+        <div class="actors">
+          <span class="actor-badge" style="background:#afd393;color:#2d5a1b">Paciente</span>
+          <span class="actor-badge" style="background:#25D366;color:#fff">Bot WA</span>
+        </div>
+      </div>
+    </div>
+    <div class="scenario-body">
+      <div class="steps">
+        <h4>¿Cómo funciona?</h4>
+        <ul class="step-list">
+          <li>La paciente completa cualquier acción exitosa desde el bot: agendar, reagendar o cancelar una cita.</li>
+          <li class="system">🤖 De forma inmediata, el bot envía un mensaje de confirmación con el resumen completo de lo que se hizo.</li>
+          <li>El mensaje incluye siempre: qué se hizo (cita agendada / reagendada / cancelada), fecha y hora, nombre de la médica, nombre de la sucursal y dirección.</li>
+          <li class="system">🤖 Para citas agendadas o reagendadas, el bot también recuerda que llegará un recordatorio automático antes de la cita.</li>
+          <li class="success">✅ La paciente tiene en WhatsApp un comprobante claro de lo que se realizó, sin necesidad de llamar a confirmar.</li>
+        </ul>
+        <div class="notes"><strong>Nota:</strong> Este mensaje de confirmación es el mismo formato en los tres tipos de acción. Lo que cambia es solo el verbo: "Tu cita fue agendada", "Tu cita fue reagendada", "Tu cita fue cancelada".</div>
+      </div>
+      <div class="diagram-wrap">
+        <h4>Diagrama de confirmación</h4>
+        <div class="mermaid">
+sequenceDiagram
+    participant P as Paciente
+    participant B as Bot WA
+    participant S as Sistema
+    Note over P,S: Tras cualquier acción exitosa
+    S-->>B: Acción completada\n(agendar / reagendar / cancelar)
+    B-->>P: Mensaje de confirmación con:
+    Note right of B: • Acción realizada
+    Note right of B: • Fecha y hora
+    Note right of B: • Nombre de la médica
+    Note right of B: • Sucursal y dirección
+    B-->>P: "¿Necesitas algo más?"
+    P->>B: Elige siguiente acción o finaliza
+        </div>
+      </div>
+    </div>
+  </div>
+
+</main>
+<div class="footer">Manual Operativo · Grupo Reina Madre · Actualizado 2026 · Para uso interno</div>
+<script>
+mermaid.initialize({
+  startOnLoad:true,
+  theme:'base',
+  themeVariables:{
+    primaryColor:'#d9d8f5',
+    primaryTextColor:'#373644',
+    primaryBorderColor:'#a25cbf',
+    lineColor:'#a25cbf',
+    secondaryColor:'#fce4ef',
+    tertiaryColor:'#f4f4fb',
+    fontFamily:'-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif',
+    fontSize:'13px'
+  }
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gestión de Pacientes — Manual Operativo Reina Madre</title>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#f4f4fb;--card:#fff;--primary:#ed80a8;--secondary:#a25cbf;--accent:#d9d8f5;--border:#d6d9f3;--text:#373644;--muted:#565386;--success:#afd393;--warning:#fac186;--danger:#ff3759}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--bg);color:var(--text);line-height:1.6}
+.header{background:linear-gradient(135deg,var(--primary),var(--secondary));color:#fff;padding:2rem 2.5rem;display:flex;align-items:center;gap:1rem}
+.header-icon{font-size:2.5rem}
+.header h1{font-size:1.8rem;font-weight:700;margin-bottom:.25rem}
+.header p{opacity:.9;font-size:1rem}
+.nav{background:var(--card);border-bottom:1px solid var(--border);padding:.75rem 2.5rem;display:flex;gap:.5rem;flex-wrap:wrap;align-items:center}
+.nav a{color:var(--secondary);text-decoration:none;font-size:.85rem;padding:.3rem .7rem;border-radius:1rem;transition:all .2s}
+.nav a:hover{background:var(--accent);color:var(--text)}
+.nav .active{background:var(--primary);color:#fff}
+.main{max-width:1200px;margin:0 auto;padding:2rem 2.5rem}
+.section-intro{background:var(--card);border-radius:12px;border:1px solid var(--border);padding:1.5rem;margin-bottom:2rem}
+.section-intro h2{color:var(--secondary);font-size:1.2rem;margin-bottom:.5rem}
+.scenario-card{background:var(--card);border-radius:12px;border:1px solid var(--border);margin-bottom:2rem;overflow:hidden;box-shadow:0 1px 3px rgba(162,92,191,.08)}
+.scenario-header{background:var(--accent);padding:1.25rem 1.5rem;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;gap:1rem}
+.scenario-number{background:var(--primary);color:#fff;width:2rem;height:2rem;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.85rem;flex-shrink:0;margin-top:.1rem}
+.scenario-header h3{font-size:1.1rem;color:var(--text);font-weight:600;margin-bottom:.2rem}
+.scenario-header .actors{font-size:.8rem;color:var(--muted)}
+.actor-badge{display:inline-block;padding:.15rem .5rem;border-radius:.5rem;font-size:.75rem;font-weight:500;margin-right:.25rem}
+.scenario-body{padding:1.5rem;display:grid;grid-template-columns:1fr 1fr;gap:1.5rem}
+@media(max-width:768px){.scenario-body{grid-template-columns:1fr}}
+.steps h4{color:var(--secondary);font-size:.9rem;font-weight:600;margin-bottom:.75rem;text-transform:uppercase;letter-spacing:.05em}
+.step-list{list-style:none}
+.step-list li{padding:.5rem .75rem;margin-bottom:.4rem;border-radius:.5rem;border-left:3px solid var(--border);font-size:.9rem;background:#fafafe}
+.step-list li.system{border-color:var(--muted);background:#f0f0f8}
+.step-list li.decision{border-color:var(--warning);background:#fff9f2}
+.step-list li.success{border-color:var(--success);background:#f6fbf2}
+.step-list li.error{border-color:var(--danger);background:#fff5f6}
+.diagram-wrap{overflow:auto}
+.diagram-wrap h4{color:var(--secondary);font-size:.9rem;font-weight:600;margin-bottom:.75rem;text-transform:uppercase;letter-spacing:.05em}
+.mermaid{font-size:13px}
+.notes{margin-top:1rem;padding:.75rem 1rem;background:#fff8e1;border-radius:.5rem;border-left:3px solid var(--warning);font-size:.85rem;color:var(--text)}
+.notes strong{color:#b45309}
+.footer{text-align:center;padding:2rem;color:var(--muted);font-size:.8rem;border-top:1px solid var(--border);margin-top:2rem}
+</style>
+</head>
+<body>
+<div class="header">
+  <div class="header-icon">👩‍⚕️</div>
+  <div>
+    <h1>Gestión de Pacientes</h1>
+    <p>Manual Operativo — Grupo Reina Madre · Reina Madre | María Linda | Piel Sana</p>
+  </div>
+</div>
+<nav class="nav">
+  <a href="index.html">🏠 Inicio</a>
+  <a href="01-autenticacion.html">🔐 Acceso</a>
+  <a href="02-pacientes.html" class="active">👩‍⚕️ Pacientes</a>
+  <a href="03-agenda.html">📅 Agenda</a>
+  <a href="04-contratos.html">📋 Contratos</a>
+  <a href="05-staff.html">👥 Staff</a>
+  <a href="06-bot-whatsapp.html">💬 Bot WA</a>
+  <a href="07-notificaciones.html">🔔 Notificaciones</a>
+  <a href="08-configuracion.html">⚙️ Configuración</a>
+  <a href="09-procesos.html">⚡ Procesos</a>
+</nav>
+<main class="main">
+
+  <div class="section-intro">
+    <h2>Acerca de esta sección</h2>
+    <p>Esta sección cubre todo lo relacionado con los perfiles de pacientes: cómo registrarlas, buscarlas, editar sus datos, organizar grupos familiares y mantener el expediente limpio y sin duplicados. La usan principalmente las recepcionistas en el día a día, aunque las médicas, gerentes y el equipo administrativo corporativo también tienen acceso a partes específicas según su rol.</p>
+  </div>
+
+  <!-- ESCENARIO 1 -->
+  <div class="scenario-card">
+    <div class="scenario-header">
+      <div class="scenario-number">1</div>
+      <div>
+        <h3>Registrar paciente nueva</h3>
+        <div class="actors">
+          <span class="actor-badge" style="background:#7eb8f7;color:#1a3a5c">Recepcionista</span>
+          <span class="actor-badge" style="background:#d6d9f3;color:#373644">Sistema</span>
+        </div>
+      </div>
+    </div>
+    <div class="scenario-body">
+      <div class="steps">
+        <h4>¿Cómo funciona?</h4>
+        <ul class="step-list">
+          <li>La recepcionista abre la sección de Pacientes y hace clic en "Nueva paciente".</li>
+          <li>Captura los datos requeridos: nombre completo, teléfono, correo electrónico y fecha de nacimiento.</li>
+          <li class="system">🤖 El sistema verifica en tiempo real si ya existe un perfil con el mismo correo o teléfono.</li>
+          <li class="decision">🔀 ¿Ya existe una paciente con esos datos?</li>
+          <li class="error">❌ Si ya existe: el sistema muestra una alerta y sugiere abrir el perfil encontrado en lugar de crear uno nuevo.</li>
+          <li class="success">✅ Si no existe: el sistema crea el perfil y muestra la ficha de la nueva paciente.</li>
+          <li>La recepcionista puede agregar información complementaria (dirección, notas de contacto) antes de guardar.</li>
+        </ul>
+        <div class="notes"><strong>Importante:</strong> No se puede registrar una paciente sin nombre completo y al menos un medio de contacto (teléfono o correo). Estos campos son obligatorios.</div>
+      </div>
+      <div class="diagram-wrap">
+        <h4>Diagrama de flujo</h4>
+        <div class="mermaid">
+flowchart TD
+    A([Recepcionista abre\nNueva paciente]) --> B[Captura nombre,\nteléfono, correo,\nfecha de nacimiento]
+    B --> C{El sistema busca\nperfiles similares}
+    C -- Perfil encontrado --> D[Muestra alerta\nde posible duplicado]
+    D --> E([Recepcionista abre\nperfil existente])
+    C -- Sin coincidencias --> F[Crea el perfil\nnuevo]
+    F --> G([Paciente registrada\ncorrectamente])
+    style A fill:#7eb8f7,color:#1a3a5c,stroke:#4a90d9
+    style B fill:#d6d9f3,color:#373644,stroke:#a25cbf
+    style C fill:#fac186,color:#373644,stroke:#d48a50
+    style D fill:#ff3759,color:#fff,stroke:#c0001f
+    style E fill:#7eb8f7,color:#1a3a5c,stroke:#4a90d9
+    style F fill:#d6d9f3,color:#373644,stroke:#a25cbf
+    style G fill:#afd393,color:#2d5a1b,stroke:#6aa84f
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ESCENARIO 2 -->
+  <div class="scenario-card">
+    <div class="scenario-header">
+      <div class="scenario-number">2</div>
+      <div>
+        <h3>Buscar paciente existente</h3>
+        <div class="actors">
+          <span class="actor-badge" style="background:#7eb8f7;color:#1a3a5c">Recepcionista</span>
+          <span class="actor-badge" style="background:#c58fe8;color:#4a1a6b">Médica</span>
+        </div>
+      </div>
+    </div>
+    <div class="scenario-body">
+      <div class="steps">
+        <h4>¿Cómo funciona?</h4>
+        <ul class="step-list">
+          <li>El usuario escribe en el buscador el nombre, teléfono o correo de la paciente.</li>
+          <li class="system">🤖 El sistema muestra resultados coincidentes en tiempo real, conforme se escribe.</li>
+          <li class="decision">🔀 ¿Aparece la paciente en los resultados?</li>
+          <li class="success">✅ Sí aparece: el usuario hace clic sobre su nombre para abrir el perfil completo.</li>
+          <li class="error">❌ No aparece: puede intentar con otro dato de contacto o registrar a la paciente como nueva.</li>
+          <li>Los resultados muestran nombre, teléfono, correo y sucursal de origen del perfil.</li>
+        </ul>
+        <div class="notes"><strong>Consejo:</strong> Si la paciente tiene apellidos compuestos, prueba buscar solo por teléfono o correo para encontrarla más rápido.</div>
+      </div>
+      <div class="diagram-wrap">
+        <h4>Diagrama de flujo</h4>
+        <div class="mermaid">
+sequenceDiagram
+    participant U as Recepcionista / Médica
+    participant S as Sistema
+    U->>S: Escribe nombre, teléfono o correo
+    S-->>U: Muestra resultados en tiempo real
+    U->>S: Selecciona a la paciente
+    S-->>U: Abre perfil completo
+    Note over U,S: Si no hay resultados, se puede registrar como nueva paciente
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ESCENARIO 3 -->
+  <div class="scenario-card">
+    <div class="scenario-header">
+      <div class="scenario-number">3</div>
+      <div>
+        <h3>Editar datos del paciente</h3>
+        <div class="actors">
+          <span class="actor-badge" style="background:#7eb8f7;color:#1a3a5c">Recepcionista</span>
+          <span class="actor-badge" style="background:#ed80a8;color:#6b0030">Admin Corporativo</span>
+        </div>
+      </div>
+    </div>
+    <div class="scenario-body">
+      <div class="steps">
+        <h4>¿Cómo funciona?</h4>
+        <ul class="step-list">
+          <li>El usuario abre el perfil de la paciente y hace clic en "Editar".</li>
+          <li class="system">🤖 El sistema muestra solo los campos que ese rol tiene permitido modificar, según la configuración de la sucursal.</li>
+          <li>El usuario realiza los cambios necesarios (por ejemplo, actualizar el teléfono o correo).</li>
+          <li class="decision">🔀 ¿El campo que quiere editar está habilitado para su rol?</li>
+          <li class="success">✅ Sí está habilitado: guarda el cambio y el sistema registra quién lo hizo y cuándo.</li>
+          <li class="error">❌ No está habilitado: el campo aparece bloqueado. Contactar al Admin Corporativo para el ajuste.</li>
+          <li class="system">🤖 El sistema guarda un historial de cada modificación: dato anterior, dato nuevo, fecha y quién lo cambió.</li>
+        </ul>
+        <div class="notes"><strong>Importante:</strong> El historial de cambios no puede borrarse. Cualquier modificación queda registrada permanentemente para auditoría.</div>
+      </div>
+      <div class="diagram-wrap">
+        <h4>Diagrama de flujo</h4>
+        <div class="mermaid">
+flowchart TD
+    A([Usuario abre perfil\ny hace clic en Editar]) --> B{¿El campo está\nhabilitado para\nsu rol?}
+    B -- Sí --> C[Usuario edita\nel campo]
+    C --> D[Guarda el cambio]
+    D --> E[El sistema registra\ncambio en historial]
+    E --> F([Perfil actualizado])
+    B -- No --> G[Campo bloqueado\nen pantalla]
+    G --> H([Contactar al\nAdmin Corporativo])
+    style A fill:#7eb8f7,color:#1a3a5c,stroke:#4a90d9
+    style B fill:#fac186,color:#373644,stroke:#d48a50
+    style C fill:#7eb8f7,color:#1a3a5c,stroke:#4a90d9
+    style D fill:#d6d9f3,color:#373644,stroke:#a25cbf
+    style E fill:#d6d9f3,color:#373644,stroke:#a25cbf
+    style F fill:#afd393,color:#2d5a1b,stroke:#6aa84f
+    style G fill:#ff3759,color:#fff,stroke:#c0001f
+    style H fill:#ed80a8,color:#6b0030,stroke:#b85080
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ESCENARIO 4 -->
+  <div class="scenario-card">
+    <div class="scenario-header">
+      <div class="scenario-number">4</div>
+      <div>
+        <h3>Crear grupo familiar</h3>
+        <div class="actors">
+          <span class="actor-badge" style="background:#7eb8f7;color:#1a3a5c">Recepcionista</span>
+          <span class="actor-badge" style="background:#d6d9f3;color:#373644">Sistema</span>
+        </div>
+      </div>
+    </div>
+    <div class="scenario-body">
+      <div class="steps">
+        <h4>¿Cómo funciona?</h4>
+        <ul class="step-list">
+          <li>La recepcionista abre el perfil de la paciente que será la titular del grupo familiar.</li>
+          <li>Hace clic en "Crear grupo familiar" dentro de la ficha de la paciente.</li>
+          <li>Confirma que esa paciente será la titular (responsable de pago o referencia del grupo).</li>
+          <li class="system">🤖 El sistema crea el grupo y asigna automáticamente a esa paciente como titular.</li>
+          <li class="success">✅ El grupo queda activo y listo para agregar más miembros.</li>
+          <li>A partir de ese momento, se pueden vincular familiares al grupo (ver Escenario 5).</li>
+        </ul>
+        <div class="notes"><strong>Nota:</strong> Solo puede haber un titular por grupo familiar. Si es necesario cambiar la titular más adelante, consulta el Escenario 12.</div>
+      </div>
+      <div class="diagram-wrap">
+        <h4>Diagrama de flujo</h4>
+        <div class="mermaid">
+flowchart TD
+    A([Recepcionista abre\nperfil de la paciente]) --> B[Hace clic en\nCrear grupo familiar]
+    B --> C[Confirma que esta\npaciente será la titular]
+    C --> D[El sistema crea\nel grupo familiar]
+    D --> E([Grupo activo\nlisto para agregar miembros])
+    style A fill:#7eb8f7,color:#1a3a5c,stroke:#4a90d9
+    style B fill:#7eb8f7,color:#1a3a5c,stroke:#4a90d9
+    style C fill:#fac186,color:#373644,stroke:#d48a50
+    style D fill:#d6d9f3,color:#373644,stroke:#a25cbf
+    style E fill:#afd393,color:#2d5a1b,stroke:#6aa84f
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ESCENARIO 5 -->
+  <div class="scenario-card">
+    <div class="scenario-header">
+      <div class="scenario-number">5</div>
+      <div>
+        <h3>Vincular un familiar al grupo</h3>
+        <div class="actors">
+          <span class="actor-badge" style="background:#7eb8f7;color:#1a3a5c">Recepcionista</span>
+          <span class="actor-badge" style="background:#d6d9f3;color:#373644">Sistema</span>
+        </div>
+      </div>
+    </div>
+    <div class="scenario-body">
+      <div class="steps">
+        <h4>¿Cómo funciona?</h4>
+        <ul class="step-list">
+          <li>La recepcionista abre el grupo familiar de la titular y hace clic en "Agregar familiar".</li>
+          <li>Busca al familiar por nombre, teléfono o correo.</li>
+          <li class="decision">🔀 ¿El familiar ya tiene perfil en el sistema?</li>
+          <li class="success">✅ Sí tiene perfil: se selecciona de los resultados y se vincula al grupo de inmediato.</li>
+          <li>No tiene perfil: la recepcionista registra un nuevo perfil con los datos del familiar (ver Escenario 1) y luego lo vincula.</li>
+          <li class="system">🤖 El sistema registra la relación familiar y muestra al nuevo miembro dentro del grupo.</li>
+          <li class="success">✅ El familiar queda vinculado y puede usarse en citas y contratos del grupo.</li>
+        </ul>
+        <div class="notes"><strong>Nota:</strong> Un perfil solo puede pertenecer a un grupo familiar a la vez. Si la paciente ya pertenece a otro grupo, el sistema lo informará antes de confirmar el vínculo.</div>
+      </div>
+      <div class="diagram-wrap">
+        <h4>Diagrama de flujo</h4>
+        <div class="mermaid">
+flowchart TD
+    A([Recepcionista abre\ngrupo familiar]) --> B[Hace clic en\nAgregar familiar]
+    B --> C[Busca al familiar\npor nombre o contacto]
+    C --> D{¿Tiene perfil\nexistente?}
+    D -- Sí --> E[Selecciona el\nperfil encontrado]
+    D -- No --> F[Registra nuevo\nperfil del familiar]
+    E --> G[Vincula al\ngrupo familiar]
+    F --> G
+    G --> H[El sistema confirma\nel vínculo]
+    H --> I([Familiar agregado\nal grupo])
+    style A fill:#7eb8f7,color:#1a3a5c,stroke:#4a90d9
+    style B fill:#7eb8f7,color:#1a3a5c,stroke:#4a90d9
+    style C fill:#7eb8f7,color:#1a3a5c,stroke:#4a90d9
+    style D fill:#fac186,color:#373644,stroke:#d48a50
+    style E fill:#d6d9f3,color:#373644,stroke:#a25cbf
+    style F fill:#7eb8f7,color:#1a3a5c,stroke:#4a90d9
+    style G fill:#d6d9f3,color:#373644,stroke:#a25cbf
+    style H fill:#d6d9f3,color:#373644,stroke:#a25cbf
+    style I fill:#afd393,color:#2d5a1b,stroke:#6aa84f
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ESCENARIO 6 -->
+  <div class="scenario-card">
+    <div class="scenario-header">
+      <div class="scenario-number">6</div>
+      <div>
+        <h3>Detectar paciente duplicada</h3>
+        <div class="actors">
+          <span class="actor-badge" style="background:#d6d9f3;color:#373644">Sistema</span>
+          <span class="actor-badge" style="background:#7eb8f7;color:#1a3a5c">Recepcionista</span>
+        </div>
+      </div>
+    </div>
+    <div class="scenario-body">
+      <div class="steps">
+        <h4>¿Cómo funciona?</h4>
+        <ul class="step-list">
+          <li class="system">🤖 El sistema revisa continuamente los perfiles buscando coincidencias por nombre, teléfono o correo.</li>
+          <li class="system">🤖 Cuando detecta dos perfiles que podrían ser la misma persona, genera una alerta de posible duplicado.</li>
+          <li>La recepcionista recibe la notificación o la ve en la sección de "Alertas" del panel.</li>
+          <li>Revisa los dos perfiles lado a lado para comparar la información.</li>
+          <li class="decision">🔀 ¿Son realmente la misma paciente?</li>
+          <li class="success">✅ Sí son la misma: procede a unificar los perfiles (ver Escenario 7).</li>
+          <li class="error">❌ No son la misma: descarta la alerta y el sistema la marca como revisada.</li>
+        </ul>
+        <div class="notes"><strong>Importante:</strong> Solo el Admin Corporativo puede ejecutar la unificación definitiva. La recepcionista puede detectar y reportar, pero no fusionar perfiles.</div>
+      </div>
+      <div class="diagram-wrap">
+        <h4>Diagrama de flujo</h4>
+        <div class="mermaid">
+flowchart TD
+    A[El sistema compara\nperfiles por nombre,\nteléfono y correo] --> B{¿Coincidencia\ndetectada?}
+    B -- No --> C([Sin acción necesaria])
+    B -- Sí --> D[Genera alerta\nde duplicado]
+    D --> E[Recepcionista revisa\nambos perfiles]
+    E --> F{¿Son la\nmisma paciente?}
+    F -- Sí --> G([Procede a unificar\nver Escenario 7])
+    F -- No --> H[Descarta la alerta]
+    H --> I([Alerta marcada\ncomo revisada])
+    style A fill:#d6d9f3,color:#373644,stroke:#a25cbf
+    style B fill:#fac186,color:#373644,stroke:#d48a50
+    style C fill:#afd393,color:#2d5a1b,stroke:#6aa84f
+    style D fill:#ff3759,color:#fff,stroke:#c0001f
+    style E fill:#7eb8f7,color:#1a3a5c,stroke:#4a90d9
+    style F fill:#fac186,color:#373644,stroke:#d48a50
+    style G fill:#afd393,color:#2d5a1b,stroke:#6aa84f
+    style H fill:#d6d9f3,color:#373644,stroke:#a25cbf
+    style I fill:#afd393,color:#2d5a1b,stroke:#6aa84f
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ESCENARIO 7 -->
+  <div class="scenario-card">
+    <div class="scenario-header">
+      <div class="scenario-number">7</div>
+      <div>
+        <h3>Unificar perfiles duplicados (merge)</h3>
+        <div class="actors">
+          <span class="actor-badge" style="background:#ed80a8;color:#6b0030">Admin Corporativo</span>
+          <span class="actor-badge" style="background:#d6d9f3;color:#373644">Sistema</span>
+        </div>
+      </div>
+    </div>
+    <div class="scenario-body">
+      <div class="steps">
+        <h4>¿Cómo funciona?</h4>
+        <ul class="step-list">
+          <li>El Admin Corporativo abre la alerta de duplicado o busca manualmente los dos perfiles a unificar.</li>
+          <li>Compara ambos perfiles y elige cuál será el perfil principal (el que se conservará).</li>
+          <li>Hace clic en "Unificar perfiles" y confirma la acción.</li>
+          <li class="system">🤖 El sistema transfiere al perfil principal todas las citas, contratos, notas clínicas y datos del perfil secundario.</li>
+          <li class="system">🤖 El perfil secundario queda archivado (no se borra, solo se oculta del directorio activo).</li>
+          <li class="success">✅ A partir de ese momento, existe un solo perfil unificado con el historial completo de la paciente.</li>
+        </ul>
+        <div class="notes"><strong>Advertencia:</strong> Esta acción no se puede deshacer fácilmente. Revisar bien ambos perfiles antes de confirmar la unificación.</div>
+      </div>
+      <div class="diagram-wrap">
+        <h4>Diagrama de flujo</h4>
+        <div class="mermaid">
+flowchart TD
+    A([Admin Corporativo\nabre los dos perfiles]) --> B[Compara información\nde ambos perfiles]
+    B --> C[Elige el perfil\nprincipal a conservar]
+    C --> D[Confirma la unificación]
+    D --> E[El sistema transfiere\ncitas, contratos y notas\nal perfil principal]
+    E --> F[El perfil secundario\nqueda archivado]
+    F --> G([Un solo perfil unificado\ncon historial completo])
+    style A fill:#ed80a8,color:#6b0030,stroke:#b85080
+    style B fill:#ed80a8,color:#6b0030,stroke:#b85080
+    style C fill:#fac186,color:#373644,stroke:#d48a50
+    style D fill:#fac186,color:#373644,stroke:#d48a50
+    style E fill:#d6d9f3,color:#373644,stroke:#a25cbf
+    style F fill:#d6d9f3,color:#373644,stroke:#a25cbf
+    style G fill:#afd393,color:#2d5a1b,stroke:#6aa84f
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ESCENARIO 8 -->
+  <div class="scenario-card">
+    <div class="scenario-header">
+      <div class="scenario-number">8</div>
+      <div>
+        <h3>Ver historial completo del paciente</h3>
+        <div class="actors">
+          <span class="actor-badge" style="background:#c58fe8;color:#4a1a6b">Médica</span>
+          <span class="actor-badge" style="background:#7eb8f7;color:#1a3a5c">Recepcionista</span>
+          <span class="actor-badge" style="background:#fac186;color:#6b3a10">Gerente de Sucursal</span>
+        </div>
+      </div>
+    </div>
+    <div class="scenario-body">
+      <div class="steps">
+        <h4>¿Cómo funciona?</h4>
+        <ul class="step-list">
+          <li>El usuario abre el perfil de la paciente desde el buscador.</li>
+          <li class="system">🤖 El sistema muestra automáticamente la información según el rol del usuario que la consulta.</li>
+          <li>La <strong>recepcionista</strong> ve: datos de contacto, citas pasadas y futuras, y contratos activos.</li>
+          <li>La <strong>médica</strong> ve todo lo anterior más notas clínicas, diagnósticos y observaciones del expediente.</li>
+          <li>La <strong>gerente de sucursal</strong> ve: datos de contacto, historial de citas y contratos (sin notas clínicas privadas).</li>
+          <li class="decision">🔀 ¿La médica quiere ver notas de otra médica?</li>
+          <li class="success">✅ Las notas marcadas como compartidas sí son visibles. Las privadas solo las ve quien las escribió.</li>
+        </ul>
+        <div class="notes"><strong>Privacidad:</strong> Las notas clínicas marcadas como privadas solo son visibles para la médica que las generó, protegiendo la confidencialidad del expediente.</div>
+      </div>
+      <div class="diagram-wrap">
+        <h4>Diagrama de flujo</h4>
+        <div class="mermaid">
+flowchart TD
+    A([Usuario abre\nperfil de paciente]) --> B{¿Cuál es\nel rol?}
+    B -- Recepcionista --> C[Ve: contacto,\ncitas y contratos]
+    B -- Médica --> D[Ve: contacto, citas,\ncontratos y notas\nclínicas]
+    B -- Gerente --> E[Ve: contacto,\ncitas y contratos]
+    C --> F([Consulta completada])
+    D --> G{¿Son notas\nprivadas?}
+    G -- No --> F
+    G -- Sí solo las\npropias --> F
+    E --> F
+    style A fill:#d6d9f3,color:#373644,stroke:#a25cbf
+    style B fill:#fac186,color:#373644,stroke:#d48a50
+    style C fill:#7eb8f7,color:#1a3a5c,stroke:#4a90d9
+    style D fill:#c58fe8,color:#4a1a6b,stroke:#8a5cbf
+    style E fill:#fac186,color:#6b3a10,stroke:#d48a50
+    style F fill:#afd393,color:#2d5a1b,stroke:#6aa84f
+    style G fill:#fac186,color:#373644,stroke:#d48a50
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ESCENARIO 9 -->
+  <div class="scenario-card">
+    <div class="scenario-header">
+      <div class="scenario-number">9</div>
+      <div>
+        <h3>Agregar paciente a lista restringida</h3>
+        <div class="actors">
+          <span class="actor-badge" style="background:#ed80a8;color:#6b0030">Admin Corporativo</span>
+          <span class="actor-badge" style="background:#d6d9f3;color:#373644">Sistema</span>
+        </div>
+      </div>
+    </div>
+    <div class="scenario-body">
+      <div class="steps">
+        <h4>¿Cómo funciona?</h4>
+        <ul class="step-list">
+          <li>El Admin Corporativo abre el perfil de la paciente y selecciona "Restringir perfil".</li>
+          <li>Escribe el motivo de la restricción (campo obligatorio para auditoría interna).</li>
+          <li>Confirma la acción.</li>
+          <li class="system">🤖 El sistema marca el perfil y bloquea la creación de nuevas citas para esa paciente en todas las sucursales.</li>
+          <li class="system">🤖 Las citas ya agendadas no se cancelan automáticamente; deben gestionarse por separado.</li>
+          <li>Si cualquier usuario intenta agendar una cita para esa paciente, verá una nota de restricción en pantalla.</li>
+          <li class="success">✅ Para desbloquear el perfil, solo el Admin Corporativo puede hacerlo desde la misma sección.</li>
+        </ul>
+        <div class="notes"><strong>Uso excepcional:</strong> Esta función se reserva para casos muy puntuales (por ejemplo, adeudos graves o situaciones extraordinarias). No debe usarse como práctica habitual.</div>
+      </div>
+      <div class="diagram-wrap">
+        <h4>Diagrama de flujo</h4>
+        <div class="mermaid">
+stateDiagram-v2
+    [*] --> Activo : Paciente registrada
+    Activo --> Restringido : Admin aplica restricción
+    Restringido --> Activo : Admin levanta restricción
+    Restringido --> Restringido : Intento de cita bloqueado
+    note right of Restringido
+        No se pueden agendar citas.
+        Las citas previas no se cancelan.
+        Solo Admin Corporativo puede desbloquear.
+    end note
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ESCENARIO 10 -->
+  <div class="scenario-card">
+    <div class="scenario-header">
+      <div class="scenario-number">10</div>
+      <div>
+        <h3>Configurar campos editables de paciente</h3>
+        <div class="actors">
+          <span class="actor-badge" style="background:#ed80a8;color:#6b0030">Admin Corporativo</span>
+        </div>
+      </div>
+    </div>
+    <div class="scenario-body">
+      <div class="steps">
+        <h4>¿Cómo funciona?</h4>
+        <ul class="step-list">
+          <li>El Admin Corporativo entra a la configuración de la sucursal y busca la sección "Permisos de edición de paciente".</li>
+          <li>Ve una lista de todos los campos del perfil de paciente (nombre, teléfono, correo, fecha de nacimiento, dirección, etc.).</li>
+          <li>Para cada campo, activa o desactiva el permiso de edición según el rol: recepcionista, consejera, gerente.</li>
+          <li class="decision">🔀 Ejemplo: ¿puede la recepcionista editar la fecha de nacimiento?</li>
+          <li class="success">✅ Si se activa: el campo aparece editable para ese rol en la ficha de la paciente.</li>
+          <li class="error">❌ Si se desactiva: el campo aparece en modo solo lectura para ese rol.</li>
+          <li class="system">🤖 El sistema aplica la configuración en tiempo real a todas las sesiones activas de ese rol.</li>
+        </ul>
+        <div class="notes"><strong>Recomendación:</strong> Como mínimo, todos los roles deben poder editar el teléfono y el correo, ya que son los datos de contacto más dinámicos.</div>
+      </div>
+      <div class="diagram-wrap">
+        <h4>Diagrama de flujo</h4>
+        <div class="mermaid">
+flowchart TD
+    A([Admin Corporativo\nabre Configuración\nde sucursal]) --> B[Accede a Permisos\nde edición de paciente]
+    B --> C[Selecciona un campo\npor ejemplo Teléfono]
+    C --> D{¿Activar edición\npara qué roles?}
+    D --> E[Recepcionista]
+    D --> F[Consejera]
+    D --> G[Gerente]
+    E --> H[Guarda configuración]
+    F --> H
+    G --> H
+    H --> I[El sistema aplica\ncambios inmediatamente]
+    I --> J([Campos actualizados\nen todas las vistas])
+    style A fill:#ed80a8,color:#6b0030,stroke:#b85080
+    style B fill:#ed80a8,color:#6b0030,stroke:#b85080
+    style C fill:#ed80a8,color:#6b0030,stroke:#b85080
+    style D fill:#fac186,color:#373644,stroke:#d48a50
+    style E fill:#7eb8f7,color:#1a3a5c,stroke:#4a90d9
+    style F fill:#d9d8f5,color:#373644,stroke:#a25cbf
+    style G fill:#fac186,color:#6b3a10,stroke:#d48a50
+    style H fill:#d6d9f3,color:#373644,stroke:#a25cbf
+    style I fill:#d6d9f3,color:#373644,stroke:#a25cbf
+    style J fill:#afd393,color:#2d5a1b,stroke:#6aa84f
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ESCENARIO 11 -->
+  <div class="scenario-card">
+    <div class="scenario-header">
+      <div class="scenario-number">11</div>
+      <div>
+        <h3>Vista de perfil del paciente según rol</h3>
+        <div class="actors">
+          <span class="actor-badge" style="background:#7eb8f7;color:#1a3a5c">Recepcionista</span>
+          <span class="actor-badge" style="background:#c58fe8;color:#4a1a6b">Médica</span>
+          <span class="actor-badge" style="background:#fac186;color:#6b3a10">Gerente de Sucursal</span>
+        </div>
+      </div>
+    </div>
+    <div class="scenario-body">
+      <div class="steps">
+        <h4>¿Cómo funciona?</h4>
+        <ul class="step-list">
+          <li>Cualquier usuario con acceso abre el perfil de una paciente desde el buscador.</li>
+          <li class="system">🤖 El sistema detecta automáticamente el rol del usuario y ajusta qué secciones del perfil muestra.</li>
+          <li>La <strong>recepcionista</strong> ve: datos de contacto, agenda de citas, y contratos activos. No ve el expediente clínico.</li>
+          <li>La <strong>médica</strong> ve todo lo que ve la recepcionista, más el expediente clínico completo con notas, diagnósticos y observaciones.</li>
+          <li>La <strong>gerente de sucursal</strong> ve: datos de contacto, historial de citas, contratos y un resumen de actividad. Sin notas clínicas.</li>
+          <li class="success">✅ Cada rol ve exactamente la información que necesita para hacer su trabajo, sin acceso a datos que no le corresponden.</li>
+        </ul>
+        <div class="notes"><strong>Seguridad:</strong> Esta separación de vistas protege la privacidad de las pacientes y cumple con las obligaciones de confidencialidad médica. No es posible "ampliar" la vista de un rol sin que el Admin Corporativo lo configure.</div>
+      </div>
+      <div class="diagram-wrap">
+        <h4>Diagrama de flujo</h4>
+        <div class="mermaid">
+sequenceDiagram
+    participant U as Usuario
+    participant S as Sistema
+    participant P as Perfil de Paciente
+    U->>S: Abre perfil de paciente
+    S->>S: Detecta rol del usuario
+    alt Recepcionista
+        S->>P: Solicita datos de contacto, citas y contratos
+        P-->>S: Datos de contacto, agenda y contratos
+        S-->>U: Muestra vista de recepción
+    else Médica
+        S->>P: Solicita todos los datos incluido expediente
+        P-->>S: Datos completos y notas clínicas
+        S-->>U: Muestra vista clínica completa
+    else Gerente de Sucursal
+        S->>P: Solicita datos de contacto, citas y contratos
+        P-->>S: Datos de contacto y resumen de actividad
+        S-->>U: Muestra vista gerencial
+    end
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ESCENARIO 12 -->
+  <div class="scenario-card">
+    <div class="scenario-header">
+      <div class="scenario-number">12</div>
+      <div>
+        <h3>Cambiar titular del grupo familiar</h3>
+        <div class="actors">
+          <span class="actor-badge" style="background:#7eb8f7;color:#1a3a5c">Recepcionista</span>
+          <span class="actor-badge" style="background:#ed80a8;color:#6b0030">Admin Corporativo</span>
+        </div>
+      </div>
+    </div>
+    <div class="scenario-body">
+      <div class="steps">
+        <h4>¿Cómo funciona?</h4>
+        <ul class="step-list">
+          <li>La recepcionista o el Admin abre la ficha del grupo familiar.</li>
+          <li>Selecciona la opción "Cambiar titular".</li>
+          <li>Elige al nuevo titular entre los miembros actuales del grupo.</li>
+          <li class="decision">🔀 ¿El nuevo titular tiene datos de contacto completos?</li>
+          <li class="error">❌ Si le faltan datos: el sistema solicita completar teléfono o correo antes de confirmar el cambio.</li>
+          <li class="success">✅ Si tiene los datos completos: se confirma el cambio y el sistema actualiza la titularidad del grupo.</li>
+          <li class="system">🤖 El sistema registra el historial del cambio: titular anterior, nuevo titular, fecha y quién realizó el cambio.</li>
+          <li>La titular anterior sigue siendo miembro del grupo, solo pierde la titularidad.</li>
+        </ul>
+        <div class="notes"><strong>Nota:</strong> Si la titular que se quiere reemplazar tiene contratos activos a su nombre, es necesario revisar esos contratos antes o después del cambio. El cambio de titular no transfiere los contratos automáticamente.</div>
+      </div>
+      <div class="diagram-wrap">
+        <h4>Diagrama de flujo</h4>
+        <div class="mermaid">
+flowchart TD
+    A([Usuario abre\ngrupo familiar]) --> B[Selecciona\nCambiar titular]
+    B --> C[Elige al nuevo\ntitular del grupo]
+    C --> D{¿Tiene datos\nde contacto\ncompletos?}
+    D -- No --> E[El sistema pide\ncompletar datos]
+    E --> C
+    D -- Sí --> F[Confirma el cambio]
+    F --> G[El sistema actualiza\nla titularidad]
+    G --> H[Registra en historial:\nanterior, nuevo, fecha]
+    H --> I([Titularidad\ntransferida correctamente])
+    style A fill:#7eb8f7,color:#1a3a5c,stroke:#4a90d9
+    style B fill:#7eb8f7,color:#1a3a5c,stroke:#4a90d9
+    style C fill:#fac186,color:#373644,stroke:#d48a50
+    style D fill:#fac186,color:#373644,stroke:#d48a50
+    style E fill:#ff3759,color:#fff,stroke:#c0001f
+    style F fill:#ed80a8,color:#6b0030,stroke:#b85080
+    style G fill:#d6d9f3,color:#373644,stroke:#a25cbf
+    style H fill:#d6d9f3,color:#373644,stroke:#a25cbf
+    style I fill:#afd393,color:#2d5a1b,stroke:#6aa84f
+        </div>
+      </div>
+    </div>
+  </div>
+
+</main>
+<div class="footer">Manual Operativo · Grupo Reina Madre · Actualizado 2026 · Para uso interno</div>
+<script>
+mermaid.initialize({
+  startOnLoad:true,
+  theme:'base',
+  themeVariables:{
+    primaryColor:'#d9d8f5',
+    primaryTextColor:'#373644',
+    primaryBorderColor:'#a25cbf',
+    lineColor:'#a25cbf',
+    secondaryColor:'#fce4ef',
+    tertiaryColor:'#f4f4fb',
+    fontFamily:'-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif',
+    fontSize:'13px'
+  }
+});
+</script>
+</body>
+</html>

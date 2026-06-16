@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agenda y Citas — Manual Operativo Reina Madre</title>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#f4f4fb;--card:#fff;--primary:#ed80a8;--secondary:#a25cbf;--accent:#d9d8f5;--border:#d6d9f3;--text:#373644;--muted:#565386;--success:#afd393;--warning:#fac186;--danger:#ff3759}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--bg);color:var(--text);line-height:1.6}
+.header{background:linear-gradient(135deg,var(--primary),var(--secondary));color:#fff;padding:2rem 2.5rem;display:flex;align-items:center;gap:1rem}
+.header-icon{font-size:2.5rem}
+.header h1{font-size:1.8rem;font-weight:700;margin-bottom:.25rem}
+.header p{opacity:.9;font-size:1rem}
+.nav{background:var(--card);border-bottom:1px solid var(--border);padding:.75rem 2.5rem;display:flex;gap:.5rem;flex-wrap:wrap;align-items:center}
+.nav a{color:var(--secondary);text-decoration:none;font-size:.85rem;padding:.3rem .7rem;border-radius:1rem;transition:all .2s}
+.nav a:hover{background:var(--accent);color:var(--text)}
+.nav .active{background:var(--primary);color:#fff}
+.main{max-width:1200px;margin:0 auto;padding:2rem 2.5rem}
+.section-intro{background:var(--card);border-radius:12px;border:1px solid var(--border);padding:1.5rem;margin-bottom:2rem}
+.section-intro h2{color:var(--secondary);font-size:1.2rem;margin-bottom:.5rem}
+.scenario-card{background:var(--card);border-radius:12px;border:1px solid var(--border);margin-bottom:2rem;overflow:hidden;box-shadow:0 1px 3px rgba(162,92,191,.08)}
+.scenario-header{background:var(--accent);padding:1.25rem 1.5rem;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;gap:1rem}
+.scenario-number{background:var(--primary);color:#fff;width:2rem;height:2rem;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.85rem;flex-shrink:0;margin-top:.1rem}
+.scenario-header h3{font-size:1.1rem;color:var(--text);font-weight:600;margin-bottom:.2rem}
+.scenario-header .actors{font-size:.8rem;color:var(--muted)}
+.actor-badge{display:inline-block;padding:.15rem .5rem;border-radius:.5rem;font-size:.75rem;font-weight:500;margin-right:.25rem}
+.scenario-body{padding:1.5rem;display:grid;grid-template-columns:1fr 1fr;gap:1.5rem}
+@media(max-width:768px){.scenario-body{grid-template-columns:1fr}}
+.steps h4{color:var(--secondary);font-size:.9rem;font-weight:600;margin-bottom:.75rem;text-transform:uppercase;letter-spacing:.05em}
+.step-list{list-style:none}
+.step-list li{padding:.5rem .75rem;margin-bottom:.4rem;border-radius:.5rem;border-left:3px solid var(--border);font-size:.9rem;background:#fafafe}
+.step-list li.system{border-color:var(--muted);background:#f0f0f8}
+.step-list li.decision{border-color:var(--warning);background:#fff9f2}
+.step-list li.success{border-color:var(--success);background:#f6fbf2}
+.step-list li.error{border-color:var(--danger);background:#fff5f6}
+.diagram-wrap{overflow:auto}
+.diagram-wrap h4{color:var(--secondary);font-size:.9rem;font-weight:600;margin-bottom:.75rem;text-transform:uppercase;letter-spacing:.05em}
+.mermaid{font-size:13px}
+.notes{margin-top:1rem;padding:.75rem 1rem;background:#fff8e1;border-radius:.5rem;border-left:3px solid var(--warning);font-size:.85rem;color:var(--text)}
+.notes strong{color:#b45309}
+.footer{text-align:center;padding:2rem;color:var(--muted);font-size:.8rem;border-top:1px solid var(--border);margin-top:2rem}
+</style>
+</head>
+<body>
+<div class="header">
+  <div class="header-icon">📅</div>
+  <div>
+    <h1>Agenda y Citas</h1>
+    <p>Manual Operativo — Grupo Reina Madre · Reina Madre | María Linda | Piel Sana</p>
+  </div>
+</div>
+<nav class="nav">
+  <a href="index.html">🏠 Inicio</a>
+  <a href="01-autenticacion.html">🔐 Acceso</a>
+  <a href="02-pacientes.html">👩‍⚕️ Pacientes</a>
+  <a href="03-agenda.html" class="active">📅 Agenda</a>
+  <a href="04-contratos.html">📋 Contratos</a>
+  <a href="05-staff.html">👥 Staff</a>
+  <a href="06-bot-whatsapp.html">💬 Bot WA</a>
+  <a href="07-notificaciones.html">🔔 Notificaciones</a>
+  <a href="08-configuracion.html">⚙️ Configuración</a>
+  <a href="09-procesos.html">⚡ Procesos</a>
+</nav>
+<main class="main">
+
+  <div class="section-intro">
+    <h2>¿De qué trata esta sección?</h2>
+    <p>La agenda es el corazón de la operación diaria en cada sucursal: aquí se registran, mueven, confirman y cancelan todas las citas de las pacientes. Esta sección cubre todos los flujos relacionados con la gestión de citas — desde ver el calendario del día hasta configurar los horarios de las médicas — y está dirigida principalmente a recepcionistas, médicas y gerentes de sucursal, aunque también aplica a administradores corporativos que supervisan varias clínicas.</p>
+  </div>
+
+  <!-- ESCENARIO 1 -->
+  <div class="scenario-card">
+    <div class="scenario-header">
+      <div class="scenario-number">1</div>
+      <div>
+        <h3>Ver agenda de la sucursal</h3>
+        <div class="actors">
+          <span class="actor-badge" style="background:#7eb8f7;color:#1a3a5c">Recepcionista</span>
+          <span class="actor-badge" style="background:#fac186;color:#5a3300">Gerente de Sucursal</span>
+        </div>
+      </div>
+    </div>
+    <div class="scenario-body">
+      <div class="steps">
+        <h4>¿Cómo funciona?</h4>
+        <ul class="step-list">
+          <li>La recepcionista o gerente entra a la sección de Agenda desde el menú principal.</li>
+          <li class="system">🤖 El sistema carga automáticamente el calendario del día con todas las citas de la sucursal.</li>
+          <li>Se puede cambiar la vista a semana completa si se necesita una perspectiva más amplia.</li>
+          <li class="decision">🔀 ¿Se quiere ver solo una médica o un servicio específico?</li>
+          <li>Se aplica el filtro deseado: por médica, por servicio o por ambos.</li>
+          <li class="system">🤖 El sistema actualiza la vista mostrando solo las citas que cumplen el filtro.</li>
+          <li class="success">✅ El calendario muestra las citas con el nombre de la paciente, la médica y el tipo de servicio.</li>
+        </ul>
+        <div class="notes"><strong>Nota:</strong> Cada rol ve solo la información de su propia sucursal. El Admin Corporativo puede ver todas las sucursales.</div>
+      </div>
+      <div class="diagram-wrap">
+        <h4>Diagrama de flujo</h4>
+        <div class="mermaid">
+flowchart TD
+    A([Entrar a Agenda]) --> B[Carga vista del día]
+    B --> C{¿Filtrar?}
+    C -- No --> D[Ver agenda completa de la sucursal]
+    C -- Por médica --> E[Seleccionar médica]
+    C -- Por servicio --> F[Seleccionar servicio]
+    E --> G[Actualizar vista filtrada]
+    F --> G
+    D --> H([Revisar citas])
+    G --> H
+    style A fill:#7eb8f7,color:#1a3a5c,stroke:#1a3a5c
+    style B fill:#d6d9f3,color:#373644,stroke:#a25cbf
+    style C fill:#fac186,color:#5a3300,stroke:#a25cbf
+    style D fill:#d9d8f5,color:#373644,stroke:#a25cbf
+    style E fill:#7eb8f7,color:#1a3a5c,stroke:#1a3a5c
+    style F fill:#7eb8f7,color:#1a3a5c,stroke:#1a3a5c
+    style G fill:#d6d9f3,color:#373644,stroke:#a25cbf
+    style H fill:#afd393,color:#2d5a1b,stroke:#2d5a1b
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ESCENARIO 2 -->
+  <div class="scenario-card">
+    <div class="scenario-header">
+      <div class="scenario-number">2</div>
+      <div>
+        <h3>Agendar cita manualmente desde recepción</h3>
+        <div class="actors">
+          <span class="actor-badge" style="background:#7eb8f7;color:#1a3a5c">Recepcionista</span>
+          <span class="actor-badge" style="background:#d6d9f3;color:#373644">Sistema</span>
+        </div>
+      </div>
+    </div>
+    <div class="scenario-body">
+      <div class="steps">
+        <h4>¿Cómo funciona?</h4>
+        <ul class="step-list">
+          <li>La recepcionista busca a la paciente en el sistema o la registra si es nueva.</li>
+          <li>Selecciona el servicio que necesita la paciente (ej. consulta ginecológica, ultrasonido).</li>
+          <li>Elige la médica preferida o deja que el sistema muestre todas las disponibles.</li>
+          <li class="system">🤖 El sistema muestra únicamente los horarios libres de esa médica para ese servicio.</li>
+          <li>La recepcionista selecciona el día y hora que más le convenga a la paciente.</li>
+          <li class="system">🤖 El sistema bloquea el horario de inmediato para que nadie más pueda reservarlo al mismo tiempo.</li>
+          <li class="success">✅ La cita queda registrada y aparece en el calendario de la sucursal.</li>
+          <li class="system">🤖 El sistema envía una notificación de confirmación a la paciente por WhatsApp o correo.</li>
+        </ul>
+      </div>
+      <div class="diagram-wrap">
+        <h4>Diagrama de flujo</h4>
+        <div class="mermaid">
+flowchart TD
+    A([Inicio]) --> B[Buscar o registrar paciente]
+    B --> C[Seleccionar servicio]
+    C --> D[Elegir médica]
+    D --> E[Sistema muestra horarios disponibles]
+    E --> F{¿Hay horarios disponibles?}
+    F -- No --> G[❌ Sin disponibilidad — proponer otra fecha]
+    F -- Sí --> H[Recepcionista elige fecha y hora]
+    H --> I[Sistema bloquea el slot]
+    I --> J[Cita registrada en calendario]
+    J --> K[Notificación enviada a paciente]
+    K --> L([Fin])
+    style A fill:#7eb8f7,color:#1a3a5c,stroke:#1a3a5c
+    style B fill:#7eb8f7,color:#1a3a5c,stroke:#1a3a5c
+    style C fill:#7eb8f7,color:#1a3a5c,stroke:#1a3a5c
+    style D fill:#7eb8f7,color:#1a3a5c,stroke:#1a3a5c
+    style E fill:#d6d9f3,color:#373644,stroke:#a25cbf
+    style F fill:#fac186,color:#5a3300,stroke:#a25cbf
+    style G fill:#ff3759,color:#fff,stroke:#a25cbf
+    style H fill:#7eb8f7,color:#1a3a5c,stroke:#1a3a5c
+    style I fill:#d6d9f3,color:#373644,stroke:#a25cbf
+    style J fill:#d6d9f3,color:#373644,stroke:#a25cbf
+    style K fill:#d6d9f3,color:#373644,stroke:#a25cbf
+    style L fill:#afd393,color:#2d5a1b,stroke:#2d5a1b
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ESCENARIO 3 -->
+  <div class="scenario-card">
+    <div class="scenario-header">
+      <div class="scenario-number">3</div>
+      <div>
+        <h3>Reagendar cita existente</h3>
+        <div class="actors">
+          <span class="actor-badge" style="background:#7eb8f7;color:#1a3a5c">Recepcionista</span>
+          <span class="actor-badge" style="background:#afd393;color:#2d5a1b">Paciente</span>
+          <span class="actor-badge" style="background:#d6d9f3;color:#373644">Sistema</span>
+        </div>
+      </div>
+    </div>
+    <div class="scenario-body">
+      <div class="steps">
+        <h4>¿Cómo funciona?</h4>
+        <ul class="step-list">
+          <li>La paciente solicita cambio de fecha, ya sea por teléfono, en persona o por WhatsApp.</li>
+          <li>La recepcionista localiza la cita en el sistema (por nombre de la paciente o en el calendario).</li>
+          <li>Abre la cita y selecciona la opción de reagendar.</li>
+          <li class="system">🤖 El sistema muestra los horarios disponibles para la misma médica y servicio.</li>
+          <li>La recepcionista elige el nuevo horario junto con la paciente.</li>
+          <li class="system">🤖 El sistema libera el horario anterior y reserva el nuevo al mismo tiempo, sin dejar huecos ni doble reserva.</li>
+          <li class="success">✅ La cita aparece en el nuevo horario en el calendario.</li>
+          <li class="system">🤖 El sistema envía confirmación del nuevo horario a la paciente.</li>
+        </ul>
+        <div class="notes"><strong>Importante:</strong> El cambio de horario se hace en un solo paso — el sistema nunca deja el slot anterior ocupado ni el nuevo libre por separado.</div>
+      </div>
+      <div class="diagram-wrap">
+        <h4>Diagrama de flujo</h4>
+        <div class="mermaid">
+sequenceDiagram
+    participant P as Paciente
+    participant R as Recepcionista
+    participant S as Sistema
+    P->>R: Solicita cambio de fecha
+    R->>S: Busca la cita en el sistema
+    S-->>R: Muestra detalle de la cita
+    R->>S: Abre opción Reagendar
+    S-->>R: Muestra horarios disponibles
+    R->>P: Propone nuevos horarios
+    P->>R: Confirma nuevo horario
+    R->>S: Confirma el cambio
+    S-->>S: Libera slot anterior + reserva slot nuevo
+    S-->>R: Cita actualizada
+    S-->>P: Notificación del nuevo horario (WA/correo)
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ESCENARIO 4 -->
+  <div class="scenario-card">
+    <div class="scenario-header">
+      <div class="scenario-number">4</div>
+      <div>
+        <h3>Cancelar cita</h3>
+        <div class="actors">
+          <span class="actor-badge" style="background:#7eb8f7;color:#1a3a5c">Recepcionista</span>
+          <span class="actor-badge" style="background:#afd393;color:#2d5a1b">Paciente</span>
+        </div>
+      </div>
+    </div>
+    <div class="scenario-body">
+      <div class="steps">
+        <h4>¿Cómo funciona?</h4>
+        <ul class="step-list">
+          <li>La recepcionista localiza la cita en el calendario o buscando a la paciente.</li>
+          <li>Selecciona la opción de cancelar y elige el motivo de cancelación.</li>
+          <li class="decision">🔀 ¿Se notificará a la paciente?</li>
+          <li>Si sí: el sistema envía un mensaje de cancelación a la paciente por WhatsApp o correo.</li>
+          <li>Si no: la cancelación se registra sin enviar notificación.</li>
+          <li class="system">🤖 El sistema libera automáticamente el horario para que otras pacientes puedan reservarlo.</li>
+          <li class="success">✅ La cita queda marcada como cancelada en el historial de la paciente.</li>
+          <li class="error">❌ Si se intenta cancelar una cita ya pasada, el sistema muestra un aviso de que no es posible modificarla.</li>
+        </ul>
+      </div>
+      <div class="diagram-wrap">
+        <h4>Diagrama de flujo</h4>
+        <div class="mermaid">
+flowchart TD
+    A([Inicio]) --> B[Localizar la cita]
+    B --> C{¿La cita es futura?}
+    C -- No --> D[❌ No se puede cancelar — cita pasada]
+    C -- Sí --> E[Seleccionar motivo de cancelación]
+    E --> F{¿Notificar a la paciente?}
+    F -- Sí --> G[Sistema envía mensaje de cancelación]
+    F -- No --> H[Cancelar sin notificación]
+    G --> I[Sistema libera el horario]
+    H --> I
+    I --> J[Cita marcada como cancelada]
+    J --> K([Fin])
+    style A fill:#7eb8f7,color:#1a3a5c,stroke:#1a3a5c
+    style B fill:#7eb8f7,color:#1a3a5c,stroke:#1a3a5c
+    style C fill:#fac186,color:#5a3300,stroke:#a25cbf
+    style D fill:#ff3759,color:#fff,stroke:#a25cbf
+    style E fill:#7eb8f7,color:#1a3a5c,stroke:#1a3a5c
+    style F fill:#fac186,color:#5a3300,stroke:#a25cbf
+    style G fill:#d6d9f3,color:#373644,stroke:#a25cbf
+    style H fill:#d6d9f3,color:#373644,stroke:#a25cbf
+    style I fill:#d6d9f3,color:#373644,stroke:#a25cbf
+    style J fill:#afd393,color:#2d5a1b,stroke:#2d5a1b
+    style K fill:#afd393,color:#2d5a1b,stroke:#2d5a1b
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ESCENARIO 5 -->
+  <div class="scenario-card">
+    <div class="scenario-header">
+      <div class="scenario-number">5</div>
+      <div>
+        <h3>Confirmar asistencia de la paciente</h3>
+        <div class="actors">
+          <span class="actor-badge" style="background:#7eb8f7;color:#1a3a5c">Recepcionista</span>
+          <span class="actor-badge" style="background:#d6d9f3;color:#373644">Sistema</span>
+        </div>
+      </div>
+    </div>
+    <div class="scenario-body">
+      <div class="steps">
+        <h4>¿Cómo funciona?</h4>
+        <ul class="step-list">
+          <li>La paciente llega a la sucursal y se presenta en recepción.</li>
+          <li>La recepcionista busca la cita del día de esa paciente en el calendario.</li>
+          <li class="decision">🔀 ¿La paciente tiene cita registrada para hoy?</li>
+          <li>Si sí: la recepcionista marca la cita como "Paciente llegó" desde la pantalla de agenda.</li>
+          <li>Si no: verificar si se registró con otro nombre o si hay que crear la cita en ese momento.</li>
+          <li class="system">🤖 El sistema actualiza el estado de la cita y registra la hora de llegada.</li>
+          <li class="success">✅ La cita aparece marcada como confirmada en la vista de la médica y en el resumen del día.</li>
+        </ul>
+      </div>
+      <div class="diagram-wrap">
+        <h4>Diagrama de flujo</h4>
+        <div class="mermaid">
+flowchart TD
+    A([Paciente llega a sucursal]) --> B[Recepcionista busca la cita del día]
+    B --> C{¿Cita encontrada?}
+    C -- No --> D[Verificar nombre alternativo o crear cita]
+    C -- Sí --> E[Marcar como Paciente llegó]
+    E --> F[Sistema registra hora de llegada]
+    F --> G[Estado de cita actualizado]
+    G --> H[Médica ve la cita como confirmada]
+    H --> I([Paciente pasa a sala de espera])
+    style A fill:#afd393,color:#2d5a1b,stroke:#2d5a1b
+    style B fill:#7eb8f7,color:#1a3a5c,stroke:#1a3a5c
+    style C fill:#fac186,color:#5a3300,stroke:#a25cbf
+    style D fill:#fac186,color:#5a3300,stroke:#a25cbf
+    style E fill:#7eb8f7,color:#1a3a5c,stroke:#1a3a5c
+    style F fill:#d6d9f3,color:#373644,stroke:#a25cbf
+    style G fill:#d6d9f3,color:#373644,stroke:#a25cbf
+    style H fill:#c58fe8,color:#fff,stroke:#a25cbf
+    style I fill:#afd393,color:#2d5a1b,stroke:#2d5a1b
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ESCENARIO 6 -->
+  <div class="scenario-card">
+    <div class="scenario-header">
+      <div class="scenario-number">6</div>
+      <div>
+        <h3>Registrar inasistencia (no-show)</h3>
+        <div class="actors">
+          <span class="actor-badge" style="background:#7eb8f7;color:#1a3a5c">Recepcionista</span>
+          <span class="actor-badge" style="background:#d6d9f3;color:#373644">Sistema</span>
+        </div>
+      </div>
+    </div>
+    <div class="scenario-body">
+      <div class="steps">
+        <h4>¿Cómo funciona?</h4>
+        <ul class="step-list">
+          <li>Pasada la hora de la cita, la recepcionista revisa qué citas del día aún no se han confirmado.</li>
+          <li>Para cada cita sin confirmar, verifica si la paciente llegó pero no se marcó, o si realmente no asistió.</li>
+          <li class="decision">🔀 ¿La paciente llegó pero no se registró?</li>
+          <li>Si sí: marcar como "Paciente llegó" (ver Escenario 5).</li>
+          <li>Si no llegó: seleccionar la cita y marcarla como "No se presentó".</li>
+          <li class="system">🤖 El sistema registra la inasistencia en el historial de la paciente con fecha y hora.</li>
+          <li class="system">🤖 El sistema libera el slot para futuras consultas si la cita aún no fue atendida.</li>
+          <li class="success">✅ La inasistencia queda visible en el historial de la paciente para referencia futura.</li>
+        </ul>
+        <div class="notes"><strong>Nota:</strong> Las inasistencias acumuladas pueden ser tomadas en cuenta por gerencia para tomar decisiones sobre la agenda de esa paciente.</div>
+      </div>
+      <div class="diagram-wrap">
+        <h4>Diagrama de flujo</h4>
+        <div class="mermaid">
+flowchart TD
+    A([Revisar citas sin confirmar]) --> B{¿La paciente llegó?}
+    B -- Sí, no se marcó --> C[Marcar como Paciente llegó]
+    B -- No llegó --> D[Marcar como No se presentó]
+    D --> E[Sistema registra inasistencia en historial]
+    E --> F[Sistema libera el horario]
+    F --> G[Inasistencia visible en historial de paciente]
+    C --> H([Cita gestionada])
+    G --> H
+    style A fill:#7eb8f7,color:#1a3a5c,stroke:#1a3a5c
+    style B fill:#fac186,color:#5a3300,stroke:#a25cbf
+    style C fill:#afd393,color:#2d5a1b,stroke:#2d5a1b
+    style D fill:#ff3759,color:#fff,stroke:#a25cbf
+    style E fill:#d6d9f3,color:#373644,stroke:#a25cbf
+    style F fill:#d6d9f3,color:#373644,stroke:#a25cbf
+    style G fill:#fac186,color:#5a3300,stroke:#a25cbf
+    style H fill:#d9d8f5,color:#373644,stroke:#a25cbf
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ESCENARIO 7 -->
+  <div class="scenario-card">
+    <div class="scenario-header">
+      <div class="scenario-number">7</div>
+      <div>
+        <h3>Consultar disponibilidad de médicas</h3>
+        <div class="actors">
+          <span class="actor-badge" style="background:#7eb8f7;color:#1a3a5c">Recepcionista</span>
+          <span class="actor-badge" style="background:#25D366;color:#fff">Bot WA</span>
+        </div>
+      </div>
+    </div>
+    <div class="scenario-body">
+      <div class="steps">
+        <h4>¿Cómo funciona?</h4>
+        <ul class="step-list">
+          <li>La recepcionista o el bot de WhatsApp necesita saber cuándo puede atender una médica específica.</li>
+          <li class="system">🤖 El sistema consulta el horario configurado de la médica en esa sucursal.</li>
+          <li class="system">🤖 El sistema descuenta automáticamente las citas ya reservadas y los bloqueos de horario.</li>
+          <li class="decision">🔀 ¿La médica ofrece ese servicio en esa sucursal?</li>
+          <li>Si no lo ofrece: se informa que ese servicio no está disponible con esa médica.</li>
+          <li>Si sí: el sistema muestra solo los horarios libres reales (no promete horarios ocupados).</li>
+          <li class="success">✅ La recepcionista o el bot puede ofrecer a la paciente solo opciones reales y disponibles.</li>
+        </ul>
+      </div>
+      <div class="diagram-wrap">
+        <h4>Diagrama de flujo</h4>
+        <div class="mermaid">
+sequenceDiagram
+    participant R as Recepcionista / Bot WA
+    participant S as Sistema
+    R->>S: Consulta disponibilidad de médica para servicio X
+    S-->>S: Revisa horario configurado de la médica
+    S-->>S: Descuenta citas ya reservadas y bloqueos
+    S-->>R: ¿Médica ofrece ese servicio aquí?
+    alt No ofrece el servicio
+        S-->>R: Servicio no disponible con esa médica
+    else Sí ofrece
+        S-->>R: Lista de horarios libres disponibles
+        R->>R: Propone horarios a la paciente
+    end
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ESCENARIO 8 -->
+  <div class="scenario-card">
+    <div class="scenario-header">
+      <div class="scenario-number">8</div>
+      <div>
+        <h3>Filtrar agenda por médica o servicio</h3>
+        <div class="actors">
+          <span class="actor-badge" style="background:#7eb8f7;color:#1a3a5c">Recepcionista</span>
+          <span class="actor-badge" style="background:#fac186;color:#5a3300">Gerente de Sucursal</span>
+        </div>
+      </div>
+    </div>
+    <div class="scenario-body">
+      <div class="steps">
+        <h4>¿Cómo funciona?</h4>
+        <ul class="step-list">
+          <li>Desde la vista de agenda, el usuario abre las opciones de filtro.</li>
+          <li class="decision">🔀 ¿Filtrar por médica, por servicio o por ambos?</li>
+          <li>Por médica: se selecciona el nombre de la médica del listado.</li>
+          <li>Por servicio: se selecciona el tipo de servicio (ej. consulta pediátrica, ultrasonido).</li>
+          <li class="system">🤖 El sistema actualiza la vista del calendario mostrando solo las citas que coinciden con el filtro.</li>
+          <li>Las citas de otras médicas o servicios se ocultan temporalmente (no se eliminan).</li>
+          <li class="success">✅ La vista muestra el subconjunto de citas solicitado, facilitando la revisión o gestión específica.</li>
+          <li>Para ver la agenda completa nuevamente, se limpia el filtro.</li>
+        </ul>
+      </div>
+      <div class="diagram-wrap">
+        <h4>Diagrama de flujo</h4>
+        <div class="mermaid">
+flowchart TD
+    A([Agenda abierta]) --> B[Abrir opciones de filtro]
+    B --> C{Tipo de filtro}
+    C -- Por médica --> D[Seleccionar médica del listado]
+    C -- Por servicio --> E[Seleccionar tipo de servicio]
+    C -- Ambos --> F[Seleccionar médica y servicio]
+    D --> G[Sistema filtra citas de esa médica]
+    E --> G
+    F --> G
+    G --> H[Vista actualizada con citas filtradas]
+    H --> I{¿Ver agenda completa?}
+    I -- Sí --> J[Limpiar filtro]
+    I -- No --> K([Seguir revisando filtro actual])
+    J --> A
+    style A fill:#d9d8f5,color:#373644,stroke:#a25cbf
+    style B fill:#7eb8f7,color:#1a3a5c,stroke:#1a3a5c
+    style C fill:#fac186,color:#5a3300,stroke:#a25cbf
+    style D fill:#c58fe8,color:#fff,stroke:#a25cbf
+    style E fill:#fac186,color:#5a3300,stroke:#a25cbf
+    style F fill:#fac186,color:#5a3300,stroke:#a25cbf
+    style G fill:#d6d9f3,color:#373644,stroke:#a25cbf
+    style H fill:#afd393,color:#2d5a1b,stroke:#2d5a1b
+    style I fill:#fac186,color:#5a3300,stroke:#a25cbf
+    style J fill:#7eb8f7,color:#1a3a5c,stroke:#1a3a5c
+    style K fill:#d9d8f5,color:#373644,stroke:#a25cbf
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ESCENARIO 9 -->
+  <div class="scenario-card">
+    <div class="scenario-header">
+      <div class="scenario-number">9</div>
+      <div>
+        <h3>Vista de agenda para la médica</h3>
+        <div class="actors">
+          <span class="actor-badge" style="background:#c58fe8;color:#fff">Médica</span>
+        </div>
+      </div>
+    </div>
+    <div class="scenario-body">
+      <div class="steps">
+        <h4>¿Cómo funciona?</h4>
+        <ul class="step-list">
+          <li>La médica entra al sistema con su acceso personal.</li>
+          <li class="system">🤖 El sistema carga automáticamente solo las citas asignadas a esa médica — no ve las de sus colegas.</li>
+          <li>La médica puede ver la lista del día con: hora de la cita, nombre de la paciente y tipo de servicio.</li>
+          <li>También puede consultar los días siguientes para anticipar su carga de trabajo.</li>
+          <li class="decision">🔀 ¿Quiere ver el detalle de una cita?</li>
+          <li>Al hacer clic en una cita, puede ver notas adicionales o el historial de la paciente.</li>
+          <li class="success">✅ La médica tiene visibilidad completa de su propia agenda sin ver información de otras doctoras.</li>
+        </ul>
+        <div class="notes"><strong>Privacidad:</strong> Por diseño del sistema, cada médica solo puede ver sus propias citas. Los datos de otras médicas no son visibles desde esta vista.</div>
+      </div>
+      <div class="diagram-wrap">
+        <h4>Diagrama de flujo</h4>
+        <div class="mermaid">
+flowchart TD
+    A([Médica entra al sistema]) --> B[Sistema carga sus citas del día]
+    B --> C[Ver lista: hora, paciente, servicio]
+    C --> D{¿Revisar días siguientes?}
+    D -- Sí --> E[Cambiar a vista de semana]
+    D -- No --> F{¿Ver detalle de cita?}
+    E --> F
+    F -- Sí --> G[Abrir cita: notas e historial de paciente]
+    F -- No --> H([Continuar con la consulta del día])
+    G --> H
+    style A fill:#c58fe8,color:#fff,stroke:#a25cbf
+    style B fill:#d6d9f3,color:#373644,stroke:#a25cbf
+    style C fill:#c58fe8,color:#fff,stroke:#a25cbf
+    style D fill:#fac186,color:#5a3300,stroke:#a25cbf
+    style E fill:#c58fe8,color:#fff,stroke:#a25cbf
+    style F fill:#fac186,color:#5a3300,stroke:#a25cbf
+    style G fill:#c58fe8,color:#fff,stroke:#a25cbf
+    style H fill:#afd393,color:#2d5a1b,stroke:#2d5a1b
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ESCENARIO 10 -->
+  <div class="scenario-card">
+    <div class="scenario-header">
+      <div class="scenario-number">10</div>
+      <div>
+        <h3>Gestión de horarios de médicas</h3>
+        <div class="actors">
+          <span class="actor-badge" style="background:#fac186;color:#5a3300">Gerente de Sucursal</span>
+          <span class="actor-badge" style="background:#ed80a8;color:#fff">Admin Corporativo</span>
+        </div>
+      </div>
+    </div>
+    <div class="scenario-body">
+      <div class="steps">
+        <h4>¿Cómo funciona?</h4>
+        <ul class="step-list">
+          <li>El gerente de sucursal o el admin corporativo entra a la configuración de horarios del staff.</li>
+          <li>Selecciona a la médica cuyo horario quiere configurar.</li>
+          <li>Define qué días de la semana atiende en esa sucursal y en qué rango de horas.</li>
+          <li>Configura la duración de cada tipo de cita para esa médica (ej. consulta = 30 min, ultrasonido = 45 min).</li>
+          <li class="system">🤖 El sistema calcula automáticamente los slots disponibles con base en el horario y la duración de cada servicio.</li>
+          <li class="decision">🔀 ¿Se necesita bloquear un día o rango de horas específico (vacaciones, capacitación)?</li>
+          <li>Se puede agregar un bloqueo temporal que impide reservar citas en ese lapso.</li>
+          <li class="success">✅ La agenda de la médica refleja los cambios de inmediato — no se pueden reservar citas fuera de su horario configurado.</li>
+        </ul>
+        <div class="notes"><strong>Importante:</strong> Los cambios en el horario de una médica no afectan las citas ya agendadas. Solo impactan los nuevos agendamientos.</div>
+      </div>
+      <div class="diagram-wrap">
+        <h4>Diagrama de flujo</h4>
+        <div class="mermaid">
+flowchart TD
+    A([Entrar a configuración de horarios]) --> B[Seleccionar médica]
+    B --> C[Definir días y rango de horas]
+    C --> D[Configurar duración por tipo de servicio]
+    D --> E[Sistema calcula slots disponibles]
+    E --> F{¿Agregar bloqueo temporal?}
+    F -- Sí --> G[Registrar fechas o rango bloqueado]
+    F -- No --> H[Guardar configuración]
+    G --> H
+    H --> I[Agenda actualizada de inmediato]
+    I --> J([Fin — citas previas no afectadas])
+    style A fill:#fac186,color:#5a3300,stroke:#a25cbf
+    style B fill:#fac186,color:#5a3300,stroke:#a25cbf
+    style C fill:#fac186,color:#5a3300,stroke:#a25cbf
+    style D fill:#ed80a8,color:#fff,stroke:#a25cbf
+    style E fill:#d6d9f3,color:#373644,stroke:#a25cbf
+    style F fill:#fac186,color:#5a3300,stroke:#a25cbf
+    style G fill:#ed80a8,color:#fff,stroke:#a25cbf
+    style H fill:#fac186,color:#5a3300,stroke:#a25cbf
+    style I fill:#d6d9f3,color:#373644,stroke:#a25cbf
+    style J fill:#afd393,color:#2d5a1b,stroke:#2d5a1b
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ESCENARIO 11 -->
+  <div class="scenario-card">
+    <div class="scenario-header">
+      <div class="scenario-number">11</div>
+      <div>
+        <h3>Cita con disponibilidad real (solo servicios agendables)</h3>
+        <div class="actors">
+          <span class="actor-badge" style="background:#7eb8f7;color:#1a3a5c">Recepcionista</span>
+          <span class="actor-badge" style="background:#25D366;color:#fff">Bot WA</span>
+          <span class="actor-badge" style="background:#d6d9f3;color:#373644">Sistema</span>
+        </div>
+      </div>
+    </div>
+    <div class="scenario-body">
+      <div class="steps">
+        <h4>¿Cómo funciona?</h4>
+        <ul class="step-list">
+          <li>Una paciente pregunta (en persona, por teléfono o por WhatsApp) si puede agendar un servicio.</li>
+          <li class="system">🤖 El sistema revisa si ese servicio tiene al menos una médica con horario disponible en la sucursal solicitada.</li>
+          <li class="decision">🔀 ¿Hay médicas disponibles con ese servicio en los próximos días?</li>
+          <li>Si no hay disponibilidad: se informa a la paciente que no hay horarios y se puede sugerir otra sucursal o una fecha futura.</li>
+          <li>Si sí hay disponibilidad: el sistema muestra únicamente las opciones reales con médica y horario concreto.</li>
+          <li>La paciente elige entre las opciones disponibles.</li>
+          <li class="success">✅ La paciente nunca recibe una fecha que no existe o que ya está ocupada — el sistema garantiza que lo que se muestra es reservable.</li>
+        </ul>
+        <div class="notes"><strong>Por qué importa:</strong> Mostrar horarios falsos genera frustración y cancelaciones. El sistema filtra activamente para que solo se ofrezcan opciones reales.</div>
+      </div>
+      <div class="diagram-wrap">
+        <h4>Diagrama de flujo</h4>
+        <div class="mermaid">
+sequenceDiagram
+    participant P as Paciente
+    participant R as Recepcionista / Bot WA
+    participant S as Sistema
+    P->>R: ¿Puedo agendar servicio X en sucursal Y?
+    R->>S: Consulta disponibilidad real para servicio X
+    S-->>S: Verifica médicas con ese servicio + horarios abiertos
+    alt Sin disponibilidad
+        S-->>R: No hay horarios disponibles
+        R-->>P: Informa sin disponibilidad, sugiere alternativas
+    else Con disponibilidad
+        S-->>R: Lista de opciones reales (médica + fecha + hora)
+        R-->>P: Propone opciones disponibles
+        P->>R: Elige opción
+        R->>S: Confirmar y reservar
+        S-->>P: Confirmación de la cita
+    end
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ESCENARIO 12 -->
+  <div class="scenario-card">
+    <div class="scenario-header">
+      <div class="scenario-number">12</div>
+      <div>
+        <h3>Ver historial de citas de una paciente</h3>
+        <div class="actors">
+          <span class="actor-badge" style="background:#7eb8f7;color:#1a3a5c">Recepcionista</span>
+          <span class="actor-badge" style="background:#c58fe8;color:#fff">Médica</span>
+        </div>
+      </div>
+    </div>
+    <div class="scenario-body">
+      <div class="steps">
+        <h4>¿Cómo funciona?</h4>
+        <ul class="step-list">
+          <li>La recepcionista o médica busca a la paciente en el sistema por nombre o número de expediente.</li>
+          <li>Entra al perfil de la paciente y selecciona la sección de historial de citas.</li>
+          <li class="system">🤖 El sistema carga todas las citas pasadas de esa paciente: fecha, médica que la atendió, servicio, y estado (atendida o no se presentó).</li>
+          <li class="decision">🔀 ¿Se quiere ver solo un rango de fechas o un tipo de servicio?</li>
+          <li>Se pueden aplicar filtros de fecha o servicio para acotar la búsqueda.</li>
+          <li>También se pueden ver las citas futuras pendientes de la paciente.</li>
+          <li class="success">✅ El historial completo está disponible para planear la siguiente consulta o entender el patrón de visitas de la paciente.</li>
+        </ul>
+      </div>
+      <div class="diagram-wrap">
+        <h4>Diagrama de flujo</h4>
+        <div class="mermaid">
+flowchart TD
+    A([Buscar paciente]) --> B[Entrar al perfil de la paciente]
+    B --> C[Sección: Historial de citas]
+    C --> D[Sistema carga todas las citas pasadas]
+    D --> E{¿Filtrar historial?}
+    E -- Por fecha --> F[Aplicar rango de fechas]
+    E -- Por servicio --> G[Filtrar por tipo de servicio]
+    E -- Sin filtro --> H[Ver historial completo]
+    F --> I[Vista filtrada del historial]
+    G --> I
+    H --> I
+    I --> J{¿Ver citas futuras también?}
+    J -- Sí --> K[Mostrar citas pendientes próximas]
+    J -- No --> L([Revisar historial])
+    K --> L
+    style A fill:#7eb8f7,color:#1a3a5c,stroke:#1a3a5c
+    style B fill:#7eb8f7,color:#1a3a5c,stroke:#1a3a5c
+    style C fill:#c58fe8,color:#fff,stroke:#a25cbf
+    style D fill:#d6d9f3,color:#373644,stroke:#a25cbf
+    style E fill:#fac186,color:#5a3300,stroke:#a25cbf
+    style F fill:#7eb8f7,color:#1a3a5c,stroke:#1a3a5c
+    style G fill:#7eb8f7,color:#1a3a5c,stroke:#1a3a5c
+    style H fill:#d9d8f5,color:#373644,stroke:#a25cbf
+    style I fill:#d6d9f3,color:#373644,stroke:#a25cbf
+    style J fill:#fac186,color:#5a3300,stroke:#a25cbf
+    style K fill:#afd393,color:#2d5a1b,stroke:#2d5a1b
+    style L fill:#afd393,color:#2d5a1b,stroke:#2d5a1b
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ESCENARIO 13 -->
+  <div class="scenario-card">
+    <div class="scenario-header">
+      <div class="scenario-number">13</div>
+      <div>
+        <h3>Agenda del día — resumen matutino</h3>
+        <div class="actors">
+          <span class="actor-badge" style="background:#fac186;color:#5a3300">Gerente de Sucursal</span>
+          <span class="actor-badge" style="background:#d6d9f3;color:#373644">Sistema</span>
+        </div>
+      </div>
+    </div>
+    <div class="scenario-body">
+      <div class="steps">
+        <h4>¿Cómo funciona?</h4>
+        <ul class="step-list">
+          <li>Cada mañana, al inicio de operaciones, el gerente entra a la sección de Agenda.</li>
+          <li class="system">🤖 El sistema muestra automáticamente el resumen del día: total de citas, distribución por médica, y primeras citas de cada una.</li>
+          <li>El gerente puede ver de un vistazo cuántas pacientes se esperan por hora y si alguna médica tiene la agenda muy cargada o muy vacía.</li>
+          <li class="decision">🔀 ¿Hay citas sin confirmar del día anterior?</li>
+          <li>El sistema resalta en naranja las citas del día anterior que quedaron sin marcar (ni confirmadas ni como no-show).</li>
+          <li>El gerente notifica a la recepcionista para que las regularice antes de que avance el día.</li>
+          <li class="success">✅ El gerente inicia el día con visibilidad completa de la operación de la sucursal, sin necesidad de revisar cita por cita.</li>
+        </ul>
+        <div class="notes"><strong>Consejo operativo:</strong> Revisar el resumen matutino antes de las 9 am permite ajustar la distribución de pacientes si se detecta un desequilibrio entre médicas.</div>
+      </div>
+      <div class="diagram-wrap">
+        <h4>Diagrama de flujo</h4>
+        <div class="mermaid">
+flowchart TD
+    A([Gerente entra al sistema por la mañana]) --> B[Sistema carga resumen del día]
+    B --> C[Total de citas + distribución por médica]
+    C --> D{¿Citas sin resolver del día anterior?}
+    D -- Sí --> E[Sistema resalta citas pendientes de regularizar]
+    E --> F[Gerente notifica a recepcionista]
+    F --> G[Recepcionista confirma o marca inasistencias]
+    D -- No --> H[Agenda del día limpia]
+    G --> H
+    H --> I{¿Alguna médica con sobrecarga o sin citas?}
+    I -- Sí --> J[Gerente evalúa redistribución o apertura de horarios]
+    I -- No --> K([Operación normal — inicio del día])
+    J --> K
+    style A fill:#fac186,color:#5a3300,stroke:#a25cbf
+    style B fill:#d6d9f3,color:#373644,stroke:#a25cbf
+    style C fill:#fac186,color:#5a3300,stroke:#a25cbf
+    style D fill:#fac186,color:#5a3300,stroke:#a25cbf
+    style E fill:#fac186,color:#5a3300,stroke:#a25cbf
+    style F fill:#fac186,color:#5a3300,stroke:#a25cbf
+    style G fill:#7eb8f7,color:#1a3a5c,stroke:#1a3a5c
+    style H fill:#afd393,color:#2d5a1b,stroke:#2d5a1b
+    style I fill:#fac186,color:#5a3300,stroke:#a25cbf
+    style J fill:#fac186,color:#5a3300,stroke:#a25cbf
+    style K fill:#afd393,color:#2d5a1b,stroke:#2d5a1b
+        </div>
+      </div>
+    </div>
+  </div>
+
+</main>
+<div class="footer">Manual Operativo · Grupo Reina Madre · Actualizado 2026 · Para uso interno</div>
+<script>
+mermaid.initialize({
+  startOnLoad:true,
+  theme:'base',
+  themeVariables:{
+    primaryColor:'#d9d8f5',
+    primaryTextColor:'#373644',
+    primaryBorderColor:'#a25cbf',
+    lineColor:'#a25cbf',
+    secondaryColor:'#fce4ef',
+    tertiaryColor:'#f4f4fb',
+    fontFamily:'-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif',
+    fontSize:'13px'
+  }
+});
+</script>
+</body>
+</html>

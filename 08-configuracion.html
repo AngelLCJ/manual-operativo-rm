@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Configuración del Sistema — Manual Operativo Reina Madre</title>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#f4f4fb;--card:#fff;--primary:#ed80a8;--secondary:#a25cbf;--accent:#d9d8f5;--border:#d6d9f3;--text:#373644;--muted:#565386;--success:#afd393;--warning:#fac186;--danger:#ff3759}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--bg);color:var(--text);line-height:1.6}
+.header{background:linear-gradient(135deg,var(--primary),var(--secondary));color:#fff;padding:2rem 2.5rem;display:flex;align-items:center;gap:1rem}
+.header-icon{font-size:2.5rem}
+.header h1{font-size:1.8rem;font-weight:700;margin-bottom:.25rem}
+.header p{opacity:.9;font-size:1rem}
+.nav{background:var(--card);border-bottom:1px solid var(--border);padding:.75rem 2.5rem;display:flex;gap:.5rem;flex-wrap:wrap;align-items:center}
+.nav a{color:var(--secondary);text-decoration:none;font-size:.85rem;padding:.3rem .7rem;border-radius:1rem;transition:all .2s}
+.nav a:hover{background:var(--accent);color:var(--text)}
+.nav .active{background:var(--primary);color:#fff}
+.main{max-width:1200px;margin:0 auto;padding:2rem 2.5rem}
+.section-intro{background:var(--card);border-radius:12px;border:1px solid var(--border);padding:1.5rem;margin-bottom:2rem}
+.section-intro h2{color:var(--secondary);font-size:1.2rem;margin-bottom:.5rem}
+.scenario-card{background:var(--card);border-radius:12px;border:1px solid var(--border);margin-bottom:2rem;overflow:hidden;box-shadow:0 1px 3px rgba(162,92,191,.08)}
+.scenario-header{background:var(--accent);padding:1.25rem 1.5rem;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;gap:1rem}
+.scenario-number{background:var(--primary);color:#fff;width:2rem;height:2rem;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.85rem;flex-shrink:0;margin-top:.1rem}
+.scenario-header h3{font-size:1.1rem;color:var(--text);font-weight:600;margin-bottom:.2rem}
+.scenario-header .actors{font-size:.8rem;color:var(--muted)}
+.actor-badge{display:inline-block;padding:.15rem .5rem;border-radius:.5rem;font-size:.75rem;font-weight:500;margin-right:.25rem}
+.scenario-body{padding:1.5rem;display:grid;grid-template-columns:1fr 1fr;gap:1.5rem}
+@media(max-width:768px){.scenario-body{grid-template-columns:1fr}}
+.steps h4{color:var(--secondary);font-size:.9rem;font-weight:600;margin-bottom:.75rem;text-transform:uppercase;letter-spacing:.05em}
+.step-list{list-style:none}
+.step-list li{padding:.5rem .75rem;margin-bottom:.4rem;border-radius:.5rem;border-left:3px solid var(--border);font-size:.9rem;background:#fafafe}
+.step-list li.system{border-color:var(--muted);background:#f0f0f8}
+.step-list li.decision{border-color:var(--warning);background:#fff9f2}
+.step-list li.success{border-color:var(--success);background:#f6fbf2}
+.step-list li.error{border-color:var(--danger);background:#fff5f6}
+.diagram-wrap{overflow:auto}
+.diagram-wrap h4{color:var(--secondary);font-size:.9rem;font-weight:600;margin-bottom:.75rem;text-transform:uppercase;letter-spacing:.05em}
+.mermaid{font-size:13px}
+.notes{margin-top:1rem;padding:.75rem 1rem;background:#fff8e1;border-radius:.5rem;border-left:3px solid var(--warning);font-size:.85rem;color:var(--text)}
+.notes strong{color:#b45309}
+.footer{text-align:center;padding:2rem;color:var(--muted);font-size:.8rem;border-top:1px solid var(--border);margin-top:2rem}
+</style>
+</head>
+<body>
+<div class="header">
+  <div class="header-icon">⚙️</div>
+  <div>
+    <h1>Configuración del Sistema</h1>
+    <p>Manual Operativo — Grupo Reina Madre · Reina Madre | María Linda | Piel Sana</p>
+  </div>
+</div>
+<nav class="nav">
+  <a href="index.html">🏠 Inicio</a>
+  <a href="01-autenticacion.html">🔐 Acceso</a>
+  <a href="02-pacientes.html">👩‍⚕️ Pacientes</a>
+  <a href="03-agenda.html">📅 Agenda</a>
+  <a href="04-contratos.html">📋 Contratos</a>
+  <a href="05-staff.html">👥 Staff</a>
+  <a href="06-bot-whatsapp.html">💬 Bot WA</a>
+  <a href="07-notificaciones.html">🔔 Notificaciones</a>
+  <a href="08-configuracion.html" class="active">⚙️ Configuración</a>
+  <a href="09-procesos.html">⚡ Procesos</a>
+</nav>
+<main class="main">
+
+  <div class="section-intro">
+    <h2>¿De qué trata esta sección?</h2>
+    <p>La configuración del sistema es el espacio donde se define cómo opera la plataforma en cada sucursal: qué servicios se ofrecen, en qué horarios atiende cada médica, cómo responde el bot de WhatsApp y qué puede hacer cada rol del equipo. Estas opciones las administra principalmente el <strong>Admin Corporativo</strong>, aunque los <strong>Gerentes de Sucursal</strong> participan en la gestión de disponibilidad de sus médicas. Los cambios realizados aquí afectan de forma inmediata la experiencia de pacientes, recepcionistas y médicas en toda la organización.</p>
+  </div>
+
+  <!-- ESCENARIO 1 -->
+  <div class="scenario-card">
+    <div class="scenario-header">
+      <div class="scenario-number">1</div>
+      <div>
+        <h3>Configurar datos de una sucursal</h3>
+        <div class="actors">
+          <span class="actor-badge" style="background:#ed80a8;color:#fff">Admin Corporativo</span>
+        </div>
+      </div>
+    </div>
+    <div class="scenario-body">
+      <div class="steps">
+        <h4>¿Cómo funciona?</h4>
+        <ul class="step-list">
+          <li>El Admin Corporativo entra al módulo de <strong>Sucursales</strong> desde el menú principal.</li>
+          <li>Selecciona la sucursal que desea actualizar de la lista.</li>
+          <li>Edita los campos necesarios: nombre, dirección, teléfono de contacto y horarios de atención.</li>
+          <li class="decision">🔀 ¿Se cambia el horario de atención al público?</li>
+          <li class="system">🤖 El sistema actualiza automáticamente la disponibilidad visible para pacientes que agendan por WhatsApp o en línea.</li>
+          <li>El admin revisa los servicios disponibles en esa sucursal y activa o desactiva los que correspondan.</li>
+          <li>Guarda los cambios con el botón <strong>"Guardar sucursal"</strong>.</li>
+          <li class="success">✅ La información actualizada queda disponible de inmediato para todo el personal y pacientes.</li>
+          <li class="error">❌ Si algún campo obligatorio está vacío (como la dirección), el sistema muestra un aviso y no permite guardar hasta completarlo.</li>
+        </ul>
+        <div class="notes"><strong>Nota importante:</strong> Los cambios de horario afectan las citas que aún no han sido agendadas. Las citas ya confirmadas no se modifican automáticamente.</div>
+      </div>
+      <div class="diagram-wrap">
+        <h4>Diagrama de flujo</h4>
+        <div class="mermaid">
+flowchart TD
+    A([Admin Corporativo\nabre módulo Sucursales]) --> B[Selecciona sucursal\nde la lista]
+    B --> C[Edita nombre, dirección,\nteléfono y horarios]
+    C --> D{¿Cambia\nhorarios?}
+    D -- Sí --> E[🤖 Sistema actualiza\ndisponibilidad en línea]
+    D -- No --> F[Gestiona servicios\nde la sucursal]
+    E --> F
+    F --> G{¿Campos\ncompletos?}
+    G -- Sí --> H[✅ Cambios guardados\ny activos]
+    G -- No --> I[❌ Aviso: completar\ncampos obligatorios]
+    I --> C
+    style A fill:#ed80a8,color:#fff,stroke:#a25cbf
+    style E fill:#d6d9f3,color:#373644,stroke:#a25cbf
+    style H fill:#afd393,color:#2d5a1b,stroke:#6aaa4a
+    style I fill:#ff3759,color:#fff,stroke:#cc0000
+    style D fill:#fac186,color:#373644,stroke:#d48a40
+    style G fill:#fac186,color:#373644,stroke:#d48a40
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ESCENARIO 2 -->
+  <div class="scenario-card">
+    <div class="scenario-header">
+      <div class="scenario-number">2</div>
+      <div>
+        <h3>Gestión del catálogo de servicios</h3>
+        <div class="actors">
+          <span class="actor-badge" style="background:#ed80a8;color:#fff">Admin Corporativo</span>
+        </div>
+      </div>
+    </div>
+    <div class="scenario-body">
+      <div class="steps">
+        <h4>¿Cómo funciona?</h4>
+        <ul class="step-list">
+          <li>El Admin Corporativo entra al módulo de <strong>Catálogo de Servicios</strong>.</li>
+          <li class="decision">🔀 ¿Se agrega un servicio nuevo o se edita uno existente?</li>
+          <li><strong>Nuevo servicio:</strong> hace clic en "Agregar servicio" e ingresa: nombre, categoría (consulta, procedimiento, laboratorio…), duración de la cita y precio.</li>
+          <li><strong>Editar servicio:</strong> busca el servicio en la lista, hace clic en "Editar" y actualiza los campos que correspondan.</li>
+          <li class="decision">🔀 ¿El servicio debe desactivarse (ya no se ofrece)?</li>
+          <li>Activa el interruptor <strong>"Desactivar servicio"</strong> — el servicio deja de aparecer para nuevas citas, pero las citas existentes no se cancelan.</li>
+          <li class="system">🤖 El sistema refleja el cambio en la agenda de todas las sucursales donde ese servicio estaba disponible.</li>
+          <li class="success">✅ El catálogo actualizado queda activo de inmediato para recepcionistas y el bot de WhatsApp.</li>
+          <li class="error">❌ No se puede eliminar un servicio que tenga citas futuras confirmadas. Primero se debe desactivar.</li>
+        </ul>
+        <div class="notes"><strong>Nota importante:</strong> La duración del servicio afecta directamente cuántos espacios de agenda se bloquean al agendar una cita. Verificar bien este dato antes de guardar.</div>
+      </div>
+      <div class="diagram-wrap">
+        <h4>Diagrama de flujo</h4>
+        <div class="mermaid">
+flowchart TD
+    A([Admin Corporativo\nAbre Catálogo]) --> B{¿Acción?}
+    B -- Agregar nuevo --> C[Ingresa nombre,\ncategoría, duración\ny precio]
+    B -- Editar existente --> D[Busca servicio\ny actualiza campos]
+    B -- Desactivar --> E{¿Tiene citas\nfuturas?}
+    C --> F[🤖 Sistema agrega\nservicio al catálogo]
+    D --> F
+    E -- No --> G[Desactiva servicio\nen el interruptor]
+    E -- Sí --> H[❌ No se puede eliminar.\nDesactivar primero]
+    G --> F
+    F --> I[✅ Catálogo actualizado\nen todas las sucursales]
+    style A fill:#ed80a8,color:#fff,stroke:#a25cbf
+    style F fill:#d6d9f3,color:#373644,stroke:#a25cbf
+    style I fill:#afd393,color:#2d5a1b,stroke:#6aaa4a
+    style H fill:#ff3759,color:#fff,stroke:#cc0000
+    style B fill:#fac186,color:#373644,stroke:#d48a40
+    style E fill:#fac186,color:#373644,stroke:#d48a40
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ESCENARIO 3 -->
+  <div class="scenario-card">
+    <div class="scenario-header">
+      <div class="scenario-number">3</div>
+      <div>
+        <h3>Configurar disponibilidad de médicas</h3>
+        <div class="actors">
+          <span class="actor-badge" style="background:#fac186;color:#7a3d00">Gerente de Sucursal</span>
+          <span class="actor-badge" style="background:#ed80a8;color:#fff">Admin Corporativo</span>
+        </div>
+      </div>
+    </div>
+    <div class="scenario-body">
+      <div class="steps">
+        <h4>¿Cómo funciona?</h4>
+        <ul class="step-list">
+          <li>El Gerente de Sucursal (o Admin Corporativo) entra al módulo de <strong>Disponibilidad Médica</strong> de su sucursal.</li>
+          <li>Selecciona el nombre de la médica de la lista del personal activo.</li>
+          <li>Define los días de la semana y los rangos de horario en que esa médica atiende en esa sucursal.</li>
+          <li>Asigna la duración por defecto de cada tipo de cita que esa médica ofrece (por ejemplo: consulta general = 30 min, revisión postparto = 45 min).</li>
+          <li class="system">🤖 El sistema genera automáticamente los espacios disponibles en la agenda de esa médica para las próximas semanas.</li>
+          <li class="decision">🔀 ¿La médica toma vacaciones o días de ausencia?</li>
+          <li>Se bloquean las fechas de ausencia desde el calendario. El sistema oculta esos espacios para nuevas citas.</li>
+          <li class="success">✅ La disponibilidad actualizada aparece de inmediato para recepcionistas y pacientes al agendar citas.</li>
+          <li class="error">❌ Si se borra un horario donde ya hay citas confirmadas, el sistema avisa y pide reasignar esas citas antes de continuar.</li>
+        </ul>
+        <div class="notes"><strong>Nota importante:</strong> Una médica puede estar asignada a más de una sucursal con horarios distintos en cada una. Verificar que no se traslapen los horarios entre sucursales.</div>
+      </div>
+      <div class="diagram-wrap">
+        <h4>Diagrama de flujo</h4>
+        <div class="mermaid">
+sequenceDiagram
+    participant G as Gerente de Sucursal
+    participant S as Sistema
+    participant M as Médica (perfil)
+    G->>S: Abre disponibilidad médica
+    S-->>G: Muestra lista de médicas
+    G->>M: Selecciona médica
+    G->>S: Define días, horarios\ny duración por tipo de cita
+    S-->>G: Verifica conflictos\ncon citas existentes
+    alt Sin conflictos
+        S-->>G: ✅ Genera espacios en agenda
+    else Hay citas afectadas
+        S-->>G: ❌ Avisa: reasignar\ncitas conflictivas
+        G->>S: Reasigna citas\ny confirma cambio
+    end
+    G->>S: Bloquea días de ausencia\n(vacaciones/festivos)
+    S-->>G: ✅ Agenda actualizada\nen todas las vistas
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ESCENARIO 4 -->
+  <div class="scenario-card">
+    <div class="scenario-header">
+      <div class="scenario-number">4</div>
+      <div>
+        <h3>Ajustar parámetros del bot de WhatsApp</h3>
+        <div class="actors">
+          <span class="actor-badge" style="background:#ed80a8;color:#fff">Admin Corporativo</span>
+        </div>
+      </div>
+    </div>
+    <div class="scenario-body">
+      <div class="steps">
+        <h4>¿Cómo funciona?</h4>
+        <ul class="step-list">
+          <li>El Admin Corporativo entra al módulo de <strong>Configuración del Bot de WhatsApp</strong>.</li>
+          <li>Edita el <strong>mensaje de bienvenida</strong> que recibe cada paciente al escribir por primera vez.</li>
+          <li>Define el <strong>horario de atención automática</strong>: los rangos en que el bot responde solo sin necesidad de recepción humana.</li>
+          <li class="decision">🔀 ¿Fuera de ese horario, qué pasa con los mensajes?</li>
+          <li class="system">🤖 El sistema envía automáticamente un mensaje de "fuera de horario" con la hora de reapertura y, si el paciente dejó datos, genera una alerta para recepción al día siguiente.</li>
+          <li>Configura las palabras clave o momentos en que el bot <strong>transfiere la conversación a recepción</strong> (por ejemplo: "quiero hablar con alguien", quejas, urgencias).</li>
+          <li>Activa o pausa el bot completo con el interruptor principal si se necesita mantenimiento.</li>
+          <li class="success">✅ Los cambios entran en vigor en la siguiente conversación que inicie un paciente por WhatsApp.</li>
+          <li class="error">❌ Si el bot está pausado y hay mensajes entrantes, la recepción recibe una notificación para atenderlos manualmente.</li>
+        </ul>
+        <div class="notes"><strong>Nota importante:</strong> Pausar el bot no borra los flujos configurados. Al reactivarlo, retoma exactamente con la configuración guardada.</div>
+      </div>
+      <div class="diagram-wrap">
+        <h4>Diagrama de flujo</h4>
+        <div class="mermaid">
+flowchart TD
+    A([Admin Corporativo\nabre Config Bot WA]) --> B[Edita mensaje\nde bienvenida]
+    B --> C[Define horario\nde atención automática]
+    C --> D[Configura palabras clave\npara handoff a recepción]
+    D --> E{¿Bot\nactivo?}
+    E -- Sí --> F[🤖 Cambios activos en\nla siguiente conversación]
+    E -- No --> G[⏸ Bot en pausa:\nrecepción atiende manual]
+    G --> H[🔔 Notificación a\nrecepcionistas activos]
+    F --> I[✅ Bot configurado\ncon nueva lógica]
+    H --> I
+    style A fill:#ed80a8,color:#fff,stroke:#a25cbf
+    style F fill:#d6d9f3,color:#373644,stroke:#a25cbf
+    style H fill:#d6d9f3,color:#373644,stroke:#a25cbf
+    style I fill:#afd393,color:#2d5a1b,stroke:#6aaa4a
+    style G fill:#fac186,color:#373644,stroke:#d48a40
+    style E fill:#fac186,color:#373644,stroke:#d48a40
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ESCENARIO 5 -->
+  <div class="scenario-card">
+    <div class="scenario-header">
+      <div class="scenario-number">5</div>
+      <div>
+        <h3>Gestión de roles y permisos del sistema</h3>
+        <div class="actors">
+          <span class="actor-badge" style="background:#ed80a8;color:#fff">Admin Corporativo</span>
+        </div>
+      </div>
+    </div>
+    <div class="scenario-body">
+      <div class="steps">
+        <h4>¿Cómo funciona?</h4>
+        <ul class="step-list">
+          <li>El Admin Corporativo entra al módulo de <strong>Roles y Permisos</strong>.</li>
+          <li>Ve la lista de roles disponibles en la organización: recepcionista, médica, gerente de sucursal, consejera, enfermera, entre otros.</li>
+          <li>Selecciona el rol que desea revisar o modificar.</li>
+          <li>El sistema muestra las acciones habilitadas para ese rol (ver agenda, editar paciente, generar contrato, ver reportes, etc.).</li>
+          <li class="decision">🔀 ¿Se activa o desactiva un permiso para ese rol?</li>
+          <li>Hace clic en el interruptor junto al permiso para activarlo o quitarlo.</li>
+          <li class="system">🤖 El sistema aplica el cambio de inmediato: la próxima vez que cualquier persona con ese rol acceda, verá o dejará de ver esa función.</li>
+          <li class="success">✅ El cambio se registra en el historial de auditoría con nombre del admin, fecha y hora.</li>
+          <li class="error">❌ No se pueden quitar permisos básicos de acceso a un rol (como iniciar sesión), ya que dejaría al personal sin posibilidad de trabajar.</li>
+        </ul>
+        <div class="notes"><strong>Nota importante:</strong> Los cambios de permisos aplican a todos los usuarios que tengan ese rol asignado, no solo a uno en particular. Para dar un acceso especial a una sola persona, consultar con el equipo de tecnología.</div>
+      </div>
+      <div class="diagram-wrap">
+        <h4>Diagrama de flujo</h4>
+        <div class="mermaid">
+flowchart TD
+    A([Admin Corporativo\nabre Roles y Permisos]) --> B[Selecciona rol\nde la lista]
+    B --> C[Revisa permisos\nhabilitados y deshabilitados]
+    C --> D{¿Modificar\npermiso?}
+    D -- Activar --> E[Activa permiso\ncon interruptor]
+    D -- Desactivar --> F{¿Es permiso\nbásico de acceso?}
+    D -- Sin cambios --> G[✅ Sin modificaciones]
+    F -- Sí --> H[❌ No permitido:\ncampo bloqueado]
+    F -- No --> I[Desactiva permiso\ncon interruptor]
+    E --> J[🤖 Cambio inmediato\npara todos en ese rol]
+    I --> J
+    J --> K[✅ Cambio registrado\nen auditoría]
+    style A fill:#ed80a8,color:#fff,stroke:#a25cbf
+    style J fill:#d6d9f3,color:#373644,stroke:#a25cbf
+    style K fill:#afd393,color:#2d5a1b,stroke:#6aaa4a
+    style H fill:#ff3759,color:#fff,stroke:#cc0000
+    style D fill:#fac186,color:#373644,stroke:#d48a40
+    style F fill:#fac186,color:#373644,stroke:#d48a40
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ESCENARIO 6 -->
+  <div class="scenario-card">
+    <div class="scenario-header">
+      <div class="scenario-number">6</div>
+      <div>
+        <h3>Campos del perfil de paciente que el personal puede editar</h3>
+        <div class="actors">
+          <span class="actor-badge" style="background:#ed80a8;color:#fff">Admin Corporativo</span>
+        </div>
+      </div>
+    </div>
+    <div class="scenario-body">
+      <div class="steps">
+        <h4>¿Cómo funciona?</h4>
+        <ul class="step-list">
+          <li>El Admin Corporativo entra al módulo de <strong>Configuración de Pacientes</strong>.</li>
+          <li>Ve la lista completa de campos del perfil de paciente: nombre, teléfono, correo electrónico, fecha de nacimiento, dirección, CURP, entre otros.</li>
+          <li>Para cada campo, define qué roles pueden editarlo: por ejemplo, recepcionista puede editar teléfono y correo, pero no fecha de nacimiento ni CURP.</li>
+          <li class="decision">🔀 ¿Un campo es de solo lectura para todos excepto el admin?</li>
+          <li>Activa la opción <strong>"Protegido"</strong> junto al campo. Ese dato solo el Admin Corporativo podrá modificarlo.</li>
+          <li class="system">🤖 El sistema bloquea visualmente ese campo para los roles sin permiso: lo muestra en gris y sin opción de edición.</li>
+          <li>Guarda la configuración con el botón <strong>"Guardar cambios"</strong>.</li>
+          <li class="success">✅ La próxima vez que recepcionistas o médicas abran un perfil de paciente, solo verán editables los campos que les corresponden.</li>
+          <li class="error">❌ Si se desactiva accidentalmente la edición de un campo muy usado (como teléfono), la recepción no podrá actualizarlo. Verificar bien antes de guardar.</li>
+        </ul>
+        <div class="notes"><strong>Nota importante:</strong> Esta configuración aplica globalmente a todas las sucursales. No es posible actualmente dar distintos niveles de edición por sucursal.</div>
+      </div>
+      <div class="diagram-wrap">
+        <h4>Diagrama de flujo</h4>
+        <div class="mermaid">
+flowchart TD
+    A([Admin Corporativo\nabre Config Pacientes]) --> B[Ve lista de campos\ndel perfil]
+    B --> C[Selecciona campo\na configurar]
+    C --> D{¿Tipo de\nacceso?}
+    D -- Editable por rol --> E[Asigna qué roles\npueden editar ese campo]
+    D -- Solo lectura general --> F[Activa opción\n'Protegido']
+    E --> G[🤖 Sistema aplica\npermisos de edición\npor rol]
+    F --> G
+    G --> H{¿Más campos\npor configurar?}
+    H -- Sí --> C
+    H -- No --> I[Guarda configuración]
+    I --> J[✅ Campos actualizados\nen todos los perfiles]
+    style A fill:#ed80a8,color:#fff,stroke:#a25cbf
+    style G fill:#d6d9f3,color:#373644,stroke:#a25cbf
+    style J fill:#afd393,color:#2d5a1b,stroke:#6aaa4a
+    style D fill:#fac186,color:#373644,stroke:#d48a40
+    style H fill:#fac186,color:#373644,stroke:#d48a40
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ESCENARIO 7 -->
+  <div class="scenario-card">
+    <div class="scenario-header">
+      <div class="scenario-number">7</div>
+      <div>
+        <h3>Ver registros de auditoría</h3>
+        <div class="actors">
+          <span class="actor-badge" style="background:#ed80a8;color:#fff">Admin Corporativo</span>
+          <span class="actor-badge" style="background:#fac186;color:#7a3d00">Gerente de Sucursal</span>
+        </div>
+      </div>
+    </div>
+    <div class="scenario-body">
+      <div class="steps">
+        <h4>¿Cómo funciona?</h4>
+        <ul class="step-list">
+          <li>El Admin Corporativo (o Gerente de Sucursal para ver solo su sucursal) entra al módulo de <strong>Auditoría</strong>.</li>
+          <li>Ve una lista cronológica de acciones registradas: quién hizo algo, en qué pantalla o módulo, qué dato cambió y a qué hora.</li>
+          <li>Usa los filtros disponibles para acotar la búsqueda: por rango de fechas, por nombre de usuario, por tipo de acción (creación, edición, eliminación) o por módulo (agenda, pacientes, contratos, etc.).</li>
+          <li class="system">🤖 El sistema genera automáticamente estos registros con cada acción realizada por cualquier usuario. No requiere acción del personal para activarlo.</li>
+          <li class="decision">🔀 ¿Se necesita exportar el registro para revisión externa o archivo?</li>
+          <li>Hace clic en <strong>"Exportar"</strong> y elige el formato (PDF o Excel). El archivo se descarga de inmediato.</li>
+          <li>Para ver el detalle de un cambio específico, hace clic en el registro y aparece el valor anterior y el nuevo valor lado a lado.</li>
+          <li class="success">✅ Los registros de auditoría no pueden borrarse ni modificarse — son permanentes y sirven como respaldo ante cualquier duda o incidente.</li>
+          <li class="error">❌ El Gerente de Sucursal solo puede ver registros de su propia sucursal. Para ver actividad de otras sucursales se requiere acceso de Admin Corporativo.</li>
+        </ul>
+        <div class="notes"><strong>Nota importante:</strong> Toda acción queda registrada aunque el usuario no la haya "guardado" explícitamente. El registro incluye también intentos de acceso no autorizados.</div>
+      </div>
+      <div class="diagram-wrap">
+        <h4>Diagrama de flujo</h4>
+        <div class="mermaid">
+sequenceDiagram
+    participant A as Admin / Gerente
+    participant S as Sistema
+    participant R as Registro de Auditoría
+    A->>S: Abre módulo Auditoría
+    S-->>A: Muestra registros\nde los últimos 30 días
+    A->>S: Aplica filtros\n(fecha, usuario, acción, módulo)
+    S->>R: Consulta registros\ncon filtros aplicados
+    R-->>S: Devuelve lista filtrada
+    S-->>A: Muestra resultados en pantalla
+    alt Ver detalle de un cambio
+        A->>S: Hace clic en un registro
+        S-->>A: Muestra valor anterior\nvs. valor nuevo
+    end
+    alt Exportar para archivo
+        A->>S: Clic en "Exportar"
+        S-->>A: Descarga PDF o Excel\ncon los registros filtrados
+    end
+    note over R: Los registros son\npermanentes e\ninmodificables
+        </div>
+      </div>
+    </div>
+  </div>
+
+</main>
+<div class="footer">Manual Operativo · Grupo Reina Madre · Actualizado 2026 · Para uso interno</div>
+<script>
+mermaid.initialize({
+  startOnLoad:true,
+  theme:'base',
+  themeVariables:{
+    primaryColor:'#d9d8f5',
+    primaryTextColor:'#373644',
+    primaryBorderColor:'#a25cbf',
+    lineColor:'#a25cbf',
+    secondaryColor:'#fce4ef',
+    tertiaryColor:'#f4f4fb',
+    fontFamily:'-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif',
+    fontSize:'13px'
+  }
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Procesos Automáticos del Sistema — Manual Operativo Reina Madre</title>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#f4f4fb;--card:#fff;--primary:#ed80a8;--secondary:#a25cbf;--accent:#d9d8f5;--border:#d6d9f3;--text:#373644;--muted:#565386;--success:#afd393;--warning:#fac186;--danger:#ff3759}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--bg);color:var(--text);line-height:1.6}
+.header{background:linear-gradient(135deg,var(--primary),var(--secondary));color:#fff;padding:2rem 2.5rem;display:flex;align-items:center;gap:1rem}
+.header-icon{font-size:2.5rem}
+.header h1{font-size:1.8rem;font-weight:700;margin-bottom:.25rem}
+.header p{opacity:.9;font-size:1rem}
+.nav{background:var(--card);border-bottom:1px solid var(--border);padding:.75rem 2.5rem;display:flex;gap:.5rem;flex-wrap:wrap;align-items:center}
+.nav a{color:var(--secondary);text-decoration:none;font-size:.85rem;padding:.3rem .7rem;border-radius:1rem;transition:all .2s}
+.nav a:hover{background:var(--accent);color:var(--text)}
+.nav .active{background:var(--primary);color:#fff}
+.main{max-width:1200px;margin:0 auto;padding:2rem 2.5rem}
+.section-intro{background:var(--card);border-radius:12px;border:1px solid var(--border);padding:1.5rem;margin-bottom:2rem}
+.section-intro h2{color:var(--secondary);font-size:1.2rem;margin-bottom:.5rem}
+.scenario-card{background:var(--card);border-radius:12px;border:1px solid var(--border);margin-bottom:2rem;overflow:hidden;box-shadow:0 1px 3px rgba(162,92,191,.08)}
+.scenario-header{background:var(--accent);padding:1.25rem 1.5rem;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;gap:1rem}
+.scenario-number{background:var(--primary);color:#fff;width:2rem;height:2rem;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.85rem;flex-shrink:0;margin-top:.1rem}
+.scenario-header h3{font-size:1.1rem;color:var(--text);font-weight:600;margin-bottom:.2rem}
+.scenario-header .actors{font-size:.8rem;color:var(--muted)}
+.actor-badge{display:inline-block;padding:.15rem .5rem;border-radius:.5rem;font-size:.75rem;font-weight:500;margin-right:.25rem}
+.scenario-body{padding:1.5rem;display:grid;grid-template-columns:1fr 1fr;gap:1.5rem}
+@media(max-width:768px){.scenario-body{grid-template-columns:1fr}}
+.steps h4{color:var(--secondary);font-size:.9rem;font-weight:600;margin-bottom:.75rem;text-transform:uppercase;letter-spacing:.05em}
+.step-list{list-style:none}
+.step-list li{padding:.5rem .75rem;margin-bottom:.4rem;border-radius:.5rem;border-left:3px solid var(--border);font-size:.9rem;background:#fafafe}
+.step-list li.system{border-color:var(--muted);background:#f0f0f8}
+.step-list li.decision{border-color:var(--warning);background:#fff9f2}
+.step-list li.success{border-color:var(--success);background:#f6fbf2}
+.step-list li.error{border-color:var(--danger);background:#fff5f6}
+.diagram-wrap{overflow:auto}
+.diagram-wrap h4{color:var(--secondary);font-size:.9rem;font-weight:600;margin-bottom:.75rem;text-transform:uppercase;letter-spacing:.05em}
+.mermaid{font-size:13px}
+.notes{margin-top:1rem;padding:.75rem 1rem;background:#fff8e1;border-radius:.5rem;border-left:3px solid var(--warning);font-size:.85rem;color:var(--text)}
+.notes strong{color:#b45309}
+.footer{text-align:center;padding:2rem;color:var(--muted);font-size:.8rem;border-top:1px solid var(--border);margin-top:2rem}
+</style>
+</head>
+<body>
+<div class="header">
+  <div class="header-icon">⚡</div>
+  <div>
+    <h1>Procesos Automáticos del Sistema</h1>
+    <p>Manual Operativo — Grupo Reina Madre · Reina Madre | María Linda | Piel Sana</p>
+  </div>
+</div>
+<nav class="nav">
+  <a href="index.html">🏠 Inicio</a>
+  <a href="01-autenticacion.html">🔐 Acceso</a>
+  <a href="02-pacientes.html">👩‍⚕️ Pacientes</a>
+  <a href="03-agenda.html">📅 Agenda</a>
+  <a href="04-contratos.html">📋 Contratos</a>
+  <a href="05-staff.html">👥 Staff</a>
+  <a href="06-bot-whatsapp.html">💬 Bot WA</a>
+  <a href="07-notificaciones.html">🔔 Notificaciones</a>
+  <a href="08-configuracion.html">⚙️ Configuración</a>
+  <a href="09-procesos.html" class="active">⚡ Procesos</a>
+</nav>
+<main class="main">
+
+  <div class="section-intro">
+    <h2>¿De qué trata esta sección?</h2>
+    <p>Esta sección describe los procesos que el sistema ejecuta de forma <strong>automática</strong>, sin que ninguna persona tenga que hacer algo para iniciarlos. Ocurren en segundo plano — a ciertas horas del día, cuando se cumple alguna condición, o de forma continua — para mantener la operación de las sucursales funcionando de manera ordenada y segura. El personal de la plataforma recibe avisos cuando alguno de estos procesos requiere su atención.</p>
+  </div>
+
+  <!-- ESCENARIO 1 -->
+  <div class="scenario-card">
+    <div class="scenario-header">
+      <div class="scenario-number">1</div>
+      <div>
+        <h3>Contrato completado automáticamente</h3>
+        <div class="actors">
+          <span class="actor-badge" style="background:#d6d9f3;color:#373644">Sistema</span>
+          <span class="actor-badge" style="background:#c58fe8;color:#4a1a6b">Consejera</span>
+        </div>
+      </div>
+    </div>
+    <div class="scenario-body">
+      <div class="steps">
+        <h4>¿Cómo funciona?</h4>
+        <ul class="step-list">
+          <li class="system">🤖 El sistema revisa constantemente el avance de cada contrato activo.</li>
+          <li class="decision">🔀 ¿Ya se atendieron todas las citas incluidas en el plan?</li>
+          <li class="system">🤖 Si todas las citas están marcadas como "atendida", el sistema cambia el estado del contrato a <strong>Completado</strong>.</li>
+          <li class="system">🤖 El sistema registra la fecha y hora exacta del cierre.</li>
+          <li class="system">🤖 Se envía una notificación automática a la consejera asignada para informarle que el plan de su paciente ha concluido.</li>
+          <li class="success">✅ El contrato queda cerrado. La consejera puede hacer seguimiento o proponer una renovación.</li>
+          <li class="error">❌ Si quedan citas pendientes o canceladas sin reprogramar, el sistema no cierra el contrato y la consejera recibe un aviso de "citas faltantes".</li>
+        </ul>
+        <div class="notes">
+          <strong>Nota operativa:</strong> Ninguna persona cierra el contrato manualmente. Si el sistema no lo cierra cuando debería, verificar que todas las citas del plan estén registradas como atendidas en la agenda.
+        </div>
+      </div>
+      <div class="diagram-wrap">
+        <h4>Diagrama de estados del contrato</h4>
+        <div class="mermaid">
+stateDiagram-v2
+    [*] --> Activo : Contrato firmado
+    Activo --> EnProgreso : Primera cita atendida
+    EnProgreso --> EnProgreso : Citas siguientes atendidas
+    EnProgreso --> Completado : Todas las citas atendidas
+    EnProgreso --> ConCitasFaltantes : Citas sin reprogramar
+    ConCitasFaltantes --> EnProgreso : Consejera reprograma
+    Completado --> [*]
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ESCENARIO 2 -->
+  <div class="scenario-card">
+    <div class="scenario-header">
+      <div class="scenario-number">2</div>
+      <div>
+        <h3>Crear ruta clínica en primera cita de especialidad</h3>
+        <div class="actors">
+          <span class="actor-badge" style="background:#d6d9f3;color:#373644">Sistema</span>
+          <span class="actor-badge" style="background:#c58fe8;color:#4a1a6b">Médica</span>
+        </div>
+      </div>
+    </div>
+    <div class="scenario-body">
+      <div class="steps">
+        <h4>¿Cómo funciona?</h4>
+        <ul class="step-list">
+          <li>La paciente tiene su primera cita de una especialidad (por ejemplo, su primera consulta de dermatología).</li>
+          <li class="system">🤖 El sistema detecta que es la primera vez que esta paciente asiste a esa especialidad en el grupo.</li>
+          <li class="decision">🔀 ¿Existe ya un expediente de seguimiento para esta paciente en esa especialidad?</li>
+          <li class="system">🤖 Si no existe, el sistema abre automáticamente un expediente de seguimiento para esa especialidad.</li>
+          <li class="system">🤖 El expediente queda vinculado al perfil de la paciente y disponible para la médica desde ese mismo momento.</li>
+          <li class="success">✅ La médica puede registrar notas, diagnósticos y próximos pasos directamente en el expediente recién creado.</li>
+          <li class="error">❌ Si la cita se cancela antes de iniciarse, el expediente no se crea — solo se genera cuando la cita se marca como "en curso" o "atendida".</li>
+        </ul>
+        <div class="notes">
+          <strong>Nota operativa:</strong> La médica no necesita crear el expediente manualmente. Estará disponible en la pantalla de la cita al momento de iniciar la consulta.
+        </div>
+      </div>
+      <div class="diagram-wrap">
+        <h4>Diagrama de flujo</h4>
+        <div class="mermaid">
+flowchart TD
+    A([Cita iniciada]) --> B{¿Primera cita\nde esta especialidad?}
+    B -- No --> C[Abre expediente\nexistente]
+    B -- Sí --> D[Sistema crea expediente\nde seguimiento]
+    D --> E[Expediente disponible\npara la médica]
+    C --> E
+    E --> F([Médica registra\nla consulta])
+    style A fill:#c58fe8,color:#fff,stroke:#7a3daa
+    style B fill:#d9d8f5,color:#373644,stroke:#a25cbf
+    style D fill:#d6d9f3,color:#373644,stroke:#565386
+    style E fill:#d6d9f3,color:#373644,stroke:#565386
+    style C fill:#d6d9f3,color:#373644,stroke:#565386
+    style F fill:#c58fe8,color:#fff,stroke:#7a3daa
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ESCENARIO 3 -->
+  <div class="scenario-card">
+    <div class="scenario-header">
+      <div class="scenario-number">3</div>
+      <div>
+        <h3>Reintento de notificación fallida (proceso nocturno)</h3>
+        <div class="actors">
+          <span class="actor-badge" style="background:#d6d9f3;color:#373644">Sistema</span>
+        </div>
+      </div>
+    </div>
+    <div class="scenario-body">
+      <div class="steps">
+        <h4>¿Cómo funciona?</h4>
+        <ul class="step-list">
+          <li class="system">🤖 Cada noche, el sistema revisa si hay notificaciones que no se entregaron correctamente durante el día (por ejemplo, un WhatsApp que no llegó por problemas de conexión).</li>
+          <li class="decision">🔀 ¿Hay notificaciones pendientes de entrega?</li>
+          <li class="system">🤖 Para cada notificación fallida, el sistema verifica cuántas veces ya se intentó enviar.</li>
+          <li class="decision">🔀 ¿Se ha intentado menos de 3 veces?</li>
+          <li class="system">🤖 Si aún hay intentos disponibles, el sistema reenvía la notificación automáticamente.</li>
+          <li class="success">✅ Si el reenvío llega correctamente, la notificación se marca como "entregada".</li>
+          <li class="error">❌ Si después de 3 intentos sigue fallando, el sistema registra la notificación como "no entregada" y el equipo técnico recibe un reporte para revisarla manualmente.</li>
+        </ul>
+        <div class="notes">
+          <strong>Nota operativa:</strong> Este proceso ocurre automáticamente en la madrugada. Si una paciente reporta que no recibió un recordatorio, es posible que el sistema lo esté reintentando. Si persiste al día siguiente, avisar al soporte técnico.
+        </div>
+      </div>
+      <div class="diagram-wrap">
+        <h4>Diagrama de flujo nocturno</h4>
+        <div class="mermaid">
+flowchart TD
+    A([Proceso nocturno\ninicia]) --> B{¿Hay notificaciones\nno entregadas?}
+    B -- No --> Z([Proceso termina\nsin cambios])
+    B -- Sí --> C[Toma la siguiente\nnotificación fallida]
+    C --> D{¿Intentos\nmenores a 3?}
+    D -- Sí --> E[Reenvía la\nnotificación]
+    E --> F{¿Llegó\ncorrectamente?}
+    F -- Sí --> G[Marca como\nEntregada]
+    F -- No --> H[Suma un intento\nfallido más]
+    H --> D
+    D -- No --> I[Marca como\nNo entregada permanente]
+    I --> J[Alerta al equipo\ntécnico]
+    G --> B
+    J --> B
+    style A fill:#d6d9f3,color:#373644,stroke:#565386
+    style Z fill:#afd393,color:#2d5a1b,stroke:#5a9a3a
+    style E fill:#d6d9f3,color:#373644,stroke:#565386
+    style G fill:#afd393,color:#2d5a1b,stroke:#5a9a3a
+    style I fill:#ff3759,color:#fff,stroke:#cc1a33
+    style J fill:#fac186,color:#5a3a00,stroke:#c07a2a
+    style B fill:#d9d8f5,color:#373644,stroke:#a25cbf
+    style D fill:#d9d8f5,color:#373644,stroke:#a25cbf
+    style F fill:#d9d8f5,color:#373644,stroke:#a25cbf
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ESCENARIO 4 -->
+  <div class="scenario-card">
+    <div class="scenario-header">
+      <div class="scenario-number">4</div>
+      <div>
+        <h3>Resumen de agenda — generación automática matutina</h3>
+        <div class="actors">
+          <span class="actor-badge" style="background:#d6d9f3;color:#373644">Sistema</span>
+          <span class="actor-badge" style="background:#7eb8f7;color:#1a3a5c">Recepcionista</span>
+          <span class="actor-badge" style="background:#fac186;color:#5a3a00">Gerente de Sucursal</span>
+        </div>
+      </div>
+    </div>
+    <div class="scenario-body">
+      <div class="steps">
+        <h4>¿Cómo funciona?</h4>
+        <ul class="step-list">
+          <li class="system">🤖 Cada mañana, antes de que abra la sucursal, el sistema recopila todas las citas confirmadas del día para cada sucursal.</li>
+          <li class="system">🤖 Organiza las citas por horario, médica y tipo de servicio.</li>
+          <li class="system">🤖 Genera un resumen con el total de citas, los horarios de mayor demanda y cualquier cita que requiera atención especial (por ejemplo, primera consulta o paciente de plan).</li>
+          <li class="system">🤖 Envía el resumen automáticamente a la recepcionista y al gerente de cada sucursal, ya sea por correo o mediante una notificación en la plataforma.</li>
+          <li class="success">✅ El personal llega a la sucursal sabiendo exactamente qué esperar durante el día.</li>
+          <li class="decision">🔀 Si el día no tiene citas agendadas, el sistema envía un aviso indicando que la agenda está vacía.</li>
+          <li class="error">❌ Si hay algún problema para generar el resumen, el sistema lo reintenta una vez más. Si falla dos veces, el equipo técnico recibe una alerta.</li>
+        </ul>
+        <div class="notes">
+          <strong>Nota operativa:</strong> El resumen llega antes de las 7:00 a.m. Si a las 8:00 a.m. no se ha recibido, revisar el correo no deseado o notificaciones de la plataforma y avisar a soporte si persiste.
+        </div>
+      </div>
+      <div class="diagram-wrap">
+        <h4>Diagrama de secuencia</h4>
+        <div class="mermaid">
+sequenceDiagram
+    participant S as Sistema
+    participant R as Recepcionista
+    participant G as Gerente de Sucursal
+
+    Note over S: Proceso matutino automático
+    S->>S: Recopila citas del día por sucursal
+    S->>S: Organiza por horario y médica
+    S->>S: Genera resumen por sucursal
+    S-->>R: Envía resumen (correo / notificación)
+    S-->>G: Envía resumen (correo / notificación)
+    Note over R,G: El personal revisa el resumen antes de abrir
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ESCENARIO 5 -->
+  <div class="scenario-card">
+    <div class="scenario-header">
+      <div class="scenario-number">5</div>
+      <div>
+        <h3>Expiración automática de sesiones inactivas</h3>
+        <div class="actors">
+          <span class="actor-badge" style="background:#d6d9f3;color:#373644">Sistema</span>
+          <span class="actor-badge" style="background:#7eb8f7;color:#1a3a5c">Cualquier usuario</span>
+        </div>
+      </div>
+    </div>
+    <div class="scenario-body">
+      <div class="steps">
+        <h4>¿Cómo funciona?</h4>
+        <ul class="step-list">
+          <li>Un usuario (recepcionista, médica, gerente, etc.) inicia sesión en la plataforma.</li>
+          <li class="system">🤖 El sistema comienza a monitorear el tiempo desde la última acción del usuario en la pantalla.</li>
+          <li class="decision">🔀 ¿El usuario lleva más de 30 minutos sin tocar ninguna pantalla?</li>
+          <li class="system">🤖 Si es así, el sistema muestra un aviso: "Tu sesión está a punto de cerrarse por inactividad".</li>
+          <li class="decision">🔀 ¿El usuario responde al aviso dentro de los próximos 2 minutos?</li>
+          <li class="success">✅ Si responde, la sesión continúa normalmente desde donde la dejó.</li>
+          <li class="system">🤖 Si no responde, el sistema cierra la sesión automáticamente y redirige a la pantalla de inicio de sesión.</li>
+          <li class="error">❌ Cualquier cambio no guardado se pierde al cerrarse la sesión. El sistema muestra un mensaje explicando por qué se cerró.</li>
+        </ul>
+        <div class="notes">
+          <strong>Nota operativa:</strong> Este proceso protege la información de las pacientes. Si compartes computadora con otra persona, asegúrate de cerrar sesión manualmente cuando termines, sin esperar a que expire sola.
+        </div>
+      </div>
+      <div class="diagram-wrap">
+        <h4>Diagrama de flujo</h4>
+        <div class="mermaid">
+flowchart TD
+    A([Usuario activo\nen la plataforma]) --> B{¿Inactividad\nsuperior a 30 min?}
+    B -- No --> A
+    B -- Sí --> C[Sistema muestra\naviso de cierre]
+    C --> D{¿Usuario responde\nen 2 minutos?}
+    D -- Sí --> E[Sesión continúa\nnormalmente]
+    E --> A
+    D -- No --> F[Sistema cierra\nla sesión]
+    F --> G([Pantalla de\ninicio de sesión])
+    style A fill:#7eb8f7,color:#1a3a5c,stroke:#3a7acc
+    style B fill:#d9d8f5,color:#373644,stroke:#a25cbf
+    style C fill:#fac186,color:#5a3a00,stroke:#c07a2a
+    style D fill:#d9d8f5,color:#373644,stroke:#a25cbf
+    style E fill:#afd393,color:#2d5a1b,stroke:#5a9a3a
+    style F fill:#d6d9f3,color:#373644,stroke:#565386
+    style G fill:#7eb8f7,color:#1a3a5c,stroke:#3a7acc
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ESCENARIO 6 -->
+  <div class="scenario-card">
+    <div class="scenario-header">
+      <div class="scenario-number">6</div>
+      <div>
+        <h3>Limpieza de horarios vencidos sin confirmar</h3>
+        <div class="actors">
+          <span class="actor-badge" style="background:#d6d9f3;color:#373644">Sistema</span>
+          <span class="actor-badge" style="background:#afd393;color:#2d5a1b">Paciente</span>
+        </div>
+      </div>
+    </div>
+    <div class="scenario-body">
+      <div class="steps">
+        <h4>¿Cómo funciona?</h4>
+        <ul class="step-list">
+          <li>Una paciente (o el bot de WhatsApp) reserva un horario de manera tentativa, pero no lo confirma de inmediato.</li>
+          <li class="system">🤖 El sistema bloquea ese horario y comienza a contar el tiempo establecido para confirmar (por ejemplo, 15 minutos).</li>
+          <li class="decision">🔀 ¿La paciente confirmó la cita antes de que venza el tiempo?</li>
+          <li class="success">✅ Si confirmó, el horario queda reservado de forma definitiva y la paciente recibe su comprobante.</li>
+          <li class="system">🤖 Si el tiempo venció sin confirmación, el sistema libera el horario automáticamente.</li>
+          <li class="system">🤖 El horario vuelve a aparecer como disponible en la agenda para que cualquier otra paciente pueda agendarlo.</li>
+          <li class="error">❌ La paciente que no confirmó a tiempo no tiene ya ese horario garantizado y tendría que iniciar el proceso de agendar de nuevo.</li>
+        </ul>
+        <div class="notes">
+          <strong>Nota operativa:</strong> Este proceso evita que los horarios queden "bloqueados" por reservas abandonadas. Si una paciente llama diciendo que "ya lo había reservado", verificar en la agenda si el tiempo de confirmación venció.
+        </div>
+      </div>
+      <div class="diagram-wrap">
+        <h4>Diagrama de estados del horario</h4>
+        <div class="mermaid">
+stateDiagram-v2
+    [*] --> Disponible
+    Disponible --> Tentativo : Paciente inicia reserva
+    Tentativo --> Confirmado : Paciente confirma a tiempo
+    Tentativo --> Disponible : Tiempo vence sin confirmación
+    Confirmado --> Atendido : Cita se realiza
+    Confirmado --> Disponible : Paciente cancela
+    Atendido --> [*]
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ESCENARIO 7 -->
+  <div class="scenario-card">
+    <div class="scenario-header">
+      <div class="scenario-number">7</div>
+      <div>
+        <h3>Sincronización de datos entre módulos</h3>
+        <div class="actors">
+          <span class="actor-badge" style="background:#d6d9f3;color:#373644">Sistema</span>
+          <span class="actor-badge" style="background:#25D366;color:#fff">Bot WA</span>
+          <span class="actor-badge" style="background:#fac186;color:#5a3a00">Gerente de Sucursal</span>
+        </div>
+      </div>
+    </div>
+    <div class="scenario-body">
+      <div class="steps">
+        <h4>¿Cómo funciona?</h4>
+        <ul class="step-list">
+          <li>Un gerente o admin corporativo actualiza algún dato importante: por ejemplo, cambia el horario de atención de una médica o modifica los servicios disponibles en una sucursal.</li>
+          <li class="system">🤖 El sistema detecta el cambio en el módulo donde se realizó (por ejemplo, el módulo de configuración de sucursal).</li>
+          <li class="system">🤖 Automáticamente propaga el cambio a todos los módulos que dependen de esa información: la agenda, el bot de WhatsApp, el módulo de contratos y los reportes.</li>
+          <li class="decision">🔀 ¿Algún módulo no pudo recibir el cambio correctamente?</li>
+          <li class="success">✅ Si todos los módulos se actualizan sin problema, el cambio entra en vigor de inmediato en toda la plataforma.</li>
+          <li class="error">❌ Si algún módulo no se actualizó correctamente, el sistema reintenta la sincronización. Si falla dos veces, el equipo técnico recibe una alerta y el módulo afectado muestra datos anteriores hasta que se resuelva.</li>
+        </ul>
+        <div class="notes">
+          <strong>Nota operativa:</strong> Si después de actualizar un horario o un servicio el bot de WhatsApp sigue mostrando información antigua, esperar unos minutos y probar de nuevo. Si persiste después de 10 minutos, reportar al soporte técnico.
+        </div>
+      </div>
+      <div class="diagram-wrap">
+        <h4>Diagrama de secuencia</h4>
+        <div class="mermaid">
+sequenceDiagram
+    participant G as Gerente de Sucursal
+    participant S as Sistema
+    participant A as Agenda
+    participant B as Bot WA
+    participant C as Contratos
+
+    G->>S: Actualiza horario de médica
+    S->>S: Detecta el cambio
+    S->>A: Propaga nuevo horario
+    S->>B: Actualiza disponibilidad en Bot WA
+    S->>C: Ajusta fechas de contratos afectados
+    A-->>S: Confirmación OK
+    B-->>S: Confirmación OK
+    C-->>S: Confirmación OK
+    S-->>G: Cambio aplicado en toda la plataforma
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ESCENARIO 8 -->
+  <div class="scenario-card">
+    <div class="scenario-header">
+      <div class="scenario-number">8</div>
+      <div>
+        <h3>Monitor de salud del sistema</h3>
+        <div class="actors">
+          <span class="actor-badge" style="background:#d6d9f3;color:#373644">Sistema</span>
+          <span class="actor-badge" style="background:#ed80a8;color:#6b1a34">Admin Corporativo</span>
+        </div>
+      </div>
+    </div>
+    <div class="scenario-body">
+      <div class="steps">
+        <h4>¿Cómo funciona?</h4>
+        <ul class="step-list">
+          <li class="system">🤖 El sistema verifica continuamente que todos sus componentes funcionen correctamente: la plataforma web, el bot de WhatsApp, las notificaciones, la agenda y el acceso de usuarios.</li>
+          <li class="decision">🔀 ¿Todos los componentes responden con normalidad?</li>
+          <li class="success">✅ Si todo está bien, el sistema continúa operando sin interrupciones y sin alertar a nadie.</li>
+          <li class="decision">🔀 ¿Se detectó algún componente con problemas o lento?</li>
+          <li class="system">🤖 El sistema clasifica el problema por nivel de urgencia: bajo (lentitud), medio (función degradada) o alto (componente caído).</li>
+          <li class="system">🤖 Dependiendo de la urgencia, el sistema notifica al equipo técnico por correo o SMS con un resumen del problema detectado.</li>
+          <li class="system">🤖 Para problemas de urgencia baja o media, el sistema intenta resolver la situación automáticamente (reiniciando el componente afectado, por ejemplo).</li>
+          <li class="error">❌ Si el componente no se recupera, el admin corporativo y el equipo técnico reciben una alerta prioritaria para atenderlo de inmediato.</li>
+        </ul>
+        <div class="notes">
+          <strong>Nota operativa:</strong> El personal no necesita monitorear la salud del sistema — el sistema se vigila a sí mismo. Si experimentan lentitud o errores en la plataforma, pueden reportarlo al equipo técnico; es posible que ya estén trabajando en ello.
+        </div>
+      </div>
+      <div class="diagram-wrap">
+        <h4>Diagrama de flujo</h4>
+        <div class="mermaid">
+flowchart TD
+    A([Monitor activo\ncontinuamente]) --> B{¿Todos los\ncomponentes OK?}
+    B -- Sí --> A
+    B -- No --> C{¿Nivel de\nurgencia?}
+    C -- Bajo --> D[Sistema intenta\nrecuperación automática]
+    C -- Medio --> D
+    C -- Alto --> E[Alerta inmediata\nal equipo técnico]
+    D --> F{¿Se resolvió\nsolo?}
+    F -- Sí --> G[Componente\nrecuperado]
+    G --> A
+    F -- No --> E
+    E --> H[Admin Corporativo\nrecibe alerta prioritaria]
+    H --> I([Equipo técnico\natiende el problema])
+    style A fill:#d6d9f3,color:#373644,stroke:#565386
+    style B fill:#d9d8f5,color:#373644,stroke:#a25cbf
+    style C fill:#d9d8f5,color:#373644,stroke:#a25cbf
+    style D fill:#d6d9f3,color:#373644,stroke:#565386
+    style E fill:#ff3759,color:#fff,stroke:#cc1a33
+    style F fill:#d9d8f5,color:#373644,stroke:#a25cbf
+    style G fill:#afd393,color:#2d5a1b,stroke:#5a9a3a
+    style H fill:#ed80a8,color:#fff,stroke:#a25cbf
+    style I fill:#fac186,color:#5a3a00,stroke:#c07a2a
+        </div>
+      </div>
+    </div>
+  </div>
+
+</main>
+<div class="footer">Manual Operativo · Grupo Reina Madre · Actualizado 2026 · Para uso interno</div>
+<script>
+mermaid.initialize({
+  startOnLoad:true,
+  theme:'base',
+  themeVariables:{
+    primaryColor:'#d9d8f5',
+    primaryTextColor:'#373644',
+    primaryBorderColor:'#a25cbf',
+    lineColor:'#a25cbf',
+    secondaryColor:'#fce4ef',
+    tertiaryColor:'#f4f4fb',
+    fontFamily:'-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif',
+    fontSize:'13px'
+  }
+});
+</script>
+</body>
+</html>
