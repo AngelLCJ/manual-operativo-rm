@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mapa de Sitio — Manual Operativo Reina Madre</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#f4f4fb;--card:#fff;--primary:#ed80a8;--secondary:#a25cbf;--accent:#d9d8f5;--border:#d6d9f3;--text:#373644;--muted:#565386;--success:#afd393;--warning:#fac186;--danger:#ff3759}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--bg);color:var(--text);line-height:1.6}
+.header{background:linear-gradient(135deg,var(--primary),var(--secondary));color:#fff;padding:2rem 2.5rem;display:flex;align-items:center;gap:1rem}
+.header-icon{font-size:2.5rem}
+.header h1{font-size:1.8rem;font-weight:700;margin-bottom:.25rem}
+.header p{opacity:.9;font-size:1rem}
+.nav{background:var(--card);border-bottom:1px solid var(--border);padding:.75rem 2.5rem;display:flex;gap:.5rem;flex-wrap:wrap;align-items:center}
+.nav a{color:var(--secondary);text-decoration:none;font-size:.85rem;padding:.3rem .7rem;border-radius:1rem;transition:all .2s}
+.nav a:hover{background:var(--accent);color:var(--text)}
+.nav .active{background:var(--primary);color:#fff}
+.main{max-width:1200px;margin:0 auto;padding:2rem 2.5rem}
+.section-intro{background:var(--card);border-radius:12px;border:1px solid var(--border);padding:1.5rem;margin-bottom:2rem}
+.section-intro h2{color:var(--secondary);font-size:1.2rem;margin-bottom:.5rem}
+.section-intro p{color:var(--text);font-size:.95rem;margin-bottom:.5rem}
+.section-title{font-size:1.05rem;font-weight:700;color:var(--secondary);margin:2.5rem 0 1rem;text-transform:uppercase;letter-spacing:.06em;border-bottom:2px solid var(--accent);padding-bottom:.4rem}
+.subsection-title{font-size:.95rem;font-weight:700;color:var(--muted);margin:1.5rem 0 .75rem;text-transform:uppercase;letter-spacing:.05em}
+.notes{padding:.75rem 1rem;background:#fff8e1;border-radius:.5rem;border-left:3px solid var(--warning);font-size:.85rem;color:var(--text);margin-bottom:1.5rem}
+.notes strong{color:#b45309}
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:1.5rem}
+@media(max-width:768px){.stats-grid{grid-template-columns:repeat(2,1fr)}}
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:1rem 1.25rem;text-align:center}
+.stat-card .stat-num{font-size:2rem;font-weight:700;color:var(--secondary);line-height:1.1}
+.stat-card .stat-label{font-size:.8rem;color:var(--muted);margin-top:.2rem}
+.route-table{width:100%;border-collapse:collapse;background:var(--card);border-radius:10px;overflow:hidden;border:1px solid var(--border);margin-bottom:2rem;font-size:.875rem}
+.route-table thead tr{background:var(--accent)}
+.route-table thead th{padding:.65rem 1rem;text-align:left;font-size:.78rem;font-weight:700;color:var(--secondary);text-transform:uppercase;letter-spacing:.05em;border-bottom:1px solid var(--border)}
+.route-table tbody tr{border-bottom:1px solid var(--border)}
+.route-table tbody tr:last-child{border-bottom:none}
+.route-table tbody tr:hover{background:#fafafe}
+.route-table td{padding:.6rem 1rem;vertical-align:top}
+.route-table td:first-child{font-family:"SF Mono","Fira Code",monospace;font-size:.8rem;color:var(--text);word-break:break-all}
+.badge{display:inline-block;padding:.15rem .5rem;border-radius:.5rem;font-size:.72rem;font-weight:600;white-space:nowrap}
+.badge-dynamic{background:#e8f0fe;color:#1a56db}
+.badge-new{background:#d1fae5;color:#065f46}
+.badge-removed{background:#fee2e2;color:#991b1b}
+.badge-stable{background:#e8e8f8;color:#4c4f72}
+.badge-get{background:#dbeafe;color:#1e40af}
+.badge-post{background:#d1fae5;color:#065f46}
+.badge-mixed{background:#fef3c7;color:#92400e}
+.badge-role{display:inline-block;padding:.12rem .45rem;border-radius:.4rem;font-size:.72rem;font-weight:500;margin-right:.2rem;margin-bottom:.1rem}
+.delta-card{background:var(--card);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:1.5rem}
+.delta-card-header{background:var(--accent);padding:.75rem 1.25rem;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:.6rem}
+.delta-card-header h3{font-size:.95rem;font-weight:700;color:var(--text)}
+.delta-card-body{padding:1rem 1.25rem}
+.coverage-bar{height:12px;border-radius:6px;background:var(--border);overflow:hidden;margin:.5rem 0}
+.coverage-fill{height:100%;border-radius:6px;background:linear-gradient(90deg,var(--primary),var(--secondary))}
+.key-finding{padding:.6rem .9rem;border-radius:.5rem;border-left:3px solid var(--primary);background:#fdf4f8;margin-bottom:.6rem;font-size:.875rem}
+.key-finding strong{color:var(--secondary)}
+.footer{text-align:center;padding:2rem;color:var(--muted);font-size:.8rem;border-top:1px solid var(--border);margin-top:2rem}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-icon">🗺️</div>
+  <div>
+    <h1>Mapa de Sitio</h1>
+    <p>Manual Operativo — Grupo Reina Madre · Reina Madre | María Linda | Piel Sana</p>
+  </div>
+</div>
+
+<nav class="nav">
+  <a href="index.html">🏠 Inicio</a>
+  <a href="01-autenticacion.html">🔐 Acceso</a>
+  <a href="02-pacientes.html">👩‍⚕️ Pacientes</a>
+  <a href="03-agenda.html">📅 Agenda</a>
+  <a href="04-contratos.html">📋 Contratos</a>
+  <a href="05-staff.html">👥 Staff</a>
+  <a href="06-bot-whatsapp.html">💬 Bot WA</a>
+  <a href="07-notificaciones.html">🔔 Notificaciones</a>
+  <a href="08-configuracion.html">⚙️ Configuración</a>
+  <a href="09-procesos.html">⚡ Procesos</a>
+  <a href="10-mapa-de-sitio.html" class="active">🗺️ Mapa de Sitio</a>
+  <a href="hallazgos.html">🔍 Hallazgos</a>
+</nav>
+
+<div class="main">
+
+  <div class="section-intro">
+    <h2>🗺️ Mapa de Sitio — Inventario completo de rutas</h2>
+    <p>Este documento lista <strong>todas las rutas de la plataforma Reina Madre</strong> extraídas directamente del código fuente (<code>apps/web/app/</code>). Es más fidedigno que el mapa de Notion (abril 2026) porque refleja el estado real del código post-Fases 97-109.</p>
+    <p>Generado el <strong>17 de junio 2026</strong>. Incluye páginas protegidas por sesión, rutas públicas, portal de pacientes y todos los endpoints de la API interna.</p>
+  </div>
+
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-num">166</div>
+      <div class="stat-label">Rutas totales en código</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num">108</div>
+      <div class="stat-label">Páginas (page handlers)</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num">58</div>
+      <div class="stat-label">API routes</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num" style="color:var(--primary)">63%</div>
+      <div class="stat-label">Cobertura Notion sobre código</div>
+    </div>
+  </div>
+
+  <div class="notes">
+    <strong>Nota sobre middleware:</strong> La plataforma tiene un middleware dual (staff vía Cognito + pacientes vía OTP). Todas las rutas del grupo <code>(app)</code> requieren sesión activa de staff. Las rutas <code>/api/wa/v1/**</code> autentican por firma HMAC, sin sesión Cognito. El grupo <code>(oauth)</code> omite completamente el wrapper <code>auth()</code> cuando el host es <code>auth.reinamadre.mx</code>.
+  </div>
+
+  <div class="section-title">📄 Sección 1 — Páginas del sistema</div>
+
+  <div class="subsection-title">🔐 Auth — Login y recuperación de contraseña</div>
+  <table class="route-table">
+    <thead><tr><th>URL</th><th>Descripción</th><th>Roles / Acceso</th><th>Notas</th></tr></thead>
+    <tbody>
+      <tr><td>/login</td><td>Login de staff (Cognito)</td><td><span class="badge badge-stable">Público</span></td><td>Redirige a dashboard tras autenticar</td></tr>
+      <tr><td>/forgot-password</td><td>Recuperar contraseña</td><td><span class="badge badge-stable">Público</span></td><td>Inicia flujo de reset en Cognito</td></tr>
+      <tr><td>/logout</td><td>Logout handler page</td><td><span class="badge badge-stable">Público</span></td><td>Limpia sesión y redirige a /login</td></tr>
+    </tbody>
+  </table>
+
+  <div class="subsection-title">🚀 Launcher — Root y selector de clínica</div>
+  <table class="route-table">
+    <thead><tr><th>URL</th><th>Descripción</th><th>Roles / Acceso</th><th>Notas</th></tr></thead>
+    <tbody>
+      <tr><td>/</td><td>Root launcher / splash</td><td><span class="badge badge-stable">Todos</span></td><td>Redirige según tipo de sesión activa</td></tr>
+      <tr><td>/select-clinic</td><td>Selector de clínica activa</td><td><span class="badge badge-role" style="background:#e0d7f5;color:#4a1f8c">Multi-clínica staff</span></td><td>Requerido para staff asignado a más de una clínica</td></tr>
+      <tr><td>/unauthorized</td><td>Página de acceso denegado</td><td><span class="badge badge-stable">Todos</span></td><td>Rol sin permiso sobre la ruta solicitada</td></tr>
+    </tbody>
+  </table>
+
+  <div class="subsection-title">🏥 App — Dashboard y módulos operativos (requieren sesión de staff)</div>
+  <table class="route-table">
+    <thead><tr><th>URL</th><th>Descripción</th><th>Roles / Acceso</th><th>Notas</th></tr></thead>
+    <tbody>
+      <tr><td>/admin/requests</td><td>Solicitudes y aprobaciones (vista admin)</td><td><span class="badge badge-role" style="background:#e8d5f7;color:#5b1f8c">Corp Admin</span> <span class="badge badge-role" style="background:#fce8d3;color:#7a3a00">Gerente</span></td><td></td></tr>
+      <tr><td>/agenda</td><td>Agenda global (vista corporativa)</td><td><span class="badge badge-role" style="background:#e8d5f7;color:#5b1f8c">Corp Admin</span></td><td>Agenda consolidada multi-sucursal</td></tr>
+      <tr><td>/agenda/my</td><td>Mi agenda personal (global)</td><td><span class="badge badge-role" style="background:#d3ece8;color:#1a5c4a">Médica</span></td><td></td></tr>
+      <tr><td>/agenda/[...slug] <span class="badge badge-dynamic">🔄</span></td><td>Catch-all de agenda</td><td><span class="badge badge-stable">Staff</span></td><td>Reemplazó subrutas estáticas (Fase 97)</td></tr>
+      <tr><td>/branches</td><td>Lista de sucursales</td><td><span class="badge badge-role" style="background:#e8d5f7;color:#5b1f8c">Corp Admin</span></td><td></td></tr>
+      <tr><td>/branches/new</td><td>Crear nueva sucursal</td><td><span class="badge badge-role" style="background:#e8d5f7;color:#5b1f8c">Corp Admin</span></td><td></td></tr>
+      <tr><td>/branches/[branchId] <span class="badge badge-dynamic">🔄</span></td><td>Config general de sucursal</td><td><span class="badge badge-role" style="background:#fce8d3;color:#7a3a00">Gerente</span></td><td></td></tr>
+      <tr><td>/branches/[branchId]/equipment <span class="badge badge-dynamic">🔄</span></td><td>Equipamiento de sucursal</td><td><span class="badge badge-role" style="background:#fce8d3;color:#7a3a00">Gerente</span></td><td></td></tr>
+      <tr><td>/branches/[branchId]/hours <span class="badge badge-dynamic">🔄</span></td><td>Horarios de sucursal</td><td><span class="badge badge-role" style="background:#fce8d3;color:#7a3a00">Gerente</span></td><td></td></tr>
+      <tr><td>/branches/[branchId]/services <span class="badge badge-dynamic">🔄</span></td><td>Servicios de sucursal</td><td><span class="badge badge-role" style="background:#fce8d3;color:#7a3a00">Gerente</span></td><td></td></tr>
+      <tr><td>/branches/[branchId]/spaces <span class="badge badge-dynamic">🔄</span></td><td>Espacios físicos de sucursal</td><td><span class="badge badge-role" style="background:#fce8d3;color:#7a3a00">Gerente</span></td><td></td></tr>
+      <tr><td>/branches/[branchId]/staff <span class="badge badge-dynamic">🔄</span></td><td>Staff de sucursal</td><td><span class="badge badge-role" style="background:#fce8d3;color:#7a3a00">Gerente</span></td><td></td></tr>
+      <tr><td>/branches/[branchId]/staff/[staffId] <span class="badge badge-dynamic">🔄</span></td><td>Perfil de staff en sucursal</td><td><span class="badge badge-role" style="background:#fce8d3;color:#7a3a00">Gerente</span></td><td></td></tr>
+      <tr><td>/branches/[branchId]/staff/[staffId]/schedule <span class="badge badge-dynamic">🔄</span></td><td>Horario de staff en sucursal</td><td><span class="badge badge-role" style="background:#fce8d3;color:#7a3a00">Gerente</span></td><td></td></tr>
+      <tr><td>/branches/[branchId]/staff/[staffId]/services <span class="badge badge-dynamic">🔄</span></td><td>Servicios de staff en sucursal</td><td><span class="badge badge-role" style="background:#fce8d3;color:#7a3a00">Gerente</span></td><td></td></tr>
+      <tr><td>/branches/[branchId]/agenda <span class="badge badge-dynamic">🔄</span></td><td>Agenda de sucursal (hub)</td><td><span class="badge badge-stable">Staff de sucursal</span></td><td></td></tr>
+      <tr><td>/branches/[branchId]/agenda/appointments <span class="badge badge-dynamic">🔄</span></td><td>Lista de citas de sucursal</td><td><span class="badge badge-role" style="background:#fce8d3;color:#7a3a00">Recepcionista</span></td><td></td></tr>
+      <tr><td>/branches/[branchId]/agenda/appointments/new <span class="badge badge-dynamic">🔄</span></td><td>Nueva cita en sucursal</td><td><span class="badge badge-role" style="background:#fce8d3;color:#7a3a00">Recepcionista</span></td><td></td></tr>
+      <tr><td>/branches/[branchId]/agenda/appointments/[id] <span class="badge badge-dynamic">🔄</span></td><td>Detalle de cita en sucursal</td><td><span class="badge badge-stable">Staff de sucursal</span></td><td></td></tr>
+      <tr><td>/branches/[branchId]/agenda/blocks <span class="badge badge-dynamic">🔄</span></td><td>Bloqueos de agenda en sucursal</td><td><span class="badge badge-role" style="background:#fce8d3;color:#7a3a00">Gerente</span></td><td></td></tr>
+      <tr><td>/branches/[branchId]/agenda/blocks/new <span class="badge badge-dynamic">🔄</span></td><td>Nuevo bloqueo de agenda</td><td><span class="badge badge-role" style="background:#fce8d3;color:#7a3a00">Gerente</span></td><td></td></tr>
+      <tr><td>/branches/[branchId]/agenda/calendar <span class="badge badge-dynamic">🔄</span></td><td>Vista calendario de sucursal</td><td><span class="badge badge-stable">Staff de sucursal</span></td><td></td></tr>
+      <tr><td>/branches/[branchId]/agenda/my <span class="badge badge-dynamic">🔄</span></td><td>Mi agenda dentro de sucursal</td><td><span class="badge badge-role" style="background:#d3ece8;color:#1a5c4a">Médica</span></td><td></td></tr>
+      <tr><td>/branches/[branchId]/agenda/shift-changes <span class="badge badge-dynamic">🔄</span></td><td>Cambios de turno en sucursal</td><td><span class="badge badge-role" style="background:#fce8d3;color:#7a3a00">Gerente</span></td><td></td></tr>
+      <tr><td>/branches/[branchId]/productividad <span class="badge badge-dynamic">🔄</span></td><td>Productividad por sucursal</td><td><span class="badge badge-role" style="background:#fce8d3;color:#7a3a00">Gerente</span></td><td></td></tr>
+      <tr><td>/citas-por-reasignar</td><td>Citas pendientes de reasignar</td><td><span class="badge badge-role" style="background:#fce8d3;color:#7a3a00">Recepcionista</span></td><td></td></tr>
+      <tr><td>/clinical-record</td><td>Expediente clínico</td><td><span class="badge badge-role" style="background:#d3ece8;color:#1a5c4a">Médica</span></td><td></td></tr>
+      <tr><td>/colposcopy</td><td>Módulo de colposcopía</td><td><span class="badge badge-role" style="background:#d3ece8;color:#1a5c4a">Médica</span></td><td></td></tr>
+      <tr><td>/dev/showcase</td><td>Galería del design system</td><td><span class="badge badge-role" style="background:#ed80a8;color:#fff">Platform Admin</span></td><td>Solo visible en roles platform_admin</td></tr>
+      <tr><td>/families</td><td>Lista de grupos familiares</td><td><span class="badge badge-stable">Staff</span></td><td></td></tr>
+      <tr><td>/families/[familyGroupId] <span class="badge badge-dynamic">🔄</span></td><td>Detalle de familia</td><td><span class="badge badge-stable">Staff</span></td><td></td></tr>
+      <tr><td>/hospitalization</td><td>Módulo de hospitalización</td><td><span class="badge badge-role" style="background:#d3ece8;color:#1a5c4a">Médica</span></td><td></td></tr>
+      <tr><td>/mi-agenda</td><td>Mi agenda (staff individual)</td><td><span class="badge badge-stable">Todo staff</span></td><td></td></tr>
+      <tr><td>/mi-agenda/requests</td><td>Mis solicitudes de cambio de turno</td><td><span class="badge badge-stable">Todo staff</span></td><td></td></tr>
+      <tr><td>/mi-agenda/requests/new</td><td>Nueva solicitud de cambio de turno</td><td><span class="badge badge-stable">Todo staff</span></td><td></td></tr>
+      <tr><td>/organization</td><td>Vista de organización (corp)</td><td><span class="badge badge-role" style="background:#e8d5f7;color:#5b1f8c">Corp Admin</span></td><td></td></tr>
+      <tr><td>/organization/commissions</td><td>Comisiones corporativas</td><td><span class="badge badge-role" style="background:#e8d5f7;color:#5b1f8c">Corp Admin</span></td><td></td></tr>
+      <tr><td>/organization/regions</td><td>Regiones corporativas</td><td><span class="badge badge-role" style="background:#e8d5f7;color:#5b1f8c">Corp Admin</span></td><td></td></tr>
+      <tr><td>/panel-operativo</td><td>Panel operativo (kanban/ops)</td><td><span class="badge badge-role" style="background:#fce8d3;color:#7a3a00">Recepcionista</span></td><td></td></tr>
+      <tr><td>/patients</td><td>Lista de pacientes</td><td><span class="badge badge-stable">Staff</span></td><td></td></tr>
+      <tr><td>/patients/new</td><td>Nuevo paciente</td><td><span class="badge badge-role" style="background:#fce8d3;color:#7a3a00">Recepcionista</span></td><td></td></tr>
+      <tr><td>/patients/duplicates</td><td>Pacientes duplicados (merge)</td><td><span class="badge badge-role" style="background:#fce8d3;color:#7a3a00">Gerente</span></td><td></td></tr>
+      <tr><td>/patients/[patientId] <span class="badge badge-dynamic">🔄</span></td><td>Perfil de paciente</td><td><span class="badge badge-stable">Staff</span></td><td></td></tr>
+      <tr><td>/patients/[patientId]/merge <span class="badge badge-dynamic">🔄</span></td><td>Merge de paciente con duplicado</td><td><span class="badge badge-role" style="background:#fce8d3;color:#7a3a00">Gerente</span></td><td></td></tr>
+      <tr><td>/planes</td><td>Lista de contratos/planes de salud</td><td><span class="badge badge-role" style="background:#e8d5f7;color:#5b1f8c">Corp Admin</span></td><td>Módulo de contratos empresariales</td></tr>
+      <tr><td>/planes/new</td><td>Nuevo contrato/plan</td><td><span class="badge badge-role" style="background:#e8d5f7;color:#5b1f8c">Corp Admin</span></td><td></td></tr>
+      <tr><td>/planes/rutas</td><td>Rutas clínicas vinculadas a planes</td><td><span class="badge badge-role" style="background:#e8d5f7;color:#5b1f8c">Corp Admin</span></td><td></td></tr>
+      <tr><td>/planes/[contractId] <span class="badge badge-dynamic">🔄</span></td><td>Detalle de contrato</td><td><span class="badge badge-role" style="background:#e8d5f7;color:#5b1f8c">Corp Admin</span></td><td></td></tr>
+      <tr><td>/productividad</td><td>Productividad global (corp)</td><td><span class="badge badge-role" style="background:#e8d5f7;color:#5b1f8c">Corp Admin</span></td><td></td></tr>
+      <tr><td>/reports</td><td>Reportes</td><td><span class="badge badge-role" style="background:#e8d5f7;color:#5b1f8c">Corp Admin</span></td><td></td></tr>
+      <tr><td>/settings</td><td>Ajustes generales</td><td><span class="badge badge-role" style="background:#fce8d3;color:#7a3a00">Gerente</span></td><td></td></tr>
+      <tr><td>/settings/benefits</td><td>Gestión de beneficios</td><td><span class="badge badge-role" style="background:#fce8d3;color:#7a3a00">Gerente</span></td><td></td></tr>
+      <tr><td>/settings/benefits/new</td><td>Nuevo beneficio</td><td><span class="badge badge-role" style="background:#fce8d3;color:#7a3a00">Gerente</span></td><td></td></tr>
+      <tr><td>/settings/benefits/[benefitId] <span class="badge badge-dynamic">🔄</span></td><td>Editar beneficio</td><td><span class="badge badge-role" style="background:#fce8d3;color:#7a3a00">Gerente</span></td><td></td></tr>
+      <tr><td>/settings/blacklist</td><td>Lista negra de pacientes</td><td><span class="badge badge-role" style="background:#fce8d3;color:#7a3a00">Gerente</span></td><td></td></tr>
+      <tr><td>/settings/catalogs</td><td>Catálogos del sistema</td><td><span class="badge badge-role" style="background:#fce8d3;color:#7a3a00">Gerente</span></td><td></td></tr>
+      <tr><td>/settings/equipment</td><td>Equipamiento global</td><td><span class="badge badge-role" style="background:#e8d5f7;color:#5b1f8c">Corp Admin</span></td><td></td></tr>
+      <tr><td>/settings/general</td><td>Configuración general</td><td><span class="badge badge-role" style="background:#fce8d3;color:#7a3a00">Gerente</span></td><td></td></tr>
+      <tr><td>/settings/integrations</td><td>Integraciones externas</td><td><span class="badge badge-role" style="background:#ed80a8;color:#fff">Platform Admin</span></td><td></td></tr>
+      <tr><td>/settings/integrations/zoho-ml</td><td>Integración Zoho MariaLinda</td><td><span class="badge badge-role" style="background:#ed80a8;color:#fff">Platform Admin</span></td><td></td></tr>
+      <tr><td>/settings/menu-config</td><td>Configuración de menú por rol</td><td><span class="badge badge-role" style="background:#ed80a8;color:#fff">Platform Admin</span></td><td></td></tr>
+      <tr><td>/settings/migration</td><td>Migración de datos</td><td><span class="badge badge-role" style="background:#ed80a8;color:#fff">Platform Admin</span></td><td></td></tr>
+      <tr><td>/settings/migration/[runId] <span class="badge badge-dynamic">🔄</span></td><td>Detalle de corrida de migración</td><td><span class="badge badge-role" style="background:#ed80a8;color:#fff">Platform Admin</span></td><td></td></tr>
+      <tr><td>/settings/migration/records</td><td>Registros de migración</td><td><span class="badge badge-role" style="background:#ed80a8;color:#fff">Platform Admin</span></td><td></td></tr>
+      <tr><td>/settings/migration/review</td><td>Revisión de migración</td><td><span class="badge badge-role" style="background:#ed80a8;color:#fff">Platform Admin</span></td><td></td></tr>
+      <tr><td>/settings/modules</td><td>Activación de módulos</td><td><span class="badge badge-role" style="background:#ed80a8;color:#fff">Platform Admin</span></td><td></td></tr>
+      <tr><td>/settings/patient-permissions</td><td>Whitelist de campos editables por paciente</td><td><span class="badge badge-role" style="background:#fce8d3;color:#7a3a00">Gerente</span></td><td></td></tr>
+      <tr><td>/settings/roles</td><td>Gestión de roles</td><td><span class="badge badge-role" style="background:#ed80a8;color:#fff">Platform Admin</span></td><td></td></tr>
+      <tr><td>/settings/roles/new</td><td>Nuevo rol</td><td><span class="badge badge-role" style="background:#ed80a8;color:#fff">Platform Admin</span></td><td></td></tr>
+      <tr><td>/settings/roles/[roleId] <span class="badge badge-dynamic">🔄</span></td><td>Editar rol</td><td><span class="badge badge-role" style="background:#ed80a8;color:#fff">Platform Admin</span></td><td></td></tr>
+      <tr><td>/settings/roles-visibility</td><td>Visibilidad de roles</td><td><span class="badge badge-role" style="background:#ed80a8;color:#fff">Platform Admin</span></td><td></td></tr>
+      <tr><td>/settings/rutas-clinicas</td><td>Rutas clínicas globales</td><td><span class="badge badge-role" style="background:#e8d5f7;color:#5b1f8c">Corp Admin</span></td><td></td></tr>
+      <tr><td>/settings/rutas-clinicas/sin-vincular</td><td>Rutas clínicas sin vincular a plan</td><td><span class="badge badge-role" style="background:#e8d5f7;color:#5b1f8c">Corp Admin</span></td><td></td></tr>
+      <tr><td>/settings/rutas-clinicas/[id] <span class="badge badge-dynamic">🔄</span></td><td>Detalle de ruta clínica</td><td><span class="badge badge-role" style="background:#e8d5f7;color:#5b1f8c">Corp Admin</span></td><td></td></tr>
+      <tr><td>/settings/scheduling</td><td>Config de agendamiento</td><td><span class="badge badge-role" style="background:#fce8d3;color:#7a3a00">Gerente</span></td><td></td></tr>
+      <tr><td>/settings/services</td><td>Catálogo de servicios</td><td><span class="badge badge-role" style="background:#fce8d3;color:#7a3a00">Gerente</span></td><td></td></tr>
+      <tr><td>/settings/services/[serviceId] <span class="badge badge-dynamic">🔄</span></td><td>Editar servicio</td><td><span class="badge badge-role" style="background:#fce8d3;color:#7a3a00">Gerente</span></td><td></td></tr>
+      <tr><td>/settings/staff/new</td><td>Nuevo staff (desde ajustes)</td><td><span class="badge badge-role" style="background:#fce8d3;color:#7a3a00">Gerente</span></td><td></td></tr>
+      <tr><td>/settings/tipos-plan</td><td>Tipos de plan/contrato</td><td><span class="badge badge-role" style="background:#e8d5f7;color:#5b1f8c">Corp Admin</span></td><td></td></tr>
+      <tr><td>/settings/tipos-plan/[id] <span class="badge badge-dynamic">🔄</span></td><td>Editar tipo de plan</td><td><span class="badge badge-role" style="background:#e8d5f7;color:#5b1f8c">Corp Admin</span></td><td></td></tr>
+      <tr><td>/staff</td><td>Lista de staff</td><td><span class="badge badge-role" style="background:#fce8d3;color:#7a3a00">Gerente</span></td><td></td></tr>
+      <tr><td>/staff/new</td><td>Nuevo miembro de staff</td><td><span class="badge badge-role" style="background:#fce8d3;color:#7a3a00">Gerente</span></td><td></td></tr>
+      <tr><td>/staff/onboarding</td><td>Onboarding de staff</td><td><span class="badge badge-role" style="background:#fce8d3;color:#7a3a00">Gerente</span></td><td></td></tr>
+      <tr><td>/staff/corp-approval</td><td>Aprobaciones corporativas de staff</td><td><span class="badge badge-role" style="background:#e8d5f7;color:#5b1f8c">Corp Admin</span></td><td></td></tr>
+      <tr><td>/staff/deactivation-requests</td><td>Solicitudes de desactivación de staff</td><td><span class="badge badge-role" style="background:#fce8d3;color:#7a3a00">Gerente</span></td><td></td></tr>
+      <tr><td>/staff/deactivation/[requestId] <span class="badge badge-dynamic">🔄</span></td><td>Detalle de solicitud de desactivación</td><td><span class="badge badge-role" style="background:#e8d5f7;color:#5b1f8c">Corp Admin</span></td><td></td></tr>
+      <tr><td>/staff/[staffId] <span class="badge badge-dynamic">🔄</span></td><td>Perfil de staff</td><td><span class="badge badge-stable">Staff</span></td><td></td></tr>
+      <tr><td>/staff/[staffId]/availability <span class="badge badge-dynamic">🔄</span></td><td>Disponibilidad de staff</td><td><span class="badge badge-role" style="background:#d3ece8;color:#1a5c4a">Médica</span></td><td></td></tr>
+      <tr><td>/staff/[staffId]/edit/clinics <span class="badge badge-dynamic">🔄</span></td><td>Editar clínicas asignadas a staff</td><td><span class="badge badge-role" style="background:#e8d5f7;color:#5b1f8c">Corp Admin</span></td><td>RBAC multi-clínica</td></tr>
+      <tr><td>/staff/[staffId]/edit/role <span class="badge badge-dynamic">🔄</span></td><td>Editar rol de staff</td><td><span class="badge badge-role" style="background:#fce8d3;color:#7a3a00">Gerente</span></td><td></td></tr>
+      <tr><td>/staff/[staffId]/history <span class="badge badge-dynamic">🔄</span></td><td>Historial de staff</td><td><span class="badge badge-role" style="background:#fce8d3;color:#7a3a00">Gerente</span></td><td></td></tr>
+      <tr><td>/staff/[staffId]/schedule <span class="badge badge-dynamic">🔄</span></td><td>Horario de staff</td><td><span class="badge badge-role" style="background:#fce8d3;color:#7a3a00">Gerente</span></td><td></td></tr>
+      <tr><td>/staff/[staffId]/services <span class="badge badge-dynamic">🔄</span></td><td>Servicios que ofrece el staff</td><td><span class="badge badge-role" style="background:#fce8d3;color:#7a3a00">Gerente</span></td><td></td></tr>
+      <tr><td>/staff/[staffId]/shifts <span class="badge badge-dynamic">🔄</span></td><td>Turnos de staff</td><td><span class="badge badge-role" style="background:#fce8d3;color:#7a3a00">Gerente</span></td><td></td></tr>
+      <tr><td>/staff/[staffId]/summary <span class="badge badge-dynamic">🔄</span></td><td>Resumen ejecutivo de staff</td><td><span class="badge badge-role" style="background:#fce8d3;color:#7a3a00">Gerente</span></td><td></td></tr>
+    </tbody>
+  </table>
+
+  <div class="subsection-title">🌐 Público — Booking y directorio (sin autenticación)</div>
+  <table class="route-table">
+    <thead><tr><th>URL</th><th>Descripción</th><th>Roles / Acceso</th><th>Notas</th></tr></thead>
+    <tbody>
+      <tr><td>/agendar</td><td>Booking público (landing)</td><td><span class="badge badge-stable">Público</span></td><td></td></tr>
+      <tr><td>/agendar/nueva</td><td>Nueva cita (booking público)</td><td><span class="badge badge-stable">Público</span></td><td></td></tr>
+      <tr><td>/agendar/gestionar</td><td>Gestionar cita existente (público)</td><td><span class="badge badge-stable">Público</span></td><td></td></tr>
+      <tr><td>/agendar/pago/cancelado</td><td>Pago cancelado (booking público)</td><td><span class="badge badge-stable">Público</span></td><td></td></tr>
+      <tr><td>/agendar/pago/exito</td><td>Pago exitoso (booking público)</td><td><span class="badge badge-stable">Público</span></td><td></td></tr>
+      <tr><td>/medicos</td><td>Directorio de médicos (público)</td><td><span class="badge badge-stable">Público</span></td><td>SEO-friendly; indexable</td></tr>
+      <tr><td>/medicos/[slug] <span class="badge badge-dynamic">🔄</span></td><td>Perfil de médico (público)</td><td><span class="badge badge-stable">Público</span></td><td></td></tr>
+    </tbody>
+  </table>
+
+  <div class="subsection-title">🔑 Portal Auth — Registro e identidad de pacientes (OTP)</div>
+  <table class="route-table">
+    <thead><tr><th>URL</th><th>Descripción</th><th>Roles / Acceso</th><th>Notas</th></tr></thead>
+    <tbody>
+      <tr><td>/registro</td><td>Registro OTP de paciente</td><td><span class="badge badge-stable">Público</span></td><td></td></tr>
+      <tr><td>/verificar</td><td>Verificación OTP de paciente</td><td><span class="badge badge-stable">Público</span></td><td></td></tr>
+    </tbody>
+  </table>
+
+  <div class="subsection-title">🩷 Portal Pacientes — Área autenticada de la paciente</div>
+  <table class="route-table">
+    <thead><tr><th>URL</th><th>Descripción</th><th>Roles / Acceso</th><th>Notas</th></tr></thead>
+    <tbody>
+      <tr><td>/portal</td><td>Portal paciente (home)</td><td><span class="badge badge-role" style="background:#ed80a8;color:#fff">Paciente OTP</span></td><td></td></tr>
+      <tr><td>/portal/agendar</td><td>Agendar cita (portal paciente)</td><td><span class="badge badge-role" style="background:#ed80a8;color:#fff">Paciente OTP</span></td><td></td></tr>
+      <tr><td>/portal/citas</td><td>Mis citas (portal paciente)</td><td><span class="badge badge-role" style="background:#ed80a8;color:#fff">Paciente OTP</span></td><td></td></tr>
+      <tr><td>/portal/perfil</td><td>Perfil paciente</td><td><span class="badge badge-role" style="background:#ed80a8;color:#fff">Paciente OTP</span></td><td></td></tr>
+      <tr><td>/portal/perfil/cambiar-email</td><td>Cambiar email (portal paciente)</td><td><span class="badge badge-role" style="background:#ed80a8;color:#fff">Paciente OTP</span></td><td></td></tr>
+      <tr><td>/portal/terminos</td><td>Términos y condiciones (portal)</td><td><span class="badge badge-role" style="background:#ed80a8;color:#fff">Paciente OTP</span></td><td></td></tr>
+    </tbody>
+  </table>
+
+  <div class="subsection-title">🔒 OAuth2/OIDC — auth.reinamadre.mx</div>
+  <div class="notes">
+    <strong>Host-routing:</strong> Las rutas de este grupo solo se activan cuando el Host HTTP es <code>auth.reinamadre.mx</code>.
+  </div>
+  <table class="route-table">
+    <thead><tr><th>URL</th><th>Descripción</th><th>Roles / Acceso</th><th>Notas</th></tr></thead>
+    <tbody>
+      <tr><td>/oauth2/authorize</td><td>Pantalla de autorización OAuth2 (UI)</td><td><span class="badge badge-stable">Externo</span></td><td></td></tr>
+    </tbody>
+  </table>
+
+  <div class="section-title">⚡ Sección 2 — API Routes</div>
+
+  <div class="subsection-title">🔐 Auth</div>
+  <table class="route-table">
+    <thead><tr><th>Método</th><th>URL</th><th>Descripción</th></tr></thead>
+    <tbody>
+      <tr><td><span class="badge badge-mixed">GET/POST</span></td><td>/api/auth/[...nextauth]</td><td>Auth.js catch-all — callbacks Cognito, CSRF, sesión</td></tr>
+      <tr><td><span class="badge badge-get">GET</span></td><td>/api/auth/federated-logout</td><td>Federated logout desde Cognito</td></tr>
+      <tr><td><span class="badge badge-get">GET</span></td><td>/api/auth/logout</td><td>Logout a nivel de aplicación</td></tr>
+      <tr><td><span class="badge badge-get">GET</span></td><td>/api/auth/zoho/callback</td><td>Callback OAuth2 de Zoho CRM</td></tr>
+    </tbody>
+  </table>
+
+  <div class="subsection-title">📅 Agenda</div>
+  <table class="route-table">
+    <thead><tr><th>Método</th><th>URL</th><th>Descripción</th></tr></thead>
+    <tbody>
+      <tr><td><span class="badge badge-get">GET</span></td><td>/api/agenda/day</td><td>Citas del día</td></tr>
+      <tr><td><span class="badge badge-get">GET</span></td><td>/api/agenda/month-counts</td><td>Conteo de citas por mes</td></tr>
+      <tr><td><span class="badge badge-get">GET</span></td><td>/api/agenda/weekly</td><td>Citas de la semana</td></tr>
+    </tbody>
+  </table>
+
+  <div class="subsection-title">🏥 Recepción y operación</div>
+  <table class="route-table">
+    <thead><tr><th>Método</th><th>URL</th><th>Descripción</th></tr></thead>
+    <tbody>
+      <tr><td><span class="badge badge-get">GET</span></td><td>/api/reception/slots</td><td>Slots disponibles para agendar</td></tr>
+      <tr><td><span class="badge badge-get">GET</span></td><td>/api/reception/slots/multi-clinic</td><td>Slots en múltiples clínicas</td></tr>
+      <tr><td><span class="badge badge-get">GET</span></td><td>/api/kanban/day</td><td>Vista kanban del día</td></tr>
+      <tr><td><span class="badge badge-get">GET</span></td><td>/api/staff-services/matrix</td><td>Matriz staff × servicios</td></tr>
+      <tr><td><span class="badge badge-get">GET</span></td><td>/api/spaces/alerts/count</td><td>Alertas de espacios físicos</td></tr>
+      <tr><td><span class="badge badge-post">POST</span></td><td>/api/spaces/suggestions</td><td>Sugerencias de espacio para cita</td></tr>
+      <tr><td><span class="badge badge-get">GET</span></td><td>/api/requests/affected-appointments</td><td>Citas afectadas por cambio de turno</td></tr>
+      <tr><td><span class="badge badge-get">GET</span></td><td>/api/requests/pending-count</td><td>Conteo de solicitudes pendientes</td></tr>
+      <tr><td><span class="badge badge-get">GET</span></td><td>/api/select-clinic</td><td>Obtener / validar clínica activa</td></tr>
+    </tbody>
+  </table>
+
+  <div class="subsection-title">🔔 Notificaciones</div>
+  <table class="route-table">
+    <thead><tr><th>Método</th><th>URL</th><th>Descripción</th></tr></thead>
+    <tbody>
+      <tr><td><span class="badge badge-get">GET</span></td><td>/api/notifications/unread-count</td><td>Conteo de notificaciones no leídas</td></tr>
+      <tr><td><span class="badge badge-get">GET</span></td><td>/api/notifications/sound-preference</td><td>Preferencia de sonido</td></tr>
+    </tbody>
+  </table>
+
+  <div class="subsection-title">🩷 Portal Paciente</div>
+  <table class="route-table">
+    <thead><tr><th>Método</th><th>URL</th><th>Descripción</th></tr></thead>
+    <tbody>
+      <tr><td><span class="badge badge-get">GET</span></td><td>/api/portal/appointments/history</td><td>Historial de citas de la paciente</td></tr>
+      <tr><td><span class="badge badge-get">GET</span></td><td>/api/portal/booking/clinics</td><td>Clínicas disponibles para booking</td></tr>
+      <tr><td><span class="badge badge-get">GET</span></td><td>/api/portal/booking/doctors</td><td>Médicos disponibles para booking</td></tr>
+      <tr><td><span class="badge badge-get">GET</span></td><td>/api/portal/booking/slots</td><td>Slots disponibles para booking</td></tr>
+      <tr><td><span class="badge badge-get">GET</span></td><td>/api/portal/confirm</td><td>Confirmar cita via link email</td></tr>
+      <tr><td><span class="badge badge-get">GET</span></td><td>/api/portal/confirm/[token]</td><td>Confirmar cita por token único</td></tr>
+    </tbody>
+  </table>
+
+  <div class="subsection-title">💬 Bot WhatsApp — /api/wa/v1/** (firma HMAC)</div>
+  <div class="notes">
+    <strong>Seguridad:</strong> Todos los endpoints <code>/api/wa/v1/**</code> verifican la firma HMAC de Meta. No requieren sesión Cognito.
+  </div>
+  <table class="route-table">
+    <thead><tr><th>Método</th><th>URL</th><th>Descripción</th></tr></thead>
+    <tbody>
+      <tr><td><span class="badge badge-post">POST</span></td><td>/api/wa/v1/auth/identify</td><td>Identificar paciente por teléfono</td></tr>
+      <tr><td><span class="badge badge-post">POST</span></td><td>/api/wa/v1/auth/otp/request</td><td>Solicitar OTP vía WhatsApp</td></tr>
+      <tr><td><span class="badge badge-post">POST</span></td><td>/api/wa/v1/auth/otp/verify</td><td>Verificar OTP de WhatsApp</td></tr>
+      <tr><td><span class="badge badge-get">GET</span></td><td>/api/wa/v1/catalog/availability</td><td>Disponibilidad del catálogo</td></tr>
+      <tr><td><span class="badge badge-get">GET</span></td><td>/api/wa/v1/catalog/clinics</td><td>Clínicas disponibles (bot)</td></tr>
+      <tr><td><span class="badge badge-get">GET</span></td><td>/api/wa/v1/catalog/clinics-for-service</td><td>Clínicas para un servicio específico</td></tr>
+      <tr><td><span class="badge badge-get">GET</span></td><td>/api/wa/v1/catalog/doctors</td><td>Médicos disponibles (bot)</td></tr>
+      <tr><td><span class="badge badge-get">GET</span></td><td>/api/wa/v1/catalog/services</td><td>Servicios disponibles (bot)</td></tr>
+      <tr><td><span class="badge badge-get">GET</span></td><td>/api/wa/v1/clinics/[id]/location</td><td>Ubicación de clínica (bot)</td></tr>
+      <tr><td><span class="badge badge-get">GET</span></td><td>/api/wa/v1/me/appointments</td><td>Citas activas de la paciente (bot)</td></tr>
+      <tr><td><span class="badge badge-post">POST</span></td><td>/api/wa/v1/me/appointments/book</td><td>Agendar nueva cita desde WA</td></tr>
+      <tr><td><span class="badge badge-post">POST</span></td><td>/api/wa/v1/me/appointments/cancel</td><td>Cancelar cita desde WA</td></tr>
+      <tr><td><span class="badge badge-post">POST</span></td><td>/api/wa/v1/me/appointments/reschedule</td><td>Reagendar cita desde WA</td></tr>
+      <tr><td><span class="badge badge-post">POST</span></td><td>/api/wa/v1/me/birthdate-preview</td><td>Preview de fecha de nacimiento</td></tr>
+      <tr><td><span class="badge badge-post">POST</span></td><td>/api/wa/v1/me/handoff</td><td>Transferir conversación a agente humano</td></tr>
+      <tr><td><span class="badge badge-post">POST</span></td><td>/api/wa/v1/me/onboarding</td><td>Onboarding de nueva paciente por WA</td></tr>
+      <tr><td><span class="badge badge-post">POST</span></td><td>/api/wa/v1/me/preferences</td><td>Guardar preferencias de la paciente</td></tr>
+      <tr><td><span class="badge badge-get">GET</span></td><td>/api/wa/v1/me/preparations</td><td>Instrucciones pre-cita</td></tr>
+      <tr><td><span class="badge badge-post">POST</span></td><td>/api/wa/v1/wave-allowlist/check</td><td>Verificar teléfono en allowlist</td></tr>
+      <tr><td><span class="badge badge-post">POST</span></td><td>/api/wa/v1/webhook/inbound</td><td>Webhook entrante Meta / WA Business</td></tr>
+      <tr><td><span class="badge badge-get">GET</span></td><td>/api/wa/v1/webhook/meta-template-status</td><td>Verificación GET de webhook por Meta</td></tr>
+      <tr><td><span class="badge badge-post">POST</span></td><td>/api/wa/v1/webhook/status</td><td>Webhook de estado de mensajes</td></tr>
+      <tr><td><span class="badge badge-post">POST</span></td><td>/api/wa/v1/webhook/survey</td><td>Webhook de encuesta post-cita</td></tr>
+    </tbody>
+  </table>
+
+  <div class="subsection-title">🔗 Webhooks externos y otros</div>
+  <table class="route-table">
+    <thead><tr><th>Método</th><th>URL</th><th>Descripción</th></tr></thead>
+    <tbody>
+      <tr><td><span class="badge badge-post">POST</span></td><td>/api/webhooks/mindbody</td><td>Webhook entrante de Mindbody</td></tr>
+      <tr><td><span class="badge badge-post">POST</span></td><td>/api/webhooks/zoho/inbound</td><td>Webhook entrante de Zoho CRM</td></tr>
+      <tr><td><span class="badge badge-get">GET</span></td><td>/api/health</td><td>Health check — usado por ECS / ALB</td></tr>
+      <tr><td><span class="badge badge-get">GET</span></td><td>/api/migration/stream/[runId]</td><td>SSE stream de progreso de migración</td></tr>
+      <tr><td><span class="badge badge-get">GET</span></td><td>/api/zoho/search-patient</td><td>Buscar paciente en Zoho CRM</td></tr>
+      <tr><td><span class="badge badge-get">GET</span></td><td>/roadmap</td><td>Roadmap interno en JSON</td></tr>
+      <tr><td><span class="badge badge-get">GET</span></td><td>/.well-known/jwks.json</td><td>JWKS — claves públicas OIDC</td></tr>
+      <tr><td><span class="badge badge-get">GET</span></td><td>/.well-known/openid-configuration</td><td>OIDC Discovery document</td></tr>
+      <tr><td><span class="badge badge-post">POST</span></td><td>/oauth2/logout</td><td>OAuth2 logout</td></tr>
+      <tr><td><span class="badge badge-post">POST</span></td><td>/oauth2/token</td><td>OAuth2 token exchange</td></tr>
+      <tr><td><span class="badge badge-get">GET</span></td><td>/oauth2/userinfo</td><td>OAuth2 userinfo</td></tr>
+    </tbody>
+  </table>
+
+  <div class="section-title">📊 Sección 3 — Delta vs. Notion (abril 2026)</div>
+
+  <div class="notes">
+    <strong>¿Por qué existe este delta?</strong> El mapa de Notion fue generado en abril 2026 (Fase 96 aprox.). Las Fases 97-109 agregaron módulos completos: bot WA, OIDC, planes/contratos, cambios de turno, productividad. El código actual tiene <strong>61 rutas más</strong> que las documentadas en Notion.
+  </div>
+
+  <div class="delta-card">
+    <div class="delta-card-header"><span style="font-size:1.2rem">📈</span><h3>Cobertura Notion sobre el código actual</h3></div>
+    <div class="delta-card-body">
+      <p style="font-size:.875rem;margin-bottom:.5rem">Notion documenta ~105 de las 166 rutas reales del código</p>
+      <div class="coverage-bar"><div class="coverage-fill" style="width:63%"></div></div>
+      <p style="font-size:.8rem;color:var(--muted)">63% de cobertura — 37 páginas y 27 APIs nuevas no están documentadas en Notion</p>
+    </div>
+  </div>
+
+  <div class="delta-card">
+    <div class="delta-card-header"><span style="font-size:1.2rem">🔑</span><h3>Hallazgos clave del delta</h3></div>
+    <div class="delta-card-body">
+      <div class="key-finding"><strong>Bot WhatsApp (Fases 103-111):</strong> 28 endpoints <code>/api/wa/v1/**</code> completamente ausentes de Notion.</div>
+      <div class="key-finding"><strong>Stack OIDC/OAuth2 (Fases 109-111):</strong> 5 endpoints nuevos (<code>.well-known/**</code>, <code>oauth2/*</code>) + página <code>/oauth2/authorize</code>.</div>
+      <div class="key-finding"><strong>Planes y rutas clínicas (Fases 105-107):</strong> Módulo entero de contratos (<code>/planes/**</code>, <code>/settings/rutas-clinicas/**</code>, <code>/settings/tipos-plan/**</code>) sin documentar.</div>
+      <div class="key-finding"><strong>Refactor de agenda (Fase 97):</strong> Rutas estáticas de <code>/agenda/**</code> canonicalizadas a catch-all <code>[...slug]</code>. Notion documenta la arquitectura pre-refactor.</div>
+      <div class="key-finding"><strong>Rutas fantasma:</strong> <code>/branches/templates</code> aparece en Notion pero no existe en código (feature descartada).</div>
+      <div class="key-finding"><strong>Cron jobs:</strong> <code>/api/cron/reminders</code> y <code>/api/cron/auto-noshow</code> no existen en Next.js — movidos a AWS Lambda + EventBridge.</div>
+    </div>
+  </div>
+
+  <div class="subsection-title">🆕 Rutas nuevas en el código (ausentes en Notion)</div>
+  <table class="route-table">
+    <thead><tr><th>Ruta</th><th>Tipo</th><th>Fase est.</th><th>Descripción</th></tr></thead>
+    <tbody>
+      <tr><td>/admin/requests <span class="badge badge-new">🆕</span></td><td>page</td><td>100-102</td><td>Solicitudes y aprobaciones nivel organización</td></tr>
+      <tr><td>/agenda/[...slug] <span class="badge badge-new">🆕</span></td><td>page</td><td>97-98</td><td>Catch-all dinámico reemplaza subrutas estáticas</td></tr>
+      <tr><td>/branches/[branchId]/agenda/** <span class="badge badge-new">🆕</span></td><td>page ×7</td><td>97-98</td><td>Hub + citas + bloques + calendario + mi-agenda + turno</td></tr>
+      <tr><td>/branches/[branchId]/productividad <span class="badge badge-new">🆕</span></td><td>page</td><td>103-105</td><td>Productividad por sucursal</td></tr>
+      <tr><td>/citas-por-reasignar <span class="badge badge-new">🆕</span></td><td>page</td><td>100-102</td><td>Panel de citas sin asignar</td></tr>
+      <tr><td>/dev/showcase <span class="badge badge-new">🆕</span></td><td>page</td><td>89-90</td><td>Galería design system (platform_admin)</td></tr>
+      <tr><td>/mi-agenda/requests + /new <span class="badge badge-new">🆕</span></td><td>page ×2</td><td>98-100</td><td>Solicitudes de cambio de turno</td></tr>
+      <tr><td>/panel-operativo <span class="badge badge-new">🆕</span></td><td>page</td><td>103-104</td><td>Panel operativo tipo kanban</td></tr>
+      <tr><td>/planes + /new + /rutas + /[id] <span class="badge badge-new">🆕</span></td><td>page ×4</td><td>105-107</td><td>Contratos/planes de salud</td></tr>
+      <tr><td>/settings/benefits/** <span class="badge badge-new">🆕</span></td><td>page ×3</td><td>99-101</td><td>Gestión de beneficios</td></tr>
+      <tr><td>/settings/rutas-clinicas/** <span class="badge badge-new">🆕</span></td><td>page ×3</td><td>105-107</td><td>Rutas clínicas globales</td></tr>
+      <tr><td>/settings/tipos-plan + /[id] <span class="badge badge-new">🆕</span></td><td>page ×2</td><td>105-107</td><td>Tipos de plan/contrato</td></tr>
+      <tr><td>/settings/integrations/zoho-ml <span class="badge badge-new">🆕</span></td><td>page</td><td>108-110</td><td>Integración Zoho MariaLinda</td></tr>
+      <tr><td>/staff/corp-approval + /deactivation** <span class="badge badge-new">🆕</span></td><td>page ×3</td><td>100-102</td><td>Aprobaciones corporativas y desactivaciones</td></tr>
+      <tr><td>/portal/perfil/cambiar-email <span class="badge badge-new">🆕</span></td><td>page</td><td>107-109</td><td>Cambio de email portal paciente</td></tr>
+      <tr><td>/oauth2/authorize <span class="badge badge-new">🆕</span></td><td>page</td><td>109-111</td><td>Pantalla de autorización OAuth2</td></tr>
+      <tr><td>/.well-known/** + /oauth2/* (APIs) <span class="badge badge-new">🆕</span></td><td>api ×5</td><td>109-111</td><td>OIDC: JWKS, discovery, logout, token, userinfo</td></tr>
+      <tr><td>/api/wa/v1/** (28 endpoints) <span class="badge badge-new">🆕</span></td><td>api ×28</td><td>103-111</td><td>API completa del bot WhatsApp</td></tr>
+      <tr><td>/api/requests/** + /api/spaces/** <span class="badge badge-new">🆕</span></td><td>api ×4</td><td>97-100</td><td>Cambios de turno y espacios físicos</td></tr>
+      <tr><td>/api/webhooks/zoho/inbound + /api/zoho/search-patient <span class="badge badge-new">🆕</span></td><td>api ×2</td><td>108-110</td><td>Integración Zoho CRM</td></tr>
+    </tbody>
+  </table>
+
+  <div class="subsection-title">❌ Rutas en Notion que ya no existen en el código</div>
+  <table class="route-table">
+    <thead><tr><th>Ruta Notion</th><th>Estado</th><th>Observación</th></tr></thead>
+    <tbody>
+      <tr><td>/agenda/appointments, /agenda/my, /agenda/calendar, /agenda/blocks</td><td><span class="badge badge-removed">❌ Reemplazadas</span></td><td>Migradas a catch-all + vistas por sucursal (Fase 97)</td></tr>
+      <tr><td>/branches/templates + /branches/[branchId]/templates</td><td><span class="badge badge-removed">❌ No existe</span></td><td>Feature planeada y descartada antes de abril 2026</td></tr>
+      <tr><td>/api/cron/reminders + /api/cron/auto-noshow</td><td><span class="badge badge-removed">❌ Movidas</span></td><td>Implementadas en AWS Lambda + EventBridge</td></tr>
+      <tr><td>/api/portal/appointments (raíz)</td><td><span class="badge badge-removed">❌ Parcial</span></td><td>Solo existe <code>/api/portal/appointments/history</code></td></tr>
+    </tbody>
+  </table>
+
+  <div class="subsection-title">📋 Resumen del delta</div>
+  <table class="route-table">
+    <thead><tr><th>Métrica</th><th>Valor</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Total rutas en código</strong></td><td>166 (108 pages + 58 API routes)</td></tr>
+      <tr><td><strong>Total rutas en Notion (abril 2026)</strong></td><td>~105 (85 pages + 20 API routes)</td></tr>
+      <tr><td><strong>Rutas nuevas (código mayor que Notion)</strong></td><td>~61 rutas</td></tr>
+      <tr><td><strong>Rutas eliminadas o no encontradas (Notion mayor que código)</strong></td><td>~11 entradas</td></tr>
+      <tr><td><strong>Cobertura Notion sobre código actual</strong></td><td>~63%</td></tr>
+    </tbody>
+  </table>
+
+</div>
+
+<div class="footer">Manual Operativo · Grupo Reina Madre · Generado desde código fuente · <code>apps/web/app/</code> · 17 de junio 2026</div>
+
+</body>
+</html>
