@@ -40,6 +40,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
 .mermaid{font-size:13px}
 .notes{margin-top:1rem;padding:.75rem 1rem;background:#fff8e1;border-radius:.5rem;border-left:3px solid var(--warning);font-size:.85rem;color:var(--text)}
 .notes strong{color:#b45309}
+.banner-planned{background:#fff8e1;border:1px solid var(--warning);border-radius:8px;padding:.75rem 1rem;margin-bottom:1rem;font-size:.85rem;color:#7a3a00}
+.banner-bug{background:#fff0f0;border:1px solid var(--danger);border-radius:8px;padding:.75rem 1rem;margin-bottom:1rem;font-size:.85rem;color:#7a0020}
+.banner-bug strong{color:#cc0030}
 .footer{text-align:center;padding:2rem;color:var(--muted);font-size:.8rem;border-top:1px solid var(--border);margin-top:2rem}
 </style>
 </head>
@@ -67,7 +70,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
 
   <div class="section-intro">
     <h2>¿De qué trata esta sección?</h2>
-    <p>El bot de WhatsApp es el canal de autoservicio de Grupo Reina Madre: las pacientes pueden agendar, ver, reagendar o cancelar citas directamente desde su teléfono sin necesidad de llamar o visitar la sucursal. Esta sección describe cómo funciona el bot paso a paso — desde el primer mensaje de una paciente nueva hasta los casos excepcionales como solicitudes fuera de horario o intentos de uso indebido. La usan principalmente las pacientes como canal de autoatención, y el equipo de recepción como destino cuando el bot escala una conversación a atención humana.</p>
+    <p>El bot de WhatsApp es el canal de autoservicio de Grupo Reina Madre: las pacientes pueden agendar, ver, reagendar o cancelar citas directamente desde su teléfono sin necesidad de llamar o visitar la sucursal. Esta sección describe cómo funciona el bot paso a paso — desde el primer mensaje de una paciente nueva hasta los casos excepcionales como solicitudes sin disponibilidad, intentos de manipulación o activación del modo de emergencia. La usan principalmente las pacientes como canal de autoatención, y el equipo de recepción como destino cuando el bot escala una conversación a atención humana.</p>
+    <p style="margin-top:.75rem;font-size:.85rem;color:var(--muted)"><strong>Importante:</strong> El bot opera actualmente bajo un programa de acceso gradual (wave). Solo números de teléfono autorizados pueden interactuar con él. Esto se detalla en el Paso 0 de los Escenarios 1 y 2.</p>
   </div>
 
   <!-- ESCENARIO 1 -->
@@ -88,11 +92,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
         <h4>¿Cómo funciona?</h4>
         <ul class="step-list">
           <li>La paciente escribe cualquier mensaje al número de WhatsApp de la clínica.</li>
-          <li class="system">🤖 El sistema verifica si el número de teléfono ya tiene cuenta registrada.</li>
+          <li class="system">🔒 <strong>Paso 0 — Verificación de wave:</strong> antes de cualquier saludo, el sistema verifica si el número de teléfono está autorizado en la wave de acceso activa.</li>
+          <li class="decision">🔀 ¿El número está en la wave? Si NO está autorizado, el bot responde con un mensaje genérico de "próximamente" y la conversación termina aquí.</li>
+          <li class="system">🤖 Si el número sí está en la wave, el sistema verifica si ese número ya tiene una cuenta de paciente registrada.</li>
           <li class="decision">🔀 ¿Tiene cuenta? Si no tiene cuenta, continúa con el saludo de bienvenida a persona nueva.</li>
           <li class="system">🤖 El bot responde con un saludo, se presenta como asistente automático de Grupo Reina Madre, y explica brevemente qué puede hacer.</li>
-          <li>El bot muestra las opciones disponibles: Agendar cita, Ver mis citas, Hablar con recepción.</li>
-          <li class="decision">🔀 Si la paciente elige agendar, el bot la lleva al flujo de registro antes de continuar (ver Escenario 8).</li>
+          <li>El bot despliega un menú interactivo de WhatsApp (lista de opciones) con 6 alternativas en 2 grupos: Citas (Agendar / Ver / Reagendar / Cancelar) y Ayuda (Sucursales / Hablar con alguien). La paciente toca una opción de la lista — no necesita escribir texto.</li>
+          <li class="decision">🔀 Si la paciente elige agendar, el bot la lleva directo al embudo de agendamiento. Si no tiene cuenta, el registro ocurre al final del embudo (ver Escenario 8).</li>
           <li class="success">✅ La paciente queda orientada y puede elegir qué necesita.</li>
         </ul>
         <div class="notes"><strong>Nota:</strong> El bot siempre se identifica como asistente automático. Nunca se hace pasar por una persona del equipo.</div>
@@ -101,15 +107,23 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
         <h4>Diagrama de flujo</h4>
         <div class="mermaid">
 flowchart TD
-    A([Paciente escribe\nprimer mensaje]) --> B{¿Tiene cuenta\nregistrada?}
+    A([Paciente escribe\nprimer mensaje]) --> W[Sistema verifica\nwave allowlist]
+    W --> WD{¿Número en\nwave activa?}
+    WD -- No --> WN[Bot responde:\nmensaje genérico\nprox. disponible]
+    WN --> WZ([Conversación\ntermina])
+    WD -- Sí --> B{¿Tiene cuenta\nregistrada?}
     B -- No --> C[Bot saluda\ny se presenta]
     B -- Sí --> Z([Ver Escenario 2])
-    C --> D[Bot muestra opciones:\nAgendar / Ver citas /\nHablar con recepción]
+    C --> D[Bot despliega\nmenú interactivo\nde lista WA]
     D --> E{¿Qué elige?}
-    E -- Agendar --> F([Flujo de registro\nEscenario 8])
+    E -- Agendar --> F([Embudo agendamiento\nEscenario 3])
     E -- Ver citas --> G([Flujo Escenario 4])
     E -- Recepción --> H([Handoff Escenario 7])
     style A fill:#afd393,color:#2d5a1b,stroke:#afd393
+    style W fill:#d6d9f3,color:#373644,stroke:#a25cbf
+    style WD fill:#d9d8f5,color:#373644,stroke:#a25cbf
+    style WN fill:#fac186,color:#7a3a00,stroke:#e0a050
+    style WZ fill:#fac186,color:#7a3a00,stroke:#e0a050
     style B fill:#d9d8f5,color:#373644,stroke:#a25cbf
     style C fill:#25D366,color:#fff,stroke:#1ea352
     style D fill:#25D366,color:#fff,stroke:#1ea352
@@ -141,9 +155,10 @@ flowchart TD
         <h4>¿Cómo funciona?</h4>
         <ul class="step-list">
           <li>La paciente escribe al número de WhatsApp de la clínica.</li>
-          <li class="system">🤖 El sistema identifica su número de teléfono y encuentra su expediente.</li>
-          <li class="system">🤖 El bot la saluda por su nombre: "¡Hola, María! ¿En qué te puedo ayudar hoy?"</li>
-          <li>El bot despliega el menú principal: Agendar cita, Ver mis citas, Reagendar, Cancelar, Hablar con recepción.</li>
+          <li class="system">🔒 <strong>Paso 0 — Verificación de wave:</strong> antes de cualquier saludo, el sistema verifica si el número de teléfono está en la wave de acceso activa. Si no está autorizado, el bot responde con un mensaje genérico de "próximamente" y la conversación termina.</li>
+          <li class="system">🤖 Si el número está en la wave, el sistema identifica su número de teléfono y encuentra su expediente.</li>
+          <li class="system">🤖 El bot la saluda por su nombre: "¡Hola, María! 👋 ¿En qué te puedo ayudar hoy?"</li>
+          <li>El bot despliega un menú interactivo de WhatsApp (lista de opciones) con 6 alternativas en 2 grupos: Citas (Agendar / Ver / Reagendar / Cancelar) y Ayuda (Sucursales / Hablar con alguien). La paciente toca una opción — no necesita escribir texto libre.</li>
           <li class="decision">🔀 La paciente elige una opción y el bot la lleva al flujo correspondiente.</li>
           <li class="success">✅ La paciente accede a sus opciones de forma personalizada sin tener que identificarse manualmente.</li>
         </ul>
@@ -156,12 +171,19 @@ sequenceDiagram
     participant B as Bot WA
     participant S as Sistema
     P->>B: Escribe cualquier mensaje
-    B->>S: Busca número en base de pacientes
-    S-->>B: Paciente encontrada (nombre, datos)
-    B-->>P: "¡Hola, [Nombre]! ¿En qué te ayudo?"
-    B-->>P: Menú: Agendar / Ver citas / Reagendar / Cancelar / Recepción
-    P->>B: Elige opción del menú
-    B-->>P: Lleva al flujo elegido
+    B->>S: Verifica wave allowlist
+    alt Número NO autorizado
+        S-->>B: Número fuera de wave
+        B-->>P: Mensaje genérico próximamente
+    else Número autorizado
+        S-->>B: Número en wave OK
+        B->>S: Identifica número en base de pacientes
+        S-->>B: Paciente encontrada (nombre, datos)
+        B-->>P: "¡Hola, [Nombre]! ¿En qué te ayudo?"
+        B-->>P: Menú interactivo WA (lista 6 opciones)
+        P->>B: Toca opción del menú
+        B-->>P: Lleva al flujo elegido
+    end
         </div>
       </div>
     </div>
@@ -185,31 +207,32 @@ sequenceDiagram
         <h4>¿Cómo funciona?</h4>
         <ul class="step-list">
           <li>La paciente elige "Agendar cita" en el menú principal.</li>
-          <li class="system">🤖 El bot muestra los servicios disponibles que tienen citas en los próximos 14 días.</li>
-          <li>La paciente selecciona el servicio que necesita (ej. Consulta de Ginecología).</li>
+          <li class="system">🤖 El bot muestra los servicios disponibles. Solo aparecen servicios que tienen al menos una médica con horarios libres en los próximos 14 días.</li>
+          <li>La paciente selecciona el servicio que necesita (ej. Consulta de Ginecología). La marca (Reina Madre o Marialinda) se determina automáticamente por el servicio — nunca se le pregunta.</li>
           <li class="system">🤖 El sistema muestra únicamente las sucursales donde ese servicio tiene médicas disponibles.</li>
           <li>La paciente elige la sucursal de su preferencia.</li>
           <li class="system">🤖 El sistema muestra las médicas disponibles para ese servicio en esa sucursal.</li>
-          <li>La paciente elige la médica (o acepta cualquier disponible).</li>
-          <li class="system">🤖 El sistema muestra hasta 8 horarios disponibles en los próximos días.</li>
+          <li>La paciente <strong>debe elegir una médica específica</strong>. No existe la opción "cualquier disponible" — la selección de médica es obligatoria.</li>
+          <li class="system">🤖 El sistema muestra hasta 8 horarios disponibles en los próximos días para esa médica.</li>
           <li>La paciente selecciona fecha y hora.</li>
-          <li class="system">🤖 El sistema registra la cita y envía una confirmación con todos los detalles.</li>
+          <li class="system">🤖 El sistema registra la cita y envía una confirmación con todos los detalles: servicio, sucursal, médica, fecha y hora.</li>
           <li class="success">✅ La cita queda agendada y aparece en la agenda de la sucursal.</li>
           <li class="error">❌ Si en algún paso no hay opciones disponibles, el bot lo notifica y ofrece escalar a recepción (ver Escenario 11).</li>
         </ul>
+        <div class="notes"><strong>Nota de seguridad:</strong> Agendar una cita no requiere verificación OTP adicional — el número de WhatsApp ya actúa como identidad. Solo las acciones de ver, reagendar y cancelar requieren código de verificación (ver Escenarios 4, 5 y 6).</div>
       </div>
       <div class="diagram-wrap">
         <h4>Embudo de agendamiento</h4>
         <div class="mermaid">
 flowchart TD
-    A([Paciente elige\nAgendar]) --> B[Bot muestra\nservicios disponibles]
+    A([Paciente elige\nAgendar]) --> B[Bot muestra servicios\ncon disponibilidad real\nen 14 días]
     B --> C[Paciente elige\nservicio]
-    C --> D{¿Hay sucursales\ncon disponibilidad?}
+    C --> D{¿Hay sucursales\ncon ese servicio\ny médicas libres?}
     D -- No --> E([Sin disponibilidad\nEscenario 11])
-    D -- Sí --> F[Bot muestra\nsucursales]
+    D -- Sí --> F[Bot muestra\nsucursales del servicio]
     F --> G[Paciente elige\nsucursal]
-    G --> H[Bot muestra\nmédicas disponibles]
-    H --> I[Paciente elige\nmédica]
+    G --> H[Bot muestra médicas\ndisponibles en\nesa sucursal]
+    H --> I[Paciente elige\nmédica — obligatorio]
     I --> J[Bot muestra\nhorarios libres]
     J --> K[Paciente elige\nfecha y hora]
     K --> L[Sistema registra\nla cita]
@@ -252,13 +275,16 @@ flowchart TD
         <h4>¿Cómo funciona?</h4>
         <ul class="step-list">
           <li>La paciente elige "Ver mis citas" en el menú.</li>
-          <li class="system">🤖 El sistema busca las próximas citas registradas a nombre de esa paciente.</li>
+          <li class="system">🔒 <strong>Verificación de identidad (OTP):</strong> antes de mostrar cualquier dato, el sistema envía un código de 6 dígitos por SMS al número de la paciente. Este es el "Capa 3 de seguridad" del sistema.</li>
+          <li>La paciente escribe el código que recibió por SMS.</li>
+          <li class="decision">🔀 ¿El código es correcto? Si falla dos veces seguidas, el bot informa que no puede continuar — no hay más reintentos automáticos.</li>
+          <li class="system">🤖 Con el OTP verificado, el sistema busca las próximas citas registradas a nombre de esa paciente.</li>
           <li class="decision">🔀 ¿Tiene citas próximas? Si no tiene ninguna, el bot lo indica y ofrece agendar.</li>
           <li class="system">🤖 El bot muestra cada cita con: fecha, hora, nombre de la médica y sucursal.</li>
           <li>La paciente puede elegir una cita para reagendar o cancelar desde aquí.</li>
           <li class="success">✅ La paciente ve únicamente sus propias citas — no puede ver citas de otras personas.</li>
         </ul>
-        <div class="notes"><strong>Nota:</strong> Se muestran máximo 5 citas próximas para mantener el mensaje claro y legible en WhatsApp.</div>
+        <div class="notes"><strong>Nota:</strong> El código OTP por SMS protege que nadie más pueda ver las citas aunque tenga acceso al teléfono desbloqueado. Se muestran máximo 5 citas próximas para mantener el mensaje claro y legible en WhatsApp.</div>
       </div>
       <div class="diagram-wrap">
         <h4>Diagrama de flujo</h4>
@@ -268,14 +294,22 @@ sequenceDiagram
     participant B as Bot WA
     participant S as Sistema
     P->>B: "Ver mis citas"
-    B->>S: Consulta citas próximas de la paciente
-    S-->>B: Lista de citas (máx. 5)
-    alt Tiene citas
-        B-->>P: Muestra cada cita:\nfecha · hora · médica · sucursal
-        P->>B: Elige una cita (opcional)
-        B-->>P: Opciones: Reagendar / Cancelar
-    else Sin citas próximas
-        B-->>P: "No tienes citas próximas.\n¿Deseas agendar una?"
+    B->>S: Solicita envío de OTP por SMS
+    S-->>P: Código de 6 dígitos por SMS
+    B-->>P: "Te enviamos un código por SMS.\nEscrítelo aquí para continuar."
+    P->>B: Escribe el código OTP
+    alt OTP correcto
+        B->>S: Consulta citas próximas de la paciente
+        S-->>B: Lista de citas (máx. 5)
+        alt Tiene citas
+            B-->>P: Muestra cada cita: fecha · hora · médica · sucursal
+            P->>B: Elige una cita (opcional)
+            B-->>P: Opciones: Reagendar / Cancelar
+        else Sin citas próximas
+            B-->>P: "No tienes citas próximas. ¿Deseas agendar una?"
+        end
+    else OTP incorrecto 2 veces
+        B-->>P: No se puede continuar. Intenta de nuevo más tarde.
     end
         </div>
       </div>
@@ -300,12 +334,13 @@ sequenceDiagram
         <h4>¿Cómo funciona?</h4>
         <ul class="step-list">
           <li>La paciente elige "Reagendar" en el menú o desde la vista de sus citas.</li>
-          <li>Si tiene más de una cita, el bot le pregunta cuál desea mover.</li>
+          <li class="system">🔒 <strong>Verificación de identidad (OTP):</strong> antes de mostrar cualquier cita, el sistema envía un código de 6 dígitos por SMS. La paciente debe escribirlo correctamente para continuar. Si falla dos veces, el bot no puede proseguir.</li>
+          <li>Con el OTP verificado: si tiene más de una cita, el bot le pregunta cuál desea mover.</li>
           <li>La paciente selecciona la cita que quiere reagendar.</li>
           <li class="system">🤖 El sistema busca nuevos horarios disponibles con la misma médica.</li>
           <li class="decision">🔀 ¿Hay horarios con la misma médica? Si no hay, ofrece horarios con otras médicas del mismo servicio.</li>
           <li>La paciente elige la nueva fecha y hora.</li>
-          <li class="system">🤖 El sistema mueve la cita al nuevo horario de forma atómica (cancela la anterior y crea la nueva en un solo paso).</li>
+          <li class="system">🤖 El sistema mueve la cita al nuevo horario de forma atómica (no cancela primero y crea después — lo hace en un solo paso para no perder el slot).</li>
           <li class="success">✅ La paciente recibe confirmación con los datos del nuevo horario.</li>
           <li class="error">❌ Si no hay ningún horario disponible, el bot ofrece escalar a recepción.</li>
         </ul>
@@ -314,7 +349,10 @@ sequenceDiagram
         <h4>Diagrama de flujo</h4>
         <div class="mermaid">
 flowchart TD
-    A([Paciente elige\nReagendar]) --> B{¿Tiene más\nde 1 cita?}
+    A([Paciente elige\nReagendar]) --> OTP[Sistema envía\ncódigo OTP por SMS]
+    OTP --> OTPD{¿OTP\ncorrecto?}
+    OTPD -- No x2 --> OTPF([No se puede\ncontinuar])
+    OTPD -- Sí --> B{¿Tiene más\nde 1 cita?}
     B -- Sí --> C[Bot pregunta\ncuál cita mover]
     B -- No --> D[Bot muestra\nla única cita]
     C --> E[Paciente elige\nla cita]
@@ -325,9 +363,12 @@ flowchart TD
     G -- No --> I[Bot ofrece\notras médicas]
     I --> H
     H --> J[Paciente elige\nnueva fecha y hora]
-    J --> K[Sistema mueve\nla cita]
+    J --> K[Sistema mueve\nla cita de forma atómica]
     K --> L([Confirmación\nnuevo horario ✅])
     style A fill:#afd393,color:#2d5a1b,stroke:#afd393
+    style OTP fill:#d6d9f3,color:#373644,stroke:#a25cbf
+    style OTPD fill:#d9d8f5,color:#373644,stroke:#a25cbf
+    style OTPF fill:#ff3759,color:#fff,stroke:#cc2040
     style B fill:#d9d8f5,color:#373644,stroke:#a25cbf
     style C fill:#25D366,color:#fff,stroke:#1ea352
     style D fill:#25D366,color:#fff,stroke:#1ea352
@@ -362,7 +403,8 @@ flowchart TD
         <h4>¿Cómo funciona?</h4>
         <ul class="step-list">
           <li>La paciente elige "Cancelar cita" en el menú o desde la vista de sus citas.</li>
-          <li>Si tiene más de una cita próxima, el bot le pregunta cuál desea cancelar.</li>
+          <li class="system">🔒 <strong>Verificación de identidad (OTP):</strong> antes de mostrar cualquier cita, el sistema envía un código de 6 dígitos por SMS. La paciente debe escribirlo correctamente para continuar. Si falla dos veces, el bot no puede proseguir.</li>
+          <li>Con el OTP verificado: si tiene más de una cita próxima, el bot le pregunta cuál desea cancelar.</li>
           <li>La paciente indica la cita que quiere cancelar.</li>
           <li class="system">🤖 El bot muestra el resumen de esa cita (fecha, hora, médica, sucursal) y pide confirmación explícita.</li>
           <li class="decision">🔀 ¿La paciente confirma la cancelación?</li>
@@ -371,13 +413,16 @@ flowchart TD
           <li class="success">✅ La paciente recibe confirmación de que su cita fue cancelada.</li>
           <li class="error">❌ Si la paciente no confirma, la cita permanece activa sin cambios.</li>
         </ul>
-        <div class="notes"><strong>Nota:</strong> La doble confirmación protege a la paciente de cancelaciones accidentales por un toque de pantalla equivocado.</div>
+        <div class="notes"><strong>Nota:</strong> El OTP previo y la doble confirmación al cancelar son dos capas de protección independientes. La primera verifica identidad; la segunda previene cancelaciones accidentales por un toque de pantalla equivocado.</div>
       </div>
       <div class="diagram-wrap">
         <h4>Diagrama de flujo</h4>
         <div class="mermaid">
 flowchart TD
-    A([Paciente elige\nCancelar cita]) --> B[Paciente indica\ncuál cita cancelar]
+    A([Paciente elige\nCancelar cita]) --> OTP[Sistema envía\ncódigo OTP por SMS]
+    OTP --> OTPD{¿OTP\ncorrecto?}
+    OTPD -- No x2 --> OTPF([No se puede\ncontinuar])
+    OTPD -- Sí --> B[Paciente indica\ncuál cita cancelar]
     B --> C[Bot muestra resumen\ny pide confirmación]
     C --> D{¿Paciente\nconfirma?}
     D -- Sí --> E[Sistema cancela\nla cita]
@@ -386,6 +431,9 @@ flowchart TD
     G --> H[Sistema avisa\na la sucursal]
     H --> I([Confirmación de\ncancelación ✅])
     style A fill:#afd393,color:#2d5a1b,stroke:#afd393
+    style OTP fill:#d6d9f3,color:#373644,stroke:#a25cbf
+    style OTPD fill:#d9d8f5,color:#373644,stroke:#a25cbf
+    style OTPF fill:#ff3759,color:#fff,stroke:#cc2040
     style B fill:#afd393,color:#2d5a1b,stroke:#afd393
     style C fill:#25D366,color:#fff,stroke:#1ea352
     style D fill:#d9d8f5,color:#373644,stroke:#a25cbf
@@ -416,15 +464,15 @@ flowchart TD
       <div class="steps">
         <h4>¿Cómo funciona?</h4>
         <ul class="step-list">
-          <li>La paciente escribe "quiero hablar con una persona" o elige "Hablar con recepción".</li>
-          <li class="decision">🔀 También puede ocurrir de forma automática si el bot no puede resolver la solicitud (ver Escenario 19).</li>
-          <li class="system">🤖 El bot confirma a la paciente que su conversación será atendida por una persona del equipo.</li>
-          <li class="system">🤖 El sistema registra la escalación y notifica al equipo de recepción de la sucursal correspondiente.</li>
+          <li>La paciente escribe "quiero hablar con una persona" o elige "Hablar con alguien" en el menú.</li>
+          <li class="decision">🔀 También puede ocurrir automáticamente si el bot no puede resolver la solicitud en 3 turnos, si la paciente menciona un tema sensible o urgente, si no hay disponibilidad, o si se detecta un intento de manipulación (ver Escenario 9).</li>
+          <li class="system">🤖 El bot confirma a la paciente: "Te conecto con alguien de recepción. Te van a escribir por aquí mismo en unos minutos."</li>
+          <li class="system">🤖 El sistema registra la escalación con su motivo (explícito, sensible, confusión, seguridad, sin disponibilidad) y notifica al equipo de recepción de la sucursal correspondiente.</li>
           <li>La recepcionista recibe el aviso y puede ver el historial de la conversación con el bot para entender el contexto.</li>
           <li>La recepcionista retoma la conversación directamente en WhatsApp.</li>
           <li class="success">✅ La paciente es atendida por una persona real sin necesidad de repetir todo lo que ya explicó al bot.</li>
         </ul>
-        <div class="notes"><strong>Nota:</strong> El equipo de recepción recibe una notificación inmediata. Si están fuera de horario, el bot avisa a la paciente que será atendida en el siguiente turno (ver Escenario 12).</div>
+        <div class="notes"><strong>Nota:</strong> El equipo de recepción recibe una notificación inmediata. Si el bot se activa en modo rollback de emergencia (ver Escenario 12), este mecanismo de notificación puede fallar — ver ese escenario para detalles.</div>
       </div>
       <div class="diagram-wrap">
         <h4>Diagrama de flujo</h4>
@@ -435,10 +483,10 @@ sequenceDiagram
     participant S as Sistema
     participant R as Recepcionista
     P->>B: "Quiero hablar con una persona"
-    B-->>P: "Con gusto te comunico con\nnuestro equipo de recepción"
-    B->>S: Registra escalación
-    S->>R: Notifica handoff con contexto\nde la conversación
-    R-->>P: Retoma la conversación\nen WhatsApp
+    B-->>P: "Con gusto te comunico con nuestro equipo de recepción"
+    B->>S: Registra escalación con motivo
+    S->>R: Notifica handoff con contexto de la conversación
+    R-->>P: Retoma la conversación en WhatsApp
     P->>R: Continúa con atención humana
     R-->>P: Resolución del tema
         </div>
@@ -463,39 +511,42 @@ sequenceDiagram
       <div class="steps">
         <h4>¿Cómo funciona?</h4>
         <ul class="step-list">
-          <li>La paciente elige "Agendar cita" pero su número de teléfono no está en el sistema.</li>
-          <li class="system">🤖 El bot la informa que primero necesita crear su perfil y le pide su nombre completo.</li>
-          <li>La paciente escribe su nombre.</li>
-          <li>El bot solicita su correo electrónico.</li>
-          <li>El bot solicita su fecha de nacimiento y muestra una vista previa legible ("15 de marzo de 1990") para que confirme que es correcta.</li>
-          <li class="decision">🔀 ¿Los datos son correctos? Si la paciente corrige algún dato, el bot lo acepta antes de continuar.</li>
-          <li class="system">🤖 El sistema crea el perfil de la paciente con esos datos.</li>
-          <li class="success">✅ La paciente queda registrada y el bot continúa inmediatamente con el flujo de agendamiento (Escenario 3).</li>
-          <li class="error">❌ Si el correo ya existe en el sistema con otra cuenta, el bot avisa y escala a recepción.</li>
+          <li>La paciente nueva llega al bot y elige "Agendar cita" desde el menú.</li>
+          <li>El bot la lleva directo al embudo de agendamiento: elige servicio → sucursal → médica → horario, exactamente igual que una paciente con cuenta (ver Escenario 3).</li>
+          <li class="system">🤖 Después de que la paciente elige el horario, el sistema verifica si el número de WhatsApp ya está registrado.</li>
+          <li class="decision">🔀 El número NO tiene cuenta. El registro ocurre en este momento — al final del embudo, no al principio.</li>
+          <li class="system">🤖 El bot solicita el <strong>nombre completo</strong> de la paciente.</li>
+          <li class="system">🤖 El bot solicita la <strong>fecha de nacimiento</strong> y muestra una vista previa legible ("15 de marzo de 1990") para que la paciente confirme que es correcta.</li>
+          <li class="decision">🔀 ¿Los datos son correctos? Si la paciente necesita corregir la fecha, el bot la acepta nuevamente.</li>
+          <li class="system">🤖 El sistema crea el perfil de paciente con nombre completo, fecha de nacimiento y el número de WhatsApp como identificador. <strong>No se solicita correo electrónico.</strong></li>
+          <li class="success">✅ Con el perfil creado, el sistema confirma la cita que ya había seleccionado. La paciente queda registrada y su cita agendada en un solo flujo.</li>
         </ul>
+        <div class="notes"><strong>Nota clave:</strong> El orden es intencional: la paciente primero elige lo que quiere (servicio, sucursal, médica, horario) y solo al final da sus datos. Esto reduce el abandono — no se piden datos antes de que la paciente vea que hay disponibilidad. El bot no solicita correo electrónico durante este proceso.</div>
       </div>
       <div class="diagram-wrap">
         <h4>Diagrama de flujo</h4>
         <div class="mermaid">
 flowchart TD
-    A([Paciente nueva\nquiere agendar]) --> B[Bot solicita\nnombre completo]
-    B --> C[Bot solicita\ncorreo electrónico]
-    C --> D[Bot solicita\nfecha de nacimiento]
-    D --> E[Bot muestra vista previa\nde fecha en español]
-    E --> F{¿Datos\ncorrectos?}
-    F -- Corrige --> D
-    F -- Correctos --> G{¿Correo ya\nexiste?}
-    G -- Sí --> H([Escala a\nRecepción])
-    G -- No --> I[Sistema crea\nperfil de paciente]
-    I --> J([Continúa\nagendamiento ✅])
+    A([Paciente nueva\nelige Agendar]) --> B[Embudo normal:\nServicio → Sucursal\n→ Médica → Horario]
+    B --> C[Paciente elige\nel horario]
+    C --> D{¿El número WA\ntiene cuenta?}
+    D -- Sí --> K([Confirma cita\nnormalmente ✅])
+    D -- No --> E[Bot solicita\nnombre completo]
+    E --> F[Bot solicita\nfecha de nacimiento]
+    F --> G[Bot muestra vista previa\nde fecha en español]
+    G --> H{¿Datos\ncorrectos?}
+    H -- Corrige fecha --> F
+    H -- Correctos --> I[Sistema crea\nperfil de paciente\nnombre + nacimiento + tel WA]
+    I --> J([Cita confirmada\ny perfil creado ✅])
     style A fill:#afd393,color:#2d5a1b,stroke:#afd393
-    style B fill:#25D366,color:#fff,stroke:#1ea352
-    style C fill:#25D366,color:#fff,stroke:#1ea352
-    style D fill:#25D366,color:#fff,stroke:#1ea352
+    style B fill:#d6d9f3,color:#373644,stroke:#a25cbf
+    style C fill:#afd393,color:#2d5a1b,stroke:#afd393
+    style D fill:#d9d8f5,color:#373644,stroke:#a25cbf
+    style K fill:#afd393,color:#2d5a1b,stroke:#afd393
     style E fill:#25D366,color:#fff,stroke:#1ea352
-    style F fill:#d9d8f5,color:#373644,stroke:#a25cbf
-    style G fill:#d9d8f5,color:#373644,stroke:#a25cbf
-    style H fill:#fac186,color:#373644,stroke:#e0a050
+    style F fill:#25D366,color:#fff,stroke:#1ea352
+    style G fill:#25D366,color:#fff,stroke:#1ea352
+    style H fill:#d9d8f5,color:#373644,stroke:#a25cbf
     style I fill:#d6d9f3,color:#373644,stroke:#a25cbf
     style J fill:#afd393,color:#2d5a1b,stroke:#afd393
         </div>
@@ -521,32 +572,30 @@ flowchart TD
         <ul class="step-list">
           <li>Alguien intenta darle instrucciones al bot para cambiar su comportamiento, pedir datos de otras personas, o engañarlo para que responda fuera de su función.</li>
           <li class="system">🤖 El bot detecta que el mensaje intenta alterar sus reglas o pedir información que no le corresponde.</li>
-          <li class="system">🤖 El bot responde una sola vez con un mensaje claro: "Solo puedo ayudarte con información sobre tus propias citas."</li>
-          <li class="system">🤖 El sistema registra el intento y escala la conversación automáticamente al equipo de seguridad.</li>
-          <li>El bot no responde a más intentos del mismo tipo en esa conversación.</li>
+          <li class="system">🤖 El bot responde <strong>una sola vez</strong> con un mensaje claro: "Estoy aquí para ayudarte con tus citas. Si tienes una pregunta distinta, te conecto con una persona."</li>
+          <li class="system">🤖 El sistema registra la escalación con motivo <code>security</code> y transfiere la conversación a recepción. A partir de ese momento, el bot deja de responder porque el workflow terminó — recepción toma el control de la conversación en Kapso.</li>
+          <li>La recepcionista recibe el aviso de la conversación en la cola normal, con el campo de motivo marcado como <code>security</code> para distinguirlo de otros handoffs.</li>
           <li class="success">✅ La información de otras pacientes queda protegida en todo momento.</li>
         </ul>
-        <div class="notes"><strong>Nota:</strong> Esta protección aplica también si alguien intenta pedirle al bot que "actúe como" otra persona o que ignore sus instrucciones originales.</div>
+        <div class="notes"><strong>Nota:</strong> Esta protección aplica también si alguien intenta pedirle al bot que "actúe como" otra persona o que ignore sus instrucciones originales. El handoff de seguridad llega a la misma cola de recepción que los demás handoffs — no existe un "equipo de seguridad" separado. Solo el motivo registrado (<code>security</code>) distingue estos casos.</div>
       </div>
       <div class="diagram-wrap">
         <h4>Diagrama de flujo</h4>
         <div class="mermaid">
 flowchart TD
     A([Mensaje intenta\nmanipular el bot]) --> B{¿Tipo de\nintento?}
-    B -- Cambiar instrucciones --> C[Bot responde una vez:\n"Solo puedo ayudarte\ncon tus citas"]
+    B -- Cambiar instrucciones --> C[Bot responde una vez:\nMensaje de seguridad]
     B -- Pedir datos de otra persona --> C
     B -- Inyección de instrucciones --> C
-    C --> D[Sistema registra\nel intento]
-    D --> E[Escalación automática\na seguridad]
-    E --> F[Bot no responde\na más intentos iguales]
-    F --> G([Conversación\nprotegida ✅])
+    C --> D[Sistema registra\nescalación con\nmotivo: security]
+    D --> E[Handoff a recepción\ncola normal + motivo\nsecurity visible]
+    E --> F([Bot deja de responder\nRecepción toma el control ✅])
     style A fill:#ff3759,color:#fff,stroke:#cc2040
     style B fill:#d9d8f5,color:#373644,stroke:#a25cbf
     style C fill:#25D366,color:#fff,stroke:#1ea352
     style D fill:#d6d9f3,color:#373644,stroke:#a25cbf
-    style E fill:#d6d9f3,color:#373644,stroke:#a25cbf
-    style F fill:#25D366,color:#fff,stroke:#1ea352
-    style G fill:#afd393,color:#2d5a1b,stroke:#afd393
+    style E fill:#7eb8f7,color:#1a3a5c,stroke:#4a8fd6
+    style F fill:#afd393,color:#2d5a1b,stroke:#afd393
         </div>
       </div>
     </div>
@@ -570,9 +619,9 @@ flowchart TD
         <h4>¿Cómo funciona?</h4>
         <ul class="step-list">
           <li>La paciente escribe al bot en un idioma diferente al español (inglés, francés, etc.).</li>
-          <li class="system">🤖 El bot responde siempre en español, explicando amablemente que opera en ese idioma.</li>
+          <li class="system">🤖 El bot responde siempre en español, explicando amablemente que opera en ese idioma: "Por ahora sólo te atiendo en español. ¿Te puedo ayudar en español?"</li>
           <li class="decision">🔀 ¿La paciente insiste en otro idioma?</li>
-          <li class="system">🤖 El bot escala la conversación a recepción para que una persona pueda atenderla de forma personalizada.</li>
+          <li class="system">🤖 El bot escala la conversación a recepción con motivo <code>explicit</code> para que una persona pueda atenderla de forma personalizada.</li>
           <li>La recepcionista retoma la conversación y ofrece atención en el idioma que se pueda.</li>
           <li class="success">✅ La paciente no queda sin respuesta por la barrera del idioma.</li>
         </ul>
@@ -660,11 +709,12 @@ flowchart TD
     <div class="scenario-header">
       <div class="scenario-number">12</div>
       <div>
-        <h3>Bot en modo handoff forzado (fuera de horario)</h3>
+        <h3>Bot en modo rollback de emergencia (desactivado con handoff)</h3>
         <div class="actors">
           <span class="actor-badge" style="background:#afd393;color:#2d5a1b">Paciente</span>
           <span class="actor-badge" style="background:#25D366;color:#fff">Bot WA</span>
           <span class="actor-badge" style="background:#7eb8f7;color:#1a3a5c">Recepcionista</span>
+          <span class="actor-badge" style="background:#ed80a8;color:#7a1a3a">Admin Corporativo</span>
         </div>
       </div>
     </div>
@@ -672,34 +722,41 @@ flowchart TD
       <div class="steps">
         <h4>¿Cómo funciona?</h4>
         <ul class="step-list">
-          <li>La paciente escribe al bot fuera del horario de atención de la sucursal (por ejemplo, a las 11 pm).</li>
-          <li class="system">🤖 El bot verifica el horario actual y confirma que está fuera del turno de recepción.</li>
-          <li class="system">🤖 El bot responde a la paciente que el equipo de atención no está disponible en este momento y le indica el horario de atención.</li>
-          <li class="system">🤖 El sistema deja registrada la conversación para que recepción la vea al iniciar el siguiente turno.</li>
-          <li>La recepcionista al llegar a su turno revisa las conversaciones pendientes y retoma la atención.</li>
-          <li>La paciente recibe respuesta en cuanto el equipo inicia el turno.</li>
-          <li class="success">✅ Ninguna conversación se pierde aunque llegue fuera de horario.</li>
+          <li class="system">⚠️ Este modo <strong>no es automático ni detecta horarios</strong>. Es un mecanismo de rollback que se activa manualmente por el equipo de operaciones (administración) durante un incidente de producción.</li>
+          <li>Cuando el equipo activa el modo rollback, el bot principal queda desactivado para todos los usuarios.</li>
+          <li class="system">🤖 Cualquier paciente que escriba al bot recibe un mensaje genérico indicando que el servicio no está disponible temporalmente y que será contactada por el equipo.</li>
+          <li class="system">🤖 El sistema intenta registrar la conversación como handoff para que recepción pueda darle seguimiento.</li>
+          <li>La recepcionista revisa manualmente las conversaciones pendientes al iniciar su turno.</li>
+          <li class="error">⚠️ <strong>Bug conocido:</strong> en este modo, la notificación automática a recepción puede fallar porque el mecanismo de registro requiere un token de sesión que el bot no tiene disponible en rollback. Esto significa que recepción NO recibe aviso automático — debe revisar manualmente.</li>
+          <li class="success">✅ La paciente recibe un mensaje claro de que el equipo se comunicará con ella.</li>
         </ul>
-        <div class="notes"><strong>Nota:</strong> Para urgencias médicas reales, el bot siempre incluye el recordatorio de llamar a los servicios de emergencia (911).</div>
+        <div class="notes"><strong>Para el equipo de recepción:</strong> Cuando el sistema esté en modo rollback, no confíes en que recibirás notificaciones automáticas. Revisa manualmente Kapso al inicio de cada turno para ver si hay conversaciones pendientes de pacientes que escribieron durante el rollback.</div>
       </div>
       <div class="diagram-wrap">
         <h4>Diagrama de flujo</h4>
+        <div class="banner-bug">
+          ⚠️ <strong>Bug conocido en modo rollback:</strong> el registro automático del handoff puede fallar con error de autorización. La notificación a recepción NO llega en ese caso. El equipo debe revisar las conversaciones manualmente en Kapso.
+        </div>
         <div class="mermaid">
 flowchart TD
-    A([Paciente escribe\nfuera de horario]) --> B[Sistema revisa\nhorario de atención]
-    B --> C{¿Dentro de\nhorario?}
-    C -- Sí --> D([Atención\nnormal])
-    C -- No --> E[Bot avisa a paciente:\nfuera de horario]
-    E --> F[Bot indica\nhorario de atención]
-    F --> G[Sistema guarda\nconversación pendiente]
-    G --> H([Recepcionista atiende\nal iniciar turno ✅])
+    ADM([Admin activa\nrollback manualmente\ndurante incidente]) --> BOT[Bot principal\nqueda desactivado]
+    BOT --> A([Paciente escribe\nal bot])
+    A --> B[Bot responde:\nservicio no disponible\ntemporalmente]
+    B --> C[Sistema intenta\nregistrar handoff]
+    C --> CD{¿Token de sesión\ndisponible?}
+    CD -- Sí --> E[Recepción recibe\nnotificación]
+    CD -- No 401 --> F[Registro falla\nsilenciosamente]
+    F --> G([Recepción NO recibe\naviso automático\nDebe revisar manual])
+    E --> H([Recepción atiende\nal iniciar turno])
+    style ADM fill:#ed80a8,color:#7a1a3a,stroke:#c05080
+    style BOT fill:#d6d9f3,color:#373644,stroke:#a25cbf
     style A fill:#afd393,color:#2d5a1b,stroke:#afd393
-    style B fill:#d6d9f3,color:#373644,stroke:#a25cbf
-    style C fill:#d9d8f5,color:#373644,stroke:#a25cbf
-    style D fill:#afd393,color:#2d5a1b,stroke:#afd393
-    style E fill:#25D366,color:#fff,stroke:#1ea352
-    style F fill:#25D366,color:#fff,stroke:#1ea352
-    style G fill:#d6d9f3,color:#373644,stroke:#a25cbf
+    style B fill:#25D366,color:#fff,stroke:#1ea352
+    style C fill:#d6d9f3,color:#373644,stroke:#a25cbf
+    style CD fill:#d9d8f5,color:#373644,stroke:#a25cbf
+    style E fill:#7eb8f7,color:#1a3a5c,stroke:#4a8fd6
+    style F fill:#ff3759,color:#fff,stroke:#cc2040
+    style G fill:#fac186,color:#7a3a00,stroke:#e0a050
     style H fill:#7eb8f7,color:#1a3a5c,stroke:#4a8fd6
         </div>
       </div>
@@ -738,7 +795,7 @@ sequenceDiagram
     participant B as Bot WA
     participant S as Sistema
     Note over P,S: Tras cualquier acción exitosa
-    S-->>B: Acción completada\n(agendar / reagendar / cancelar)
+    S-->>B: Acción completada (agendar / reagendar / cancelar)
     B-->>P: Mensaje de confirmación con:
     Note right of B: • Acción realizada
     Note right of B: • Fecha y hora

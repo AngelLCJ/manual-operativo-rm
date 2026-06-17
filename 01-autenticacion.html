@@ -41,6 +41,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
 .notes{margin-top:1rem;padding:.75rem 1rem;background:#fff8e1;border-radius:.5rem;border-left:3px solid var(--warning);font-size:.85rem;color:var(--text)}
 .notes strong{color:#b45309}
 .footer{text-align:center;padding:2rem;color:var(--muted);font-size:.8rem;border-top:1px solid var(--border);margin-top:2rem}
+.planned-banner{background:#fff8e1;border:1px solid #fac186;border-radius:8px;padding:.75rem 1rem;margin-bottom:1rem;font-size:.85rem;color:#7a3a00}
 </style>
 </head>
 <body>
@@ -81,6 +82,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
           <span class="actor-badge" style="background:#c58fe8;color:#3a1a5c">Médica</span>
           <span class="actor-badge" style="background:#fac186;color:#5c3a1a">Gerente de Sucursal</span>
           <span class="actor-badge" style="background:#ed80a8;color:#5c1a3a">Admin Corporativo</span>
+          <span class="actor-badge" style="background:#a25cbf;color:#fff">Platform Admin</span>
         </div>
       </div>
     </div>
@@ -89,14 +91,18 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
         <h4>¿Cómo funciona?</h4>
         <ul class="step-list">
           <li>El empleado abre la aplicación en su navegador o dispositivo.</li>
-          <li>Escribe su correo electrónico institucional y su contraseña.</li>
+          <li>Escribe su correo electrónico institucional y su contraseña en el formulario de la app (no es una pantalla de AWS).</li>
           <li>Hace clic en el botón <strong>Entrar</strong>.</li>
           <li class="system">🤖 El sistema verifica que el correo y la contraseña correspondan a una cuenta activa.</li>
           <li class="decision">🔀 ¿Las credenciales son correctas y la cuenta está activa?</li>
-          <li class="success">✅ El sistema abre la pantalla principal con las opciones y sucursales que corresponden al rol del empleado.</li>
           <li class="error">❌ Si los datos son incorrectos, aparece un aviso de error y se puede intentar de nuevo (ver Escenario 9).</li>
+          <li class="error">❌ Si la cuenta está desactivada, aparece un mensaje indicando que contacte al administrador.</li>
+          <li class="decision">🔀 ¿El rol requiere segundo factor de autenticación? (Platform Admin)</li>
+          <li>Si es la primera vez del administrador con segundo factor: el sistema muestra un código QR para configurar una app autenticadora (Google Authenticator, Authy, etc.).</li>
+          <li>En logins posteriores del administrador: el sistema pide un código de 6 dígitos generado por la app autenticadora.</li>
+          <li class="success">✅ El sistema abre la pantalla principal con las opciones y sucursales que corresponden al rol del empleado.</li>
         </ul>
-        <div class="notes"><strong>Nota:</strong> Cada empleado solo ve las secciones y sucursales para las que tiene permiso. Un cambio de rol o sucursal lo gestiona el Admin Corporativo.</div>
+        <div class="notes"><strong>Nota:</strong> Cada empleado solo ve las secciones y sucursales para las que tiene permiso. Un cambio de rol o sucursal lo gestiona el Admin Corporativo. El login es un formulario propio de la app — no redirige a pantallas de AWS. Si un empleado inicia sesión correctamente pero no puede realizar acciones, pídele que cierre sesión y vuelva a entrar; si persiste, contactar a soporte técnico.</div>
       </div>
       <div class="diagram-wrap">
         <h4>Diagrama de flujo</h4>
@@ -105,19 +111,27 @@ flowchart TD
     A([Empleado abre la app]) --> B[Escribe correo y contraseña]
     B --> C[Clic en Entrar]
     C --> D{¿Credenciales\ncorrectas?}
-    D -- Sí --> E{¿Cuenta\nactiva?}
     D -- No --> F[❌ Mensaje de error]
     F --> B
-    E -- Sí --> G([✅ Pantalla principal\nsegun su rol])
+    D -- Sí --> E{¿Cuenta\nactiva?}
     E -- No --> H[❌ Cuenta desactivada\nContactar Admin]
+    E -- Sí --> MFA{¿Requiere segundo\nfactor? Admin}
+    MFA -- No --> G([✅ Pantalla principal\nsegun su rol])
+    MFA -- Sí primera vez --> QR[Configurar app\nautenticadora QR]
+    MFA -- Sí login previo --> TOTP[Ingresar código\nde 6 dígitos]
+    QR --> G
+    TOTP --> G
     style A fill:#7eb8f7,color:#1a3a5c,stroke:#1a3a5c
     style B fill:#7eb8f7,color:#1a3a5c,stroke:#1a3a5c
     style C fill:#7eb8f7,color:#1a3a5c,stroke:#1a3a5c
     style D fill:#d9d8f5,color:#373644,stroke:#a25cbf
     style E fill:#d9d8f5,color:#373644,stroke:#a25cbf
+    style MFA fill:#d9d8f5,color:#373644,stroke:#a25cbf
     style F fill:#ff3759,color:#fff,stroke:#cc0033
     style G fill:#afd393,color:#2d5a1b,stroke:#2d5a1b
     style H fill:#ff3759,color:#fff,stroke:#cc0033
+    style QR fill:#fac186,color:#5c3a1a,stroke:#b8762a
+    style TOTP fill:#fac186,color:#5c3a1a,stroke:#b8762a
         </div>
       </div>
     </div>
@@ -128,7 +142,7 @@ flowchart TD
     <div class="scenario-header">
       <div class="scenario-number">2</div>
       <div>
-        <h3>Inicio de sesión — paciente con código SMS</h3>
+        <h3>Inicio de sesión — paciente con código de verificación</h3>
         <div class="actors">
           <span class="actor-badge" style="background:#afd393;color:#2d5a1b">Paciente</span>
           <span class="actor-badge" style="background:#d6d9f3;color:#373644">Sistema</span>
@@ -141,13 +155,15 @@ flowchart TD
         <ul class="step-list">
           <li>La paciente abre el portal de pacientes o inicia una conversación con el Bot de WhatsApp.</li>
           <li>Escribe su número de celular registrado.</li>
-          <li class="system">🤖 El sistema envía un código de 6 dígitos por SMS al celular de la paciente.</li>
-          <li>La paciente escribe el código en la pantalla antes de que expire (generalmente 5 minutos).</li>
+          <li class="decision">🔀 ¿El número está registrado en la plataforma?</li>
+          <li class="error">❌ Si el número no está registrado, el sistema muestra el mensaje "Número no encontrado" y no envía ningún código. La paciente debe acudir a recepción para registrarse.</li>
+          <li class="system">🤖 El sistema envía un código de 6 dígitos por SMS o por WhatsApp, según el canal configurado para ese número.</li>
+          <li>La paciente escribe el código en la pantalla antes de que expire (<strong>10 minutos</strong>).</li>
           <li class="decision">🔀 ¿El código ingresado es correcto y está vigente?</li>
           <li class="success">✅ La paciente accede a su perfil, historial de citas y contratos.</li>
-          <li class="error">❌ Si el código venció o es incorrecto, la paciente puede solicitar uno nuevo.</li>
+          <li class="error">❌ Si el código venció o es incorrecto, la paciente puede solicitar uno nuevo. Debe esperar al menos 60 segundos entre cada solicitud. Después de 5 intentos incorrectos, el código se invalida y debe solicitar uno nuevo.</li>
         </ul>
-        <div class="notes"><strong>Nota:</strong> La paciente no necesita recordar contraseña. Cada vez que entra al portal, recibe un código nuevo por SMS. Si no recibe el SMS, debe verificar que su número esté registrado correctamente con la recepcionista.</div>
+        <div class="notes"><strong>Nota:</strong> La paciente no necesita recordar contraseña. El código llega por SMS o por WhatsApp y es válido por 10 minutos. Si no recibe el código por SMS, puede solicitar que se lo envíen a su correo electrónico. Si el teléfono o correo fue modificado recientemente, es posible que deba esperar 1 hora por razones de seguridad antes de recibir un nuevo código.</div>
       </div>
       <div class="diagram-wrap">
         <h4>Diagrama de flujo</h4>
@@ -156,15 +172,21 @@ sequenceDiagram
     participant P as Paciente
     participant S as Sistema
     P->>S: Abre portal e ingresa su número
-    S-->>P: Envía código de 6 dígitos por SMS
-    P->>S: Escribe el código recibido
-    S->>S: Verifica código y vigencia
-    alt Código correcto y vigente
-        S-->>P: ✅ Acceso concedido — muestra perfil
-    else Código incorrecto o expirado
-        S-->>P: ❌ Aviso de error — opción de reenviar código
-        P->>S: Solicita nuevo código
-        S-->>P: Envía código nuevo por SMS
+    S->>S: Verifica si el número está registrado
+    alt Número no registrado
+        S-->>P: ❌ Número no encontrado — ir a recepción
+    else Número registrado
+        S-->>P: Envía código de 6 dígitos por SMS o WhatsApp
+        P->>S: Escribe el código recibido
+        S->>S: Verifica código, vigencia y intentos
+        alt Código correcto y vigente
+            S-->>P: ✅ Acceso concedido — muestra perfil
+        else Código incorrecto o expirado
+            S-->>P: ❌ Aviso de error — opción de reenviar código
+            Note over P,S: Esperar 60 s antes de solicitar otro
+            P->>S: Solicita nuevo código
+            S-->>P: Envía código nuevo por SMS o WhatsApp
+        end
     end
         </div>
       </div>
@@ -192,11 +214,11 @@ sequenceDiagram
         <ul class="step-list">
           <li>El usuario hace clic en su nombre o ícono de perfil, ubicado en la esquina superior de la pantalla.</li>
           <li>Selecciona la opción <strong>Cerrar sesión</strong> del menú desplegable.</li>
-          <li class="system">🤖 El sistema borra de forma inmediata el acceso activo en ese dispositivo.</li>
+          <li class="system">🤖 El sistema borra el acceso activo en ese dispositivo y también invalida la posibilidad de renovar el acceso automáticamente desde otros dispositivos con la misma sesión.</li>
           <li class="success">✅ La pantalla regresa a la página de inicio de sesión.</li>
           <li>El siguiente usuario que use ese dispositivo deberá entrar con sus propias credenciales.</li>
         </ul>
-        <div class="notes"><strong>Buena práctica:</strong> Siempre cerrar sesión al terminar el turno o al dejar la computadora desatendida, especialmente en las recepciones donde varias personas comparten el mismo equipo.</div>
+        <div class="notes"><strong>Buena práctica:</strong> Siempre cerrar sesión al terminar el turno o al dejar la computadora desatendida, especialmente en las recepciones donde varias personas comparten el mismo equipo. Al cerrar sesión también se invalida el acceso desde otros dispositivos donde se hubiera iniciado sesión con la misma cuenta.</div>
       </div>
       <div class="diagram-wrap">
         <h4>Diagrama de flujo</h4>
@@ -204,7 +226,7 @@ sequenceDiagram
 flowchart TD
     A([Usuario en la app]) --> B[Clic en perfil / nombre]
     B --> C[Selecciona Cerrar sesión]
-    C --> D{Sistema borra\nel acceso activo}
+    C --> D{Sistema borra el acceso\nactivo en este dispositivo\ne invalida renovación\nen otros dispositivos}
     D --> E([Pantalla de\ninicio de sesión])
     style A fill:#d9d8f5,color:#373644,stroke:#a25cbf
     style B fill:#d9d8f5,color:#373644,stroke:#a25cbf
@@ -221,7 +243,7 @@ flowchart TD
     <div class="scenario-header">
       <div class="scenario-number">4</div>
       <div>
-        <h3>Sesión expirada por inactividad</h3>
+        <h3>Sesión expirada por tiempo</h3>
         <div class="actors">
           <span class="actor-badge" style="background:#d6d9f3;color:#373644">Sistema</span>
           <span class="actor-badge" style="background:#7eb8f7;color:#1a3a5c">Recepcionista</span>
@@ -234,23 +256,22 @@ flowchart TD
       <div class="steps">
         <h4>¿Cómo funciona?</h4>
         <ul class="step-list">
-          <li>El usuario deja de usar la aplicación por un período prolongado (pantalla inactiva, pestaña olvidada abierta, etc.).</li>
-          <li class="system">🤖 El sistema detecta la inactividad y, por seguridad, cierra la sesión automáticamente.</li>
-          <li>Al intentar realizar cualquier acción, aparece un aviso en pantalla indicando que la sesión ha expirado.</li>
-          <li class="decision">🔀 ¿El usuario quiere continuar trabajando?</li>
-          <li>Hace clic en el botón <strong>Volver a iniciar sesión</strong> y escribe sus credenciales nuevamente.</li>
-          <li class="success">✅ Recupera el acceso y puede continuar donde se quedó.</li>
+          <li>La sesión del personal de clínica tiene una duración máxima fija desde el momento del login: aproximadamente 4 horas para administradores y 16 horas para recepcionistas y médicas.</li>
+          <li class="system">🤖 La sesión expira por tiempo transcurrido desde el login, no por inactividad. Usar la app no extiende la sesión.</li>
+          <li>Al intentar realizar cualquier acción después de que el token venció, el sistema redirige automáticamente a la pantalla de inicio de sesión.</li>
+          <li>No aparece ningún aviso previo ni modal de confirmación — el redirect es inmediato.</li>
+          <li>El usuario escribe sus credenciales nuevamente.</li>
+          <li class="success">✅ Recupera el acceso y puede continuar su trabajo.</li>
         </ul>
-        <div class="notes"><strong>Nota:</strong> Esta medida protege la información de las pacientes en caso de que alguien olvide cerrar sesión en un equipo compartido o desatendido. No es un error; es una función de seguridad normal.</div>
+        <div class="notes"><strong>Nota:</strong> Esta medida protege la información de las pacientes. La sesión vence por tiempo absoluto (desde el login), no por quedarse sin usarla. Si el sistema redirige a login de forma inesperada, no es un error — simplemente hay que volver a entrar. Se recomienda guardar los cambios frecuentemente para no perder trabajo no guardado al expirar la sesión.</div>
       </div>
       <div class="diagram-wrap">
         <h4>Diagrama de flujo</h4>
         <div class="mermaid">
 stateDiagram-v2
     [*] --> SesionActiva: Usuario inicia sesión
-    SesionActiva --> Inactiva: Sin actividad prolongada
-    Inactiva --> SesionExpirada: El sistema cierra la sesión
-    SesionExpirada --> PantallaLogin: Muestra aviso de expiración
+    SesionActiva --> TokenVencido: Tiempo máximo alcanzado\n(4 h admin / 16 h recepcionista)
+    TokenVencido --> PantallaLogin: Redirect automático al siguiente request
     PantallaLogin --> SesionActiva: Usuario inicia sesión de nuevo
     SesionActiva --> Cerrada: Usuario cierra sesión manualmente
     Cerrada --> [*]
@@ -278,13 +299,16 @@ stateDiagram-v2
         <ul class="step-list">
           <li>El Admin Corporativo (o el Gerente de Sucursal con permiso) abre la sección <strong>Gestión de Staff</strong>.</li>
           <li>Hace clic en <strong>Agregar empleado</strong> y completa el formulario: nombre, correo institucional, rol y sucursal(es) asignada(s).</li>
-          <li class="decision">🔀 ¿El correo ya existe en el sistema?</li>
-          <li class="error">❌ Si el correo ya está registrado, aparece un aviso y se detiene el proceso para evitar duplicados.</li>
-          <li class="system">🤖 El sistema crea la cuenta y envía un correo de bienvenida al nuevo empleado con instrucciones para establecer su contraseña.</li>
-          <li>El nuevo empleado sigue el enlace del correo, crea su contraseña y ya puede iniciar sesión.</li>
-          <li class="success">✅ El empleado aparece en el directorio de staff activo con su rol y sucursal asignados.</li>
+          <li class="decision">🔀 ¿El correo ya existe en el sistema o en la plataforma de identidad?</li>
+          <li class="error">❌ Si el correo ya está registrado, aparece un aviso claro y se detiene el proceso para evitar duplicados.</li>
+          <li class="system">🤖 El sistema crea primero el usuario en la plataforma de identidad (Cognito) y luego registra los datos en la base de datos interna. Cognito envía automáticamente al correo del nuevo empleado una <strong>contraseña temporal</strong>.</li>
+          <li>Si el empleado será asignado a varias sucursales, se registra en cada una de forma independiente. El empleado verá y operará todas sus sucursales desde el mismo login.</li>
+          <li class="success">✅ El empleado aparece en el directorio de staff activo con su rol y sucursal(es) asignados.</li>
+          <li>El nuevo empleado abre su correo, encuentra la contraseña temporal y la usa para iniciar sesión por primera vez.</li>
+          <li class="system">🤖 En el primer login, el sistema obliga al empleado a crear una contraseña propia antes de continuar.</li>
+          <li class="success">✅ Una vez creada la contraseña propia, el empleado puede operar con normalidad.</li>
         </ul>
-        <div class="notes"><strong>Nota:</strong> Solo el Admin Corporativo puede asignar los roles de Gerente de Sucursal y Admin Corporativo. El rol de Recepcionista y Médica puede asignarlo también el Gerente de Sucursal de la clínica correspondiente.</div>
+        <div class="notes"><strong>Importante:</strong> El correo que llega al nuevo empleado contiene una <strong>contraseña temporal</strong>, no un enlace para hacer clic. El empleado usa esa contraseña para entrar por primera vez y el sistema le pedirá crear una contraseña propia de inmediato. Solo el Admin Corporativo puede asignar los roles de Gerente de Sucursal y Admin Corporativo. El rol de Recepcionista y Médica puede asignarlo también el Gerente de Sucursal de la clínica correspondiente.</div>
       </div>
       <div class="diagram-wrap">
         <h4>Diagrama de flujo</h4>
@@ -295,14 +319,18 @@ sequenceDiagram
     participant E as Nuevo Empleado
     A->>S: Abre Gestión de Staff y llena formulario
     S->>S: Verifica que el correo no exista
-    alt Correo duplicado
+    alt Correo duplicado en sistema o identidad
         S-->>A: ❌ Aviso de correo ya registrado
     else Correo nuevo
-        S->>S: Crea la cuenta con rol y sucursal
-        S-->>E: 📧 Correo de bienvenida con enlace para crear contraseña
-        E->>S: Abre el enlace y establece su contraseña
-        S-->>E: ✅ Acceso habilitado
+        S->>S: Crea usuario en identidad (Cognito)
+        S->>S: Registra en base de datos interna
+        S->>S: Crea registro por cada sucursal asignada
+        S-->>E: 📧 Correo con contraseña temporal
         S-->>A: ✅ Empleado activo en el directorio
+        E->>S: Inicia sesión con contraseña temporal
+        S-->>E: Solicita crear contraseña propia
+        E->>S: Establece nueva contraseña
+        S-->>E: ✅ Acceso habilitado con contraseña propia
     end
         </div>
       </div>
@@ -317,6 +345,7 @@ sequenceDiagram
         <h3>Desactivar cuenta de staff</h3>
         <div class="actors">
           <span class="actor-badge" style="background:#ed80a8;color:#5c1a3a">Admin Corporativo</span>
+          <span class="actor-badge" style="background:#fac186;color:#5c3a1a">Gerente de Sucursal</span>
           <span class="actor-badge" style="background:#d6d9f3;color:#373644">Sistema</span>
         </div>
       </div>
@@ -325,14 +354,16 @@ sequenceDiagram
       <div class="steps">
         <h4>¿Cómo funciona?</h4>
         <ul class="step-list">
-          <li>El Admin Corporativo busca al empleado en la sección <strong>Gestión de Staff</strong>.</li>
-          <li>Abre el perfil del empleado y selecciona la opción <strong>Desactivar cuenta</strong>.</li>
+          <li>El Admin Corporativo (o el Gerente de Sucursal con permiso) busca al empleado en la sección <strong>Gestión de Staff</strong>.</li>
+          <li>Abre el perfil del empleado y selecciona la opción <strong>Desactivar cuenta</strong>, indicando si es para una sucursal específica o para toda la cuenta.</li>
           <li>El sistema pide confirmar la acción antes de proceder.</li>
-          <li class="system">🤖 El sistema desactiva la cuenta de forma inmediata: el empleado pierde el acceso en cuanto intente ingresar o al momento de la siguiente acción.</li>
-          <li class="success">✅ La cuenta queda en estado "inactivo". Su historial, notas y registros se conservan íntegros para consulta futura.</li>
-          <li>Si el empleado intenta entrar, verá un mensaje indicando que su cuenta no está activa y que contacte al administrador.</li>
+          <li class="decision">🔀 ¿El empleado trabaja en más de una sucursal?</li>
+          <li class="system">🤖 Si se desactiva solo en una sucursal: el empleado pierde acceso únicamente a esa clínica. Si tiene otras sucursales activas, puede seguir trabajando en ellas con normalidad.</li>
+          <li class="system">🤖 Si se cierran todas las sucursales, o para roles corporativos: se bloquea la cuenta completa en el siguiente intento de login.</li>
+          <li class="error">❌ Importante: las sesiones activas que el empleado ya tiene abiertas pueden continuar hasta un máximo de 1 hora, hasta que su token expire. No hay revocación instantánea de sesiones en curso.</li>
+          <li class="success">✅ La cuenta (o la sucursal) queda en estado "inactivo". Su historial, notas y registros se conservan íntegros para consulta futura.</li>
         </ul>
-        <div class="notes"><strong>Importante:</strong> Desactivar no es lo mismo que borrar. Los datos históricos del empleado (citas atendidas, notas, registros) se mantienen en el sistema para fines de auditoría y continuidad de atención. Si hay error, el Admin puede reactivar la cuenta.</div>
+        <div class="notes"><strong>Importante:</strong> Desactivar no es lo mismo que borrar. Los datos históricos del empleado se mantienen para auditoría y continuidad de atención. El Admin puede reactivar la cuenta. Si se desactiva a un empleado de una sucursal pero trabaja en otras, seguirá teniendo acceso desde esas otras clínicas. Las sesiones abiertas al momento de la desactivación pueden continuar activas hasta 1 hora — esto es por diseño del sistema de autenticación.</div>
       </div>
       <div class="diagram-wrap">
         <h4>Diagrama de flujo</h4>
@@ -341,9 +372,12 @@ stateDiagram-v2
     [*] --> Activa: Alta de empleado
     Activa --> EnRevision: Admin selecciona Desactivar
     EnRevision --> Activa: Admin cancela la acción
-    EnRevision --> Inactiva: Admin confirma desactivación
-    Inactiva --> Activa: Admin reactiva la cuenta
-    Inactiva --> [*]: Cuenta permanece inactiva
+    EnRevision --> InactivaSucursal: Desactivación en una sucursal\n(otras sucursales siguen activas)
+    EnRevision --> InactivaTotal: Desactivación total\n(última sucursal o rol corporativo)
+    InactivaSucursal --> Activa: Admin reactiva en esa sucursal
+    InactivaTotal --> Activa: Admin reactiva la cuenta
+    InactivaSucursal --> InactivaTotal: Se cierran todas las sucursales
+    InactivaTotal --> [*]: Cuenta permanece inactiva
         </div>
       </div>
     </div>
@@ -368,15 +402,15 @@ stateDiagram-v2
         <h4>¿Cómo funciona?</h4>
         <ul class="step-list">
           <li>En la pantalla de inicio de sesión, el empleado hace clic en el enlace <strong>¿Olvidaste tu contraseña?</strong></li>
-          <li>Escribe su correo electrónico institucional y hace clic en <strong>Enviar instrucciones</strong>.</li>
-          <li class="system">🤖 El sistema verifica que el correo corresponda a una cuenta activa y envía un correo con un enlace seguro de restablecimiento (el enlace tiene una vigencia limitada, generalmente 24 horas).</li>
-          <li>El empleado abre su correo, encuentra el mensaje de Reina Madre y hace clic en el enlace.</li>
-          <li>Escribe su nueva contraseña dos veces para confirmarla.</li>
-          <li class="decision">🔀 ¿La nueva contraseña cumple los requisitos mínimos de seguridad?</li>
+          <li>Escribe su correo electrónico institucional y hace clic en <strong>Enviar código</strong>.</li>
+          <li class="system">🤖 El sistema envía un <strong>código de verificación numérico</strong> al correo electrónico del empleado. Por seguridad, no confirma si el correo existe o no — en ambos casos la pantalla avanza.</li>
+          <li>El empleado abre su correo y busca el mensaje con el código de verificación (un número de 6 dígitos).</li>
+          <li>Regresa a la app e ingresa el código numérico junto con su nueva contraseña.</li>
+          <li class="decision">🔀 ¿El código es correcto, está vigente y la nueva contraseña cumple los requisitos?</li>
           <li class="success">✅ La contraseña se actualiza y el empleado puede iniciar sesión normalmente.</li>
-          <li class="error">❌ Si el enlace ya venció, debe repetir el proceso desde el paso 1.</li>
+          <li class="error">❌ Si el código es incorrecto o ya venció, aparece un aviso y debe solicitar un código nuevo desde el paso 1.</li>
         </ul>
-        <div class="notes"><strong>Nota:</strong> Si el correo de restablecimiento no llega en unos minutos, revisar la carpeta de correo no deseado (spam). Si el problema persiste, contactar al Admin Corporativo para que restablezca la cuenta manualmente desde el panel de staff.</div>
+        <div class="notes"><strong>Nota:</strong> El correo contiene un <strong>código numérico</strong>, no un enlace para hacer clic. Hay que copiar ese número e ingresarlo en la pantalla de la app junto con la nueva contraseña. Si el correo no llega en unos minutos, revisar la carpeta de spam. Si el problema persiste, el Admin Corporativo puede gestionar el restablecimiento desde el panel de staff.</div>
       </div>
       <div class="diagram-wrap">
         <h4>Diagrama de flujo</h4>
@@ -386,14 +420,15 @@ sequenceDiagram
     participant S as Sistema
     U->>S: Clic en Olvidaste tu contraseña
     U->>S: Escribe correo institucional
-    S->>S: Verifica que el correo existe y está activo
-    S-->>U: 📧 Correo con enlace de restablecimiento
-    U->>S: Abre el enlace y escribe nueva contraseña
-    S->>S: Verifica vigencia del enlace y fortaleza de contraseña
-    alt Enlace vigente y contraseña válida
+    S-->>U: 📧 Correo con código de verificación numérico
+    U->>S: Ingresa código + nueva contraseña en la app
+    S->>S: Verifica código, vigencia y fortaleza de contraseña
+    alt Código válido y contraseña correcta
         S-->>U: ✅ Contraseña actualizada — puede iniciar sesión
-    else Enlace vencido
-        S-->>U: ❌ Enlace expirado — solicitar uno nuevo
+    else Código incorrecto
+        S-->>U: ❌ Código incorrecto — intentar de nuevo
+    else Código expirado
+        S-->>U: ❌ Código expirado — solicitar uno nuevo
     end
         </div>
       </div>
@@ -420,12 +455,15 @@ sequenceDiagram
           <li>El Admin Corporativo abre el perfil de un médico o gerente en <strong>Gestión de Staff</strong>.</li>
           <li>En el apartado de sucursales, hace clic en <strong>Agregar sucursal</strong> y selecciona las clínicas donde debe tener acceso.</li>
           <li class="system">🤖 El sistema actualiza los permisos del empleado para que pueda ver y gestionar la agenda de cada sucursal asignada.</li>
-          <li>Al iniciar sesión, el empleado ve un selector o menú donde puede elegir en qué sucursal está trabajando en ese momento.</li>
+          <li class="decision">🔀 ¿Cuántas sucursales tiene asignadas el empleado al iniciar sesión?</li>
+          <li>Si tiene <strong>más de una sucursal</strong>: aparece un selector para elegir en cuál trabajará en ese momento.</li>
+          <li>Si tiene <strong>exactamente una sucursal</strong>: la app la selecciona automáticamente sin mostrar selector.</li>
+          <li class="error">❌ Si no tiene sucursales asignadas (configuración incompleta): aparece un error y debe contactar al Admin Corporativo para que revise su asignación.</li>
           <li class="decision">🔀 ¿El empleado cambia de sucursal dentro de la misma sesión?</li>
           <li>Puede cambiar la sucursal activa desde el menú superior sin necesidad de cerrar sesión.</li>
           <li class="success">✅ La agenda, las citas y los datos que ve corresponden siempre a la sucursal seleccionada en ese momento.</li>
         </ul>
-        <div class="notes"><strong>Ejemplo práctico:</strong> Una médica que atiende en la sucursal Patriotismo los lunes y en Satélite los jueves tiene acceso a ambas agendas. Al llegar a cada clínica, selecciona la sucursal correspondiente desde el menú y trabaja con los datos de esa clínica.</div>
+        <div class="notes"><strong>Ejemplo práctico:</strong> Una médica que atiende en la sucursal Patriotismo los lunes y en Satélite los jueves tiene acceso a ambas agendas. Al iniciar sesión, el sistema le muestra el selector de sucursal para elegir en cuál trabajará. Si alguna vez ve un mensaje de "sin sucursales asignadas", debe contactar al Admin Corporativo para revisar su perfil.</div>
       </div>
       <div class="diagram-wrap">
         <h4>Diagrama de flujo</h4>
@@ -434,22 +472,31 @@ flowchart TD
     A([Admin abre perfil del empleado]) --> B[Agrega sucursales al perfil]
     B --> C{Sistema actualiza\nlos permisos}
     C --> D([Empleado inicia sesión])
-    D --> E{Selecciona sucursal\nactiva}
+    D --> NSUC{¿Cuántas sucursales\nasignadas?}
+    NSUC -- Ninguna --> ERR[❌ Error: sin sucursales\nContactar Admin]
+    NSUC -- Una sola --> AUTO[Sucursal seleccionada\nautomáticamente]
+    NSUC -- Más de una --> E{Selecciona sucursal\nactiva}
+    AUTO --> WORK[Ve agenda\nde su sucursal]
     E --> F[Ve agenda de\nSucursal A]
     E --> G[Ve agenda de\nSucursal B]
     F --> H{¿Cambia de sucursal\nen la misma sesión?}
     G --> H
+    WORK --> I([Continúa trabajando])
     H -- Sí --> E
-    H -- No --> I([Continúa trabajando])
+    H -- No --> I
     style A fill:#ed80a8,color:#fff,stroke:#a25cbf
     style B fill:#ed80a8,color:#fff,stroke:#a25cbf
     style C fill:#d6d9f3,color:#373644,stroke:#a25cbf
     style D fill:#c58fe8,color:#fff,stroke:#7a3a9c
+    style NSUC fill:#d9d8f5,color:#373644,stroke:#a25cbf
+    style ERR fill:#ff3759,color:#fff,stroke:#cc0033
+    style AUTO fill:#d9d8f5,color:#373644,stroke:#a25cbf
     style E fill:#d9d8f5,color:#373644,stroke:#a25cbf
     style F fill:#c58fe8,color:#fff,stroke:#7a3a9c
     style G fill:#c58fe8,color:#fff,stroke:#7a3a9c
     style H fill:#d9d8f5,color:#373644,stroke:#a25cbf
     style I fill:#afd393,color:#2d5a1b,stroke:#2d5a1b
+    style WORK fill:#c58fe8,color:#fff,stroke:#7a3a9c
         </div>
       </div>
     </div>
@@ -476,13 +523,13 @@ flowchart TD
           <li>El usuario escribe su correo y contraseña, pero uno o ambos datos son incorrectos.</li>
           <li class="system">🤖 El sistema detecta que las credenciales no coinciden con ninguna cuenta activa.</li>
           <li class="error">❌ Aparece un mensaje claro en pantalla: <em>"El correo o la contraseña no son correctos. Por favor verifica tus datos."</em></li>
-          <li>El usuario puede intentarlo de nuevo. El sistema lleva un conteo de intentos fallidos consecutivos.</li>
-          <li class="decision">🔀 ¿El usuario ha fallado varias veces seguidas (generalmente 5 intentos)?</li>
-          <li class="system">🤖 El sistema bloquea el acceso de esa cuenta temporalmente como medida de seguridad.</li>
-          <li class="error">❌ Aparece un aviso indicando que la cuenta está bloqueada temporalmente y que se puede intentar de nuevo después de unos minutos, o usar la opción de recuperar contraseña.</li>
+          <li>El usuario puede intentarlo de nuevo. El sistema lleva un conteo de intentos fallidos por dirección IP.</li>
+          <li class="decision">🔀 ¿El usuario ha fallado 10 veces en los últimos 15 minutos desde la misma IP?</li>
+          <li class="system">🤖 El sistema bloquea los intentos de acceso desde esa dirección IP temporalmente como medida de seguridad (ventana de 15 minutos).</li>
+          <li class="error">❌ Aparece un aviso indicando que se han excedido los intentos permitidos. Se puede intentar de nuevo después de que transcurra la ventana de tiempo, o usar la opción de recuperar contraseña.</li>
           <li class="success">✅ Si el usuario escribe las credenciales correctas antes de agotar los intentos, entra normalmente y el contador se reinicia.</li>
         </ul>
-        <div class="notes"><strong>Qué hacer:</strong> Si no recuerdas tu contraseña, usa la opción <strong>¿Olvidaste tu contraseña?</strong> (Escenario 7) en lugar de seguir intentando, para evitar el bloqueo temporal.</div>
+        <div class="notes"><strong>Qué hacer:</strong> Si no recuerdas tu contraseña, usa la opción <strong>¿Olvidaste tu contraseña?</strong> (Escenario 7) en lugar de seguir intentando, para evitar el bloqueo temporal. El límite es de 10 intentos desde la misma conexión de red en un período de 15 minutos. Si el sistema de control de intentos no está disponible por razones técnicas, AWS Cognito tiene su propio mecanismo de seguridad como respaldo.</div>
       </div>
       <div class="diagram-wrap">
         <h4>Diagrama de flujo</h4>
@@ -491,12 +538,12 @@ flowchart TD
     A([Usuario escribe credenciales]) --> B{¿Credenciales\ncorrectas?}
     B -- Sí --> C([✅ Acceso concedido])
     B -- No --> D[❌ Mensaje de error en pantalla]
-    D --> E{¿Alcanzó el\nlímite de intentos?}
+    D --> E{¿Alcanzó 10 intentos\nen 15 minutos?}
     E -- No --> F[Usuario puede\nintentar de nuevo]
     F --> A
-    E -- Sí --> G[🔒 Cuenta bloqueada\ntemporalmente]
+    E -- Sí --> G[🔒 Acceso bloqueado\ntemporalmente desde esta IP]
     G --> H{¿Qué desea hacer?}
-    H -- Esperar --> I([Intentar de nuevo\ndespués])
+    H -- Esperar 15 min --> I([Intentar de nuevo\ndespués])
     H -- Recuperar --> J([Ir a Recuperar\ncontraseña])
     style A fill:#d9d8f5,color:#373644,stroke:#a25cbf
     style B fill:#d9d8f5,color:#373644,stroke:#a25cbf

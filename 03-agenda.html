@@ -40,7 +40,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
 .mermaid{font-size:13px}
 .notes{margin-top:1rem;padding:.75rem 1rem;background:#fff8e1;border-radius:.5rem;border-left:3px solid var(--warning);font-size:.85rem;color:var(--text)}
 .notes strong{color:#b45309}
+.planned-banner{background:#fff8e1;border:1px solid #fac186;border-radius:8px;padding:.75rem 1rem;margin-bottom:1rem;font-size:.85rem;color:#7a3a00}
 .footer{text-align:center;padding:2rem;color:var(--muted);font-size:.8rem;border-top:1px solid var(--border);margin-top:2rem}
+/* FSM diagram gets full width */
+.scenario-body.full-width{grid-template-columns:1fr}
 </style>
 </head>
 <body>
@@ -70,6 +73,67 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
     <p>La agenda es el corazón de la operación diaria en cada sucursal: aquí se registran, mueven, confirman y cancelan todas las citas de las pacientes. Esta sección cubre todos los flujos relacionados con la gestión de citas — desde ver el calendario del día hasta configurar los horarios de las médicas — y está dirigida principalmente a recepcionistas, médicas y gerentes de sucursal, aunque también aplica a administradores corporativos que supervisan varias clínicas.</p>
   </div>
 
+  <!-- ESCENARIO 0 — FSM COMPLETA -->
+  <div class="scenario-card">
+    <div class="scenario-header">
+      <div class="scenario-number" style="background:var(--secondary)">0</div>
+      <div>
+        <h3>Estados de una cita — cómo cambia a lo largo del tiempo</h3>
+        <div class="actors">
+          <span class="actor-badge" style="background:#7eb8f7;color:#1a3a5c">Recepcionista</span>
+          <span class="actor-badge" style="background:#c58fe8;color:#fff">Médica</span>
+          <span class="actor-badge" style="background:#f0c060;color:#5a3a00">Enfermería</span>
+          <span class="actor-badge" style="background:#d6d9f3;color:#373644">Sistema</span>
+        </div>
+      </div>
+    </div>
+    <div class="scenario-body full-width">
+      <div>
+        <h4 style="color:var(--secondary);font-size:.9rem;font-weight:600;margin-bottom:.75rem;text-transform:uppercase;letter-spacing:.05em">Los 9 estados del sistema</h4>
+        <p style="font-size:.9rem;margin-bottom:1rem;color:var(--muted)">Toda cita en el sistema pasa por una serie de estados bien definidos. Ningún actor puede saltarse un estado: el sistema solo permite las transiciones válidas que se muestran aquí.</p>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:.75rem;margin-bottom:1.25rem">
+          <div style="background:#f0f0f8;border-radius:.5rem;padding:.6rem .9rem;border-left:3px solid var(--muted);font-size:.85rem"><strong>scheduled</strong> — Cita registrada, pendiente de confirmar</div>
+          <div style="background:#f0f0f8;border-radius:.5rem;padding:.6rem .9rem;border-left:3px solid #7eb8f7;font-size:.85rem"><strong>confirmed</strong> — Recepcionista confirmó la cita por teléfono; la paciente aún no ha llegado</div>
+          <div style="background:#f0f0f8;border-radius:.5rem;padding:.6rem .9rem;border-left:3px solid #afd393;font-size:.85rem"><strong>checked_in</strong> — La paciente llegó físicamente a la sucursal; se registra hora de llegada</div>
+          <div style="background:#f0f0f8;border-radius:.5rem;padding:.6rem .9rem;border-left:3px solid #f0c060;font-size:.85rem"><strong>vitals</strong> — Enfermería toma signos vitales (estado intermedio; aplica en sucursales con ese flujo)</div>
+          <div style="background:#f0f0f8;border-radius:.5rem;padding:.6rem .9rem;border-left:3px solid #c58fe8;font-size:.85rem"><strong>in_progress</strong> — La médica está atendiendo a la paciente en este momento</div>
+          <div style="background:#f0f0f8;border-radius:.5rem;padding:.6rem .9rem;border-left:3px solid var(--success);font-size:.85rem"><strong>completed</strong> — Consulta terminada. Dispara consumo del Plan y posible cierre automático de contrato</div>
+          <div style="background:#fff5f6;border-radius:.5rem;padding:.6rem .9rem;border-left:3px solid var(--danger);font-size:.85rem"><strong>cancelled</strong> — Cita cancelada (desde recepción). Terminal</div>
+          <div style="background:#fff9f2;border-radius:.5rem;padding:.6rem .9rem;border-left:3px solid var(--warning);font-size:.85rem"><strong>no_show</strong> — La paciente no se presentó. Puede revertirse a <em>scheduled</em> con motivo obligatorio</div>
+          <div style="background:#f0f0f8;border-radius:.5rem;padding:.6rem .9rem;border-left:3px solid var(--muted);font-size:.85rem"><strong>rescheduled</strong> — La cita original fue reagendada. El sistema crea una NUEVA cita y marca esta como terminal</div>
+        </div>
+        <div class="notes"><strong>Atención — tres conceptos con nombres parecidos:</strong> (1) <em>confirmed</em> = recepcionista confirma por teléfono que la paciente vendrá. (2) <em>checked_in</em> = la paciente ya llegó a la sucursal. (3) <em>confirmationStatus</em> = campo del bot de WhatsApp para saber si la paciente confirmó por WA (independiente del estado de la cita). Son tres cosas distintas.</div>
+      </div>
+      <div class="diagram-wrap" style="margin-top:1.5rem">
+        <h4 style="color:var(--secondary);font-size:.9rem;font-weight:600;margin-bottom:.75rem;text-transform:uppercase;letter-spacing:.05em">Diagrama de estados (FSM)</h4>
+        <div class="mermaid">
+stateDiagram-v2
+    [*] --> scheduled : Recepcionista / Bot WA crea la cita
+    scheduled --> confirmed : Recepcionista confirma por teléfono
+    scheduled --> cancelled : Recepcionista cancela
+    scheduled --> no_show : Sistema automático (cron cada 5 min, grace period)
+    scheduled --> rescheduled : Recepcionista reagenda — se crea cita nueva
+    confirmed --> checked_in : Recepcionista registra llegada de la paciente
+    confirmed --> cancelled : Recepcionista cancela
+    confirmed --> no_show : Sistema automático (cron cada 5 min, grace period)
+    confirmed --> rescheduled : Recepcionista reagenda — se crea cita nueva
+    checked_in --> vitals : Enfermería inicia toma de signos vitales
+    checked_in --> in_progress : Médica recibe a la paciente (sin paso por vitals)
+    checked_in --> cancelled : Admin / Clinic Admin (requiere motivo de reversión)
+    vitals --> in_progress : Enfermería finaliza signos vitales — notifica a médica
+    vitals --> cancelled : Admin / Clinic Admin (requiere motivo de reversión)
+    in_progress --> completed : Médica marca consulta como terminada
+    in_progress --> cancelled : Admin / Clinic Admin (requiere motivo de reversión)
+    completed --> [*]
+    cancelled --> [*]
+    rescheduled --> [*]
+    no_show --> scheduled : Recepcionista revierte (motivo obligatorio)
+    no_show --> [*]
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- ESCENARIO 1 -->
   <div class="scenario-card">
     <div class="scenario-header">
@@ -78,7 +142,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
         <h3>Ver agenda de la sucursal</h3>
         <div class="actors">
           <span class="actor-badge" style="background:#7eb8f7;color:#1a3a5c">Recepcionista</span>
-          <span class="actor-badge" style="background:#fac186;color:#5a3300">Gerente de Sucursal</span>
+          <span class="actor-badge" style="background:#fac186;color:#7a3a00">Gerente de Sucursal</span>
         </div>
       </div>
     </div>
@@ -140,13 +204,17 @@ flowchart TD
         <ul class="step-list">
           <li>La recepcionista busca a la paciente en el sistema o la registra si es nueva.</li>
           <li>Selecciona el servicio que necesita la paciente (ej. consulta ginecológica, ultrasonido).</li>
-          <li>Elige la médica preferida o deja que el sistema muestre todas las disponibles.</li>
+          <li>Elige la médica preferida o deja que el sistema muestre todas las disponibles para ese servicio.</li>
           <li class="system">🤖 El sistema muestra únicamente los horarios libres de esa médica para ese servicio.</li>
           <li>La recepcionista selecciona el día y hora que más le convenga a la paciente.</li>
-          <li class="system">🤖 El sistema bloquea el horario de inmediato para que nadie más pueda reservarlo al mismo tiempo.</li>
-          <li class="success">✅ La cita queda registrada y aparece en el calendario de la sucursal.</li>
+          <li class="decision">🔀 ¿La cita va a un Plan (contrato) activo de la paciente?</li>
+          <li>Si sí: se selecciona el Plan activo de la paciente y la cita queda vinculada a ese Plan.</li>
+          <li>Si no: el sistema crea automáticamente un contrato de consulta única — no hay nada extra que hacer.</li>
+          <li class="system">🤖 El sistema valida que no haya conflicto y registra la cita en un solo paso atómico.</li>
+          <li class="success">✅ La cita queda registrada en estado <em>scheduled</em> y aparece en el calendario de la sucursal.</li>
           <li class="system">🤖 El sistema envía una notificación de confirmación a la paciente por WhatsApp o correo.</li>
         </ul>
+        <div class="notes"><strong>Nota técnica:</strong> Toda cita requiere un contrato asociado. Si no se elige uno, el sistema crea un contrato de "consulta única" de forma automática. El paso de "bloqueo de slot" no es una acción separada — la validación y el registro ocurren en la misma operación.</div>
       </div>
       <div class="diagram-wrap">
         <h4>Diagrama de flujo</h4>
@@ -159,10 +227,14 @@ flowchart TD
     E --> F{¿Hay horarios disponibles?}
     F -- No --> G[❌ Sin disponibilidad — proponer otra fecha]
     F -- Sí --> H[Recepcionista elige fecha y hora]
-    H --> I[Sistema bloquea el slot]
-    I --> J[Cita registrada en calendario]
-    J --> K[Notificación enviada a paciente]
-    K --> L([Fin])
+    H --> I{¿Vincular a un Plan activo?}
+    I -- Sí --> J[Seleccionar Plan activo de la paciente]
+    I -- No --> K[Sistema crea contrato consulta única automáticamente]
+    J --> L[Sistema valida y registra la cita]
+    K --> L
+    L --> M[Cita registrada — estado: scheduled]
+    M --> N[Notificación enviada a paciente]
+    N --> O([Fin])
     style A fill:#7eb8f7,color:#1a3a5c,stroke:#1a3a5c
     style B fill:#7eb8f7,color:#1a3a5c,stroke:#1a3a5c
     style C fill:#7eb8f7,color:#1a3a5c,stroke:#1a3a5c
@@ -171,10 +243,13 @@ flowchart TD
     style F fill:#fac186,color:#5a3300,stroke:#a25cbf
     style G fill:#ff3759,color:#fff,stroke:#a25cbf
     style H fill:#7eb8f7,color:#1a3a5c,stroke:#1a3a5c
-    style I fill:#d6d9f3,color:#373644,stroke:#a25cbf
-    style J fill:#d6d9f3,color:#373644,stroke:#a25cbf
+    style I fill:#fac186,color:#5a3300,stroke:#a25cbf
+    style J fill:#7eb8f7,color:#1a3a5c,stroke:#1a3a5c
     style K fill:#d6d9f3,color:#373644,stroke:#a25cbf
-    style L fill:#afd393,color:#2d5a1b,stroke:#2d5a1b
+    style L fill:#d6d9f3,color:#373644,stroke:#a25cbf
+    style M fill:#afd393,color:#2d5a1b,stroke:#2d5a1b
+    style N fill:#d6d9f3,color:#373644,stroke:#a25cbf
+    style O fill:#afd393,color:#2d5a1b,stroke:#2d5a1b
         </div>
       </div>
     </div>
@@ -200,13 +275,15 @@ flowchart TD
           <li>La paciente solicita cambio de fecha, ya sea por teléfono, en persona o por WhatsApp.</li>
           <li>La recepcionista localiza la cita en el sistema (por nombre de la paciente o en el calendario).</li>
           <li>Abre la cita y selecciona la opción de reagendar.</li>
-          <li class="system">🤖 El sistema muestra los horarios disponibles para la misma médica y servicio.</li>
+          <li class="decision">🔀 ¿Se mantiene la misma médica o se cambia?</li>
+          <li>Si cambia de médica: se selecciona la nueva médica y el sistema muestra sus horarios.</li>
+          <li>Si es la misma médica: el sistema muestra los horarios disponibles para ella.</li>
           <li>La recepcionista elige el nuevo horario junto con la paciente.</li>
-          <li class="system">🤖 El sistema libera el horario anterior y reserva el nuevo al mismo tiempo, sin dejar huecos ni doble reserva.</li>
-          <li class="success">✅ La cita aparece en el nuevo horario en el calendario.</li>
+          <li class="system">🤖 El sistema crea una cita NUEVA en el horario elegido y marca la cita original como <em>rescheduled</em> (estado terminal) — todo en una sola operación atómica.</li>
+          <li class="success">✅ La nueva cita aparece en el calendario. La cita original queda en historial con estado "reagendada".</li>
           <li class="system">🤖 El sistema envía confirmación del nuevo horario a la paciente.</li>
         </ul>
-        <div class="notes"><strong>Importante:</strong> El cambio de horario se hace en un solo paso — el sistema nunca deja el slot anterior ocupado ni el nuevo libre por separado.</div>
+        <div class="notes"><strong>Importante — cómo funciona en realidad:</strong> Reagendar NO modifica la cita original. El sistema crea un registro nuevo y deja la cita original marcada como <em>rescheduled</em> de forma permanente. Esto garantiza historial completo. Si el nuevo slot ya fue tomado por otra persona en el momento de confirmar, la operación falla y la cita original NO se altera.</div>
       </div>
       <div class="diagram-wrap">
         <h4>Diagrama de flujo</h4>
@@ -219,13 +296,16 @@ sequenceDiagram
     R->>S: Busca la cita en el sistema
     S-->>R: Muestra detalle de la cita
     R->>S: Abre opción Reagendar
-    S-->>R: Muestra horarios disponibles
-    R->>P: Propone nuevos horarios
-    P->>R: Confirma nuevo horario
-    R->>S: Confirma el cambio
-    S-->>S: Libera slot anterior + reserva slot nuevo
-    S-->>R: Cita actualizada
-    S-->>P: Notificación del nuevo horario (WA/correo)
+    R->>R: ¿Misma médica o cambiar?
+    R->>S: Confirma médica (misma u otra) y nuevo horario
+    S-->>S: Valida disponibilidad del nuevo slot
+    alt Slot disponible
+        S-->>S: Crea cita nueva + marca original como rescheduled (atómico)
+        S-->>R: Nueva cita creada
+        S-->>P: Notificación del nuevo horario (WA/correo)
+    else Slot ya ocupado
+        S-->>R: Error — slot no disponible, elegir otro horario
+    end
         </div>
       </div>
     </div>
@@ -248,41 +328,38 @@ sequenceDiagram
         <h4>¿Cómo funciona?</h4>
         <ul class="step-list">
           <li>La recepcionista localiza la cita en el calendario o buscando a la paciente.</li>
-          <li>Selecciona la opción de cancelar y elige el motivo de cancelación.</li>
-          <li class="decision">🔀 ¿Se notificará a la paciente?</li>
-          <li>Si sí: el sistema envía un mensaje de cancelación a la paciente por WhatsApp o correo.</li>
-          <li>Si no: la cancelación se registra sin enviar notificación.</li>
-          <li class="system">🤖 El sistema libera automáticamente el horario para que otras pacientes puedan reservarlo.</li>
-          <li class="success">✅ La cita queda marcada como cancelada en el historial de la paciente.</li>
-          <li class="error">❌ Si se intenta cancelar una cita ya pasada, el sistema muestra un aviso de que no es posible modificarla.</li>
+          <li class="decision">🔀 ¿El estado actual de la cita permite cancelar?</li>
+          <li>Solo se pueden cancelar citas en estado <em>scheduled</em> o <em>confirmed</em> desde la vista de recepción.</li>
+          <li class="error">❌ Citas en <em>checked_in</em>, <em>vitals</em> o <em>in_progress</em> (en atención ahora mismo) solo pueden cancelarse por un administrador, y requieren motivo de reversión.</li>
+          <li>La recepcionista selecciona el motivo de cancelación (campo obligatorio).</li>
+          <li class="system">🤖 El sistema cancela la cita, libera el horario y envía automáticamente un mensaje de cancelación a la paciente por WhatsApp o correo.</li>
+          <li class="success">✅ La cita queda marcada como <em>cancelled</em> en el historial de la paciente.</li>
         </ul>
+        <div class="notes"><strong>Sobre el Plan (contrato):</strong> Cancelar una cita NO cancela el ítem del contrato asociado. El ítem del Plan queda disponible para que la paciente agende una nueva cita en otro momento. Solo las citas <em>completed</em> consumen ítems del Plan.<br><br><strong>Sobre la notificación:</strong> El sistema siempre envía la notificación de cancelación a la paciente — no hay opción de omitirla.</div>
       </div>
       <div class="diagram-wrap">
         <h4>Diagrama de flujo</h4>
         <div class="mermaid">
 flowchart TD
     A([Inicio]) --> B[Localizar la cita]
-    B --> C{¿La cita es futura?}
-    C -- No --> D[❌ No se puede cancelar — cita pasada]
-    C -- Sí --> E[Seleccionar motivo de cancelación]
-    E --> F{¿Notificar a la paciente?}
-    F -- Sí --> G[Sistema envía mensaje de cancelación]
-    F -- No --> H[Cancelar sin notificación]
-    G --> I[Sistema libera el horario]
-    H --> I
-    I --> J[Cita marcada como cancelada]
-    J --> K([Fin])
+    B --> C{¿Estado permite cancelar desde recepción?}
+    C -- scheduled o confirmed --> E[Seleccionar motivo de cancelación]
+    C -- checked_in / vitals / in_progress --> D[❌ Solo admins pueden cancelar — requiere motivo de reversión]
+    C -- completed / cancelled --> X[❌ No cancelable — estado final]
+    E --> I[Sistema cancela la cita y libera el horario]
+    I --> K[Sistema envía notificación de cancelación a la paciente]
+    K --> J[Cita marcada como cancelled]
+    J --> L([Fin])
     style A fill:#7eb8f7,color:#1a3a5c,stroke:#1a3a5c
     style B fill:#7eb8f7,color:#1a3a5c,stroke:#1a3a5c
     style C fill:#fac186,color:#5a3300,stroke:#a25cbf
     style D fill:#ff3759,color:#fff,stroke:#a25cbf
+    style X fill:#ff3759,color:#fff,stroke:#a25cbf
     style E fill:#7eb8f7,color:#1a3a5c,stroke:#1a3a5c
-    style F fill:#fac186,color:#5a3300,stroke:#a25cbf
-    style G fill:#d6d9f3,color:#373644,stroke:#a25cbf
-    style H fill:#d6d9f3,color:#373644,stroke:#a25cbf
     style I fill:#d6d9f3,color:#373644,stroke:#a25cbf
+    style K fill:#d6d9f3,color:#373644,stroke:#a25cbf
     style J fill:#afd393,color:#2d5a1b,stroke:#2d5a1b
-    style K fill:#afd393,color:#2d5a1b,stroke:#2d5a1b
+    style L fill:#afd393,color:#2d5a1b,stroke:#2d5a1b
         </div>
       </div>
     </div>
@@ -293,9 +370,10 @@ flowchart TD
     <div class="scenario-header">
       <div class="scenario-number">5</div>
       <div>
-        <h3>Confirmar asistencia de la paciente</h3>
+        <h3>Check-in — la paciente llega a la sucursal</h3>
         <div class="actors">
           <span class="actor-badge" style="background:#7eb8f7;color:#1a3a5c">Recepcionista</span>
+          <span class="actor-badge" style="background:#f0c060;color:#5a3a00">Enfermería</span>
           <span class="actor-badge" style="background:#d6d9f3;color:#373644">Sistema</span>
         </div>
       </div>
@@ -307,11 +385,15 @@ flowchart TD
           <li>La paciente llega a la sucursal y se presenta en recepción.</li>
           <li>La recepcionista busca la cita del día de esa paciente en el calendario.</li>
           <li class="decision">🔀 ¿La paciente tiene cita registrada para hoy?</li>
-          <li>Si sí: la recepcionista marca la cita como "Paciente llegó" desde la pantalla de agenda.</li>
           <li>Si no: verificar si se registró con otro nombre o si hay que crear la cita en ese momento.</li>
-          <li class="system">🤖 El sistema actualiza el estado de la cita y registra la hora de llegada.</li>
-          <li class="success">✅ La cita aparece marcada como confirmada en la vista de la médica y en el resumen del día.</li>
+          <li>Si sí: la recepcionista marca la cita como "Paciente llegó" — esto la pone en estado <em>checked_in</em>.</li>
+          <li class="system">🤖 El sistema registra la hora exacta de llegada (<em>checkedInAt</em>).</li>
+          <li class="decision">🔀 ¿La sucursal tiene flujo de signos vitales (enfermería)?</li>
+          <li>Si sí: enfermería recibe la cita en estado <em>checked_in</em> y la mueve a <em>vitals</em> para registrar signos vitales. Al terminar, la pasa a <em>in_progress</em> y el sistema notifica a la médica.</li>
+          <li>Si no: la cita pasa directamente de <em>checked_in</em> a <em>in_progress</em> cuando la médica la recibe.</li>
+          <li class="success">✅ La médica ve la cita lista para atender en su vista de Kanban.</li>
         </ul>
+        <div class="notes"><strong>Confirmar cita vs. check-in — son dos acciones distintas:</strong> "Confirmar" (<em>confirmed</em>) es cuando la recepcionista llama a la paciente por teléfono para recordarle la cita — puede pasar días antes. "Check-in" (<em>checked_in</em>) es cuando la paciente llega físicamente ese mismo día. No confundirlos.</div>
       </div>
       <div class="diagram-wrap">
         <h4>Diagrama de flujo</h4>
@@ -320,20 +402,25 @@ flowchart TD
     A([Paciente llega a sucursal]) --> B[Recepcionista busca la cita del día]
     B --> C{¿Cita encontrada?}
     C -- No --> D[Verificar nombre alternativo o crear cita]
-    C -- Sí --> E[Marcar como Paciente llegó]
+    C -- Sí --> E[Marcar como Paciente llegó → checked_in]
     E --> F[Sistema registra hora de llegada]
-    F --> G[Estado de cita actualizado]
-    G --> H[Médica ve la cita como confirmada]
-    H --> I([Paciente pasa a sala de espera])
+    F --> G{¿Sucursal con flujo de signos vitales?}
+    G -- Sí --> H[Enfermería toma signos vitales → vitals]
+    H --> I[Enfermería finaliza → in_progress]
+    I --> J[Sistema notifica a médica]
+    G -- No --> J
+    J --> K([Paciente pasa a consulta])
     style A fill:#afd393,color:#2d5a1b,stroke:#2d5a1b
     style B fill:#7eb8f7,color:#1a3a5c,stroke:#1a3a5c
     style C fill:#fac186,color:#5a3300,stroke:#a25cbf
     style D fill:#fac186,color:#5a3300,stroke:#a25cbf
     style E fill:#7eb8f7,color:#1a3a5c,stroke:#1a3a5c
     style F fill:#d6d9f3,color:#373644,stroke:#a25cbf
-    style G fill:#d6d9f3,color:#373644,stroke:#a25cbf
-    style H fill:#c58fe8,color:#fff,stroke:#a25cbf
-    style I fill:#afd393,color:#2d5a1b,stroke:#2d5a1b
+    style G fill:#fac186,color:#5a3300,stroke:#a25cbf
+    style H fill:#f0c060,color:#5a3a00,stroke:#a25cbf
+    style I fill:#f0c060,color:#5a3a00,stroke:#a25cbf
+    style J fill:#d6d9f3,color:#373644,stroke:#a25cbf
+    style K fill:#afd393,color:#2d5a1b,stroke:#2d5a1b
         </div>
       </div>
     </div>
@@ -344,10 +431,10 @@ flowchart TD
     <div class="scenario-header">
       <div class="scenario-number">6</div>
       <div>
-        <h3>Registrar inasistencia (no-show)</h3>
+        <h3>Inasistencia (no-show) — automática y manual</h3>
         <div class="actors">
-          <span class="actor-badge" style="background:#7eb8f7;color:#1a3a5c">Recepcionista</span>
           <span class="actor-badge" style="background:#d6d9f3;color:#373644">Sistema</span>
+          <span class="actor-badge" style="background:#7eb8f7;color:#1a3a5c">Recepcionista</span>
         </div>
       </div>
     </div>
@@ -355,37 +442,40 @@ flowchart TD
       <div class="steps">
         <h4>¿Cómo funciona?</h4>
         <ul class="step-list">
-          <li>Pasada la hora de la cita, la recepcionista revisa qué citas del día aún no se han confirmado.</li>
-          <li>Para cada cita sin confirmar, verifica si la paciente llegó pero no se marcó, o si realmente no asistió.</li>
-          <li class="decision">🔀 ¿La paciente llegó pero no se registró?</li>
-          <li>Si sí: marcar como "Paciente llegó" (ver Escenario 5).</li>
-          <li>Si no llegó: seleccionar la cita y marcarla como "No se presentó".</li>
-          <li class="system">🤖 El sistema registra la inasistencia en el historial de la paciente con fecha y hora.</li>
-          <li class="system">🤖 El sistema libera el slot para futuras consultas si la cita aún no fue atendida.</li>
-          <li class="success">✅ La inasistencia queda visible en el historial de la paciente para referencia futura.</li>
+          <li class="system">🤖 <strong>Flujo principal — automático:</strong> cada 5 minutos, el sistema revisa si hay citas en estado <em>scheduled</em> o <em>confirmed</em> cuya hora ya pasó (más un periodo de gracia configurable, por defecto 10 minutos). Si las encuentra, las marca automáticamente como <em>no_show</em> con tipo "auto".</li>
+          <li>En la mayoría de los casos, el sistema ya habrá marcado el no-show antes de que la recepcionista lo note manualmente.</li>
+          <li class="decision">🔀 ¿La recepcionista quiere marcar un no-show antes de que llegue el cron?</li>
+          <li>La recepcionista puede hacerlo manualmente desde el Kanban o desde la vista de agenda. El tipo queda registrado como "manual".</li>
+          <li class="success">✅ La inasistencia queda visible en el historial de la paciente con fecha, hora y tipo (auto / manual).</li>
+          <li class="decision">🔀 ¿La paciente llega después y se trató de un error?</li>
+          <li>La recepcionista puede revertir el no-show. El motivo de reversión es obligatorio. La cita vuelve a estado <em>scheduled</em>.</li>
         </ul>
-        <div class="notes"><strong>Nota:</strong> Las inasistencias acumuladas pueden ser tomadas en cuenta por gerencia para tomar decisiones sobre la agenda de esa paciente.</div>
+        <div class="notes"><strong>Sobre el Plan (contrato):</strong> Un no-show NO consume el ítem del contrato. La paciente no pierde la sesión del Plan — puede reagendar.<br><br><strong>Inasistencias acumuladas:</strong> Gerencia puede consultarlas en el historial de la paciente para tomar decisiones sobre su gestión.</div>
       </div>
       <div class="diagram-wrap">
         <h4>Diagrama de flujo</h4>
         <div class="mermaid">
 flowchart TD
-    A([Revisar citas sin confirmar]) --> B{¿La paciente llegó?}
-    B -- Sí, no se marcó --> C[Marcar como Paciente llegó]
-    B -- No llegó --> D[Marcar como No se presentó]
-    D --> E[Sistema registra inasistencia en historial]
-    E --> F[Sistema libera el horario]
-    F --> G[Inasistencia visible en historial de paciente]
-    C --> H([Cita gestionada])
-    G --> H
-    style A fill:#7eb8f7,color:#1a3a5c,stroke:#1a3a5c
+    A([Cita en scheduled o confirmed]) --> B{¿Pasó la hora + grace period?}
+    B -- Sí --> C[Sistema marca no_show automáticamente cada 5 min]
+    B -- No --> D[Recepcionista puede marcar no_show manualmente]
+    C --> E[Tipo: auto — registrado en historial]
+    D --> F[Tipo: manual — registrado en historial]
+    E --> G{¿Revertir? La paciente llegó tarde o fue un error}
+    F --> G
+    G -- Sí --> H[Recepcionista revierte — motivo obligatorio]
+    H --> I[Cita vuelve a estado scheduled]
+    G -- No --> J([Inasistencia confirmada en historial])
+    style A fill:#d9d8f5,color:#373644,stroke:#a25cbf
     style B fill:#fac186,color:#5a3300,stroke:#a25cbf
-    style C fill:#afd393,color:#2d5a1b,stroke:#2d5a1b
-    style D fill:#ff3759,color:#fff,stroke:#a25cbf
-    style E fill:#d6d9f3,color:#373644,stroke:#a25cbf
-    style F fill:#d6d9f3,color:#373644,stroke:#a25cbf
+    style C fill:#d6d9f3,color:#373644,stroke:#a25cbf
+    style D fill:#7eb8f7,color:#1a3a5c,stroke:#1a3a5c
+    style E fill:#fac186,color:#5a3300,stroke:#a25cbf
+    style F fill:#fac186,color:#5a3300,stroke:#a25cbf
     style G fill:#fac186,color:#5a3300,stroke:#a25cbf
-    style H fill:#d9d8f5,color:#373644,stroke:#a25cbf
+    style H fill:#7eb8f7,color:#1a3a5c,stroke:#1a3a5c
+    style I fill:#afd393,color:#2d5a1b,stroke:#2d5a1b
+    style J fill:#d9d8f5,color:#373644,stroke:#a25cbf
         </div>
       </div>
     </div>
@@ -407,14 +497,14 @@ flowchart TD
       <div class="steps">
         <h4>¿Cómo funciona?</h4>
         <ul class="step-list">
-          <li>La recepcionista o el bot de WhatsApp necesita saber cuándo puede atender una médica específica.</li>
-          <li class="system">🤖 El sistema consulta el horario configurado de la médica en esa sucursal.</li>
-          <li class="system">🤖 El sistema descuenta automáticamente las citas ya reservadas y los bloqueos de horario.</li>
+          <li><strong>Flujo de recepción:</strong> la recepcionista busca doctoras para un servicio. El sistema muestra todas las doctoras que ofrecen ese servicio en la sucursal (filtro estructural). La disponibilidad real de slots se verifica al seleccionar una doctora específica y pedir sus horarios.</li>
+          <li><strong>Flujo del bot de WA:</strong> el bot aplica un motor de disponibilidad en cascada (Phase 105) que filtra doctoras sin slots antes de presentarlas. La lista que ve la paciente en WhatsApp ya está pre-filtrada por disponibilidad real.</li>
           <li class="decision">🔀 ¿La médica ofrece ese servicio en esa sucursal?</li>
           <li>Si no lo ofrece: se informa que ese servicio no está disponible con esa médica.</li>
-          <li>Si sí: el sistema muestra solo los horarios libres reales (no promete horarios ocupados).</li>
-          <li class="success">✅ La recepcionista o el bot puede ofrecer a la paciente solo opciones reales y disponibles.</li>
+          <li>Si sí: el sistema muestra los horarios libres reales.</li>
+          <li class="success">✅ Se pueden ofrecer a la paciente solo opciones reales y disponibles.</li>
         </ul>
+        <div class="notes"><strong>Diferencia recepción vs. bot WA:</strong> El bot de WhatsApp ya descarta doctoras sin slots antes de mostrarlas (Phase 105 activa). Desde la pantalla de recepción, la lista inicial de doctoras no está pre-filtrada por disponibilidad — la validación ocurre cuando se piden los slots de la doctora elegida.</div>
       </div>
       <div class="diagram-wrap">
         <h4>Diagrama de flujo</h4>
@@ -422,16 +512,17 @@ flowchart TD
 sequenceDiagram
     participant R as Recepcionista / Bot WA
     participant S as Sistema
-    R->>S: Consulta disponibilidad de médica para servicio X
-    S-->>S: Revisa horario configurado de la médica
-    S-->>S: Descuenta citas ya reservadas y bloqueos
-    S-->>R: ¿Médica ofrece ese servicio aquí?
-    alt No ofrece el servicio
-        S-->>R: Servicio no disponible con esa médica
-    else Sí ofrece
-        S-->>R: Lista de horarios libres disponibles
-        R->>R: Propone horarios a la paciente
+    R->>S: Consulta médicas disponibles para servicio X
+    alt Bot WA (Phase 105 activa)
+        S-->>S: Filtra médicas sin slots reales en cascada
+        S-->>R: Lista pre-filtrada por disponibilidad real
+    else Recepción
+        S-->>R: Lista de médicas que ofrecen el servicio
+        R->>S: Selecciona médica específica
+        S-->>S: Verifica slots reales para esa médica
+        S-->>R: Horarios disponibles de la médica elegida
     end
+    R->>R: Propone horarios a la paciente
         </div>
       </div>
     </div>
@@ -445,7 +536,7 @@ sequenceDiagram
         <h3>Filtrar agenda por médica o servicio</h3>
         <div class="actors">
           <span class="actor-badge" style="background:#7eb8f7;color:#1a3a5c">Recepcionista</span>
-          <span class="actor-badge" style="background:#fac186;color:#5a3300">Gerente de Sucursal</span>
+          <span class="actor-badge" style="background:#fac186;color:#7a3a00">Gerente de Sucursal</span>
         </div>
       </div>
     </div>
@@ -514,19 +605,20 @@ flowchart TD
           <li>La médica entra al sistema con su acceso personal.</li>
           <li class="system">🤖 El sistema carga automáticamente solo las citas asignadas a esa médica — no ve las de sus colegas.</li>
           <li>La médica puede ver la lista del día con: hora de la cita, nombre de la paciente y tipo de servicio.</li>
+          <li>En la vista Kanban, las citas aparecen según su estado actual: <em>checked_in</em>, <em>vitals</em> (si aplica), <em>in_progress</em>.</li>
           <li>También puede consultar los días siguientes para anticipar su carga de trabajo.</li>
           <li class="decision">🔀 ¿Quiere ver el detalle de una cita?</li>
           <li>Al hacer clic en una cita, puede ver notas adicionales o el historial de la paciente.</li>
           <li class="success">✅ La médica tiene visibilidad completa de su propia agenda sin ver información de otras doctoras.</li>
         </ul>
-        <div class="notes"><strong>Privacidad:</strong> Por diseño del sistema, cada médica solo puede ver sus propias citas. Los datos de otras médicas no son visibles desde esta vista.</div>
+        <div class="notes"><strong>Privacidad:</strong> Por diseño del sistema, cada médica solo puede ver sus propias citas. Los datos de otras médicas no son visibles desde esta vista.<br><br><strong>Signos vitales:</strong> Si la sucursal tiene flujo de enfermería, la médica ve la cita pasar por el estado <em>vitals</em> antes de llegar a <em>in_progress</em>. El sistema la notifica cuando enfermería termina.</div>
       </div>
       <div class="diagram-wrap">
         <h4>Diagrama de flujo</h4>
         <div class="mermaid">
 flowchart TD
     A([Médica entra al sistema]) --> B[Sistema carga sus citas del día]
-    B --> C[Ver lista: hora, paciente, servicio]
+    B --> C[Ver lista Kanban: checked_in / vitals / in_progress]
     C --> D{¿Revisar días siguientes?}
     D -- Sí --> E[Cambiar a vista de semana]
     D -- No --> F{¿Ver detalle de cita?}
@@ -554,8 +646,8 @@ flowchart TD
       <div>
         <h3>Gestión de horarios de médicas</h3>
         <div class="actors">
-          <span class="actor-badge" style="background:#fac186;color:#5a3300">Gerente de Sucursal</span>
-          <span class="actor-badge" style="background:#ed80a8;color:#fff">Admin Corporativo</span>
+          <span class="actor-badge" style="background:#fac186;color:#7a3a00">Gerente de Sucursal</span>
+          <span class="actor-badge" style="background:#ed80a8;color:#7a1a3a">Admin Corporativo</span>
         </div>
       </div>
     </div>
@@ -565,34 +657,31 @@ flowchart TD
         <ul class="step-list">
           <li>El gerente de sucursal o el admin corporativo entra a la configuración de horarios del staff.</li>
           <li>Selecciona a la médica cuyo horario quiere configurar.</li>
-          <li>Define qué días de la semana atiende en esa sucursal y en qué rango de horas.</li>
-          <li>Configura la duración de cada tipo de cita para esa médica (ej. consulta = 30 min, ultrasonido = 45 min).</li>
-          <li class="system">🤖 El sistema calcula automáticamente los slots disponibles con base en el horario y la duración de cada servicio.</li>
-          <li class="decision">🔀 ¿Se necesita bloquear un día o rango de horas específico (vacaciones, capacitación)?</li>
-          <li>Se puede agregar un bloqueo temporal que impide reservar citas en ese lapso.</li>
-          <li class="success">✅ La agenda de la médica refleja los cambios de inmediato — no se pueden reservar citas fuera de su horario configurado.</li>
+          <li>Define qué días de la semana atiende en esa sucursal y en qué rango de horas (esto configura las plantillas de turno y la asignación médica-turno).</li>
+          <li class="system">🤖 El sistema calcula los slots disponibles combinando el horario del turno con la duración de cada servicio. La duración por servicio viene del catálogo de servicios — no se configura aquí por médica.</li>
+          <li class="decision">🔀 ¿Se necesita bloquear un día o rango de horas específico (vacaciones, capacitación, procedimiento)?</li>
+          <li>Se puede agregar un bloqueo temporal (<em>schedule_blocks</em>) que impide reservar citas en ese lapso. Los bloqueos tienen su propio flujo de aprobación según el tipo.</li>
+          <li class="success">✅ La agenda de la médica refleja los cambios — no se pueden reservar citas fuera de su horario configurado.</li>
         </ul>
-        <div class="notes"><strong>Importante:</strong> Los cambios en el horario de una médica no afectan las citas ya agendadas. Solo impactan los nuevos agendamientos.</div>
+        <div class="notes"><strong>Importante:</strong> Los cambios en el horario de una médica no afectan las citas ya agendadas. Solo impactan los nuevos agendamientos.<br><br><strong>Duración de citas:</strong> La duración de cada tipo de servicio (ej. consulta = 30 min, ultrasonido = 45 min) se configura en el catálogo de servicios, no aquí. El horario del médico define las ventanas de tiempo disponibles; el catálogo define cuánto ocupa cada cita dentro de esas ventanas.</div>
       </div>
       <div class="diagram-wrap">
         <h4>Diagrama de flujo</h4>
         <div class="mermaid">
 flowchart TD
     A([Entrar a configuración de horarios]) --> B[Seleccionar médica]
-    B --> C[Definir días y rango de horas]
-    C --> D[Configurar duración por tipo de servicio]
-    D --> E[Sistema calcula slots disponibles]
-    E --> F{¿Agregar bloqueo temporal?}
-    F -- Sí --> G[Registrar fechas o rango bloqueado]
+    B --> C[Definir días y rango de horas del turno]
+    C --> D[Sistema calcula slots con base en turno + duración del servicio del catálogo]
+    D --> F{¿Agregar bloqueo temporal?}
+    F -- Sí --> G[Registrar fechas o rango bloqueado — tipo: vacaciones, capacitación, etc.]
     F -- No --> H[Guardar configuración]
     G --> H
-    H --> I[Agenda actualizada de inmediato]
+    H --> I[Agenda actualizada]
     I --> J([Fin — citas previas no afectadas])
     style A fill:#fac186,color:#5a3300,stroke:#a25cbf
     style B fill:#fac186,color:#5a3300,stroke:#a25cbf
     style C fill:#fac186,color:#5a3300,stroke:#a25cbf
-    style D fill:#ed80a8,color:#fff,stroke:#a25cbf
-    style E fill:#d6d9f3,color:#373644,stroke:#a25cbf
+    style D fill:#d6d9f3,color:#373644,stroke:#a25cbf
     style F fill:#fac186,color:#5a3300,stroke:#a25cbf
     style G fill:#ed80a8,color:#fff,stroke:#a25cbf
     style H fill:#fac186,color:#5a3300,stroke:#a25cbf
@@ -608,9 +697,8 @@ flowchart TD
     <div class="scenario-header">
       <div class="scenario-number">11</div>
       <div>
-        <h3>Cita con disponibilidad real (solo servicios agendables)</h3>
+        <h3>Cita con disponibilidad real — solo servicios agendables (Bot WA)</h3>
         <div class="actors">
-          <span class="actor-badge" style="background:#7eb8f7;color:#1a3a5c">Recepcionista</span>
           <span class="actor-badge" style="background:#25D366;color:#fff">Bot WA</span>
           <span class="actor-badge" style="background:#d6d9f3;color:#373644">Sistema</span>
         </div>
@@ -620,34 +708,34 @@ flowchart TD
       <div class="steps">
         <h4>¿Cómo funciona?</h4>
         <ul class="step-list">
-          <li>Una paciente pregunta (en persona, por teléfono o por WhatsApp) si puede agendar un servicio.</li>
-          <li class="system">🤖 El sistema revisa si ese servicio tiene al menos una médica con horario disponible en la sucursal solicitada.</li>
+          <li>Una paciente pregunta por WhatsApp si puede agendar un servicio en una sucursal.</li>
+          <li class="system">🤖 El bot aplica el motor de disponibilidad en cascada (Phase 105, activo): primero filtra por sucursal, luego por servicio, luego por médicas con slots reales disponibles en los próximos días.</li>
           <li class="decision">🔀 ¿Hay médicas disponibles con ese servicio en los próximos días?</li>
-          <li>Si no hay disponibilidad: se informa a la paciente que no hay horarios y se puede sugerir otra sucursal o una fecha futura.</li>
-          <li>Si sí hay disponibilidad: el sistema muestra únicamente las opciones reales con médica y horario concreto.</li>
+          <li>Si no hay disponibilidad: se informa a la paciente y se puede sugerir otra sucursal o una fecha futura.</li>
+          <li>Si sí hay disponibilidad: el bot muestra únicamente las opciones reales con médica y horario concreto.</li>
           <li>La paciente elige entre las opciones disponibles.</li>
-          <li class="success">✅ La paciente nunca recibe una fecha que no existe o que ya está ocupada — el sistema garantiza que lo que se muestra es reservable.</li>
+          <li class="success">✅ La paciente nunca recibe una fecha que no existe o que ya está ocupada.</li>
         </ul>
-        <div class="notes"><strong>Por qué importa:</strong> Mostrar horarios falsos genera frustración y cancelaciones. El sistema filtra activamente para que solo se ofrezcan opciones reales.</div>
+        <div class="notes"><strong>Solo aplica al Bot WA:</strong> Este flujo de disponibilidad en cascada (con pre-filtrado de médicas) está activo únicamente en el bot de WhatsApp. Desde la pantalla de recepción el flujo de selección de doctora es diferente (ver Escenario 7).</div>
       </div>
       <div class="diagram-wrap">
         <h4>Diagrama de flujo</h4>
         <div class="mermaid">
 sequenceDiagram
     participant P as Paciente
-    participant R as Recepcionista / Bot WA
+    participant B as Bot WA
     participant S as Sistema
-    P->>R: ¿Puedo agendar servicio X en sucursal Y?
-    R->>S: Consulta disponibilidad real para servicio X
-    S-->>S: Verifica médicas con ese servicio + horarios abiertos
+    P->>B: ¿Puedo agendar servicio X en sucursal Y?
+    B->>S: Consulta disponibilidad real — motor en cascada
+    S-->>S: Filtra médicas con slots reales para servicio X
     alt Sin disponibilidad
-        S-->>R: No hay horarios disponibles
-        R-->>P: Informa sin disponibilidad, sugiere alternativas
+        S-->>B: No hay horarios disponibles
+        B-->>P: Informa sin disponibilidad, sugiere alternativas
     else Con disponibilidad
-        S-->>R: Lista de opciones reales (médica + fecha + hora)
-        R-->>P: Propone opciones disponibles
-        P->>R: Elige opción
-        R->>S: Confirmar y reservar
+        S-->>B: Lista de opciones reales (médica + fecha + hora)
+        B-->>P: Propone opciones disponibles
+        P->>B: Elige opción
+        B->>S: Confirmar y reservar
         S-->>P: Confirmación de la cita
     end
         </div>
@@ -673,7 +761,7 @@ sequenceDiagram
         <ul class="step-list">
           <li>La recepcionista o médica busca a la paciente en el sistema por nombre o número de expediente.</li>
           <li>Entra al perfil de la paciente y selecciona la sección de historial de citas.</li>
-          <li class="system">🤖 El sistema carga todas las citas pasadas de esa paciente: fecha, médica que la atendió, servicio, y estado (atendida o no se presentó).</li>
+          <li class="system">🤖 El sistema carga todas las citas pasadas de esa paciente: fecha, médica que la atendió, servicio, y estado (completed, cancelled, no_show, rescheduled).</li>
           <li class="decision">🔀 ¿Se quiere ver solo un rango de fechas o un tipo de servicio?</li>
           <li>Se pueden aplicar filtros de fecha o servicio para acotar la búsqueda.</li>
           <li>También se pueden ver las citas futuras pendientes de la paciente.</li>
@@ -720,10 +808,9 @@ flowchart TD
     <div class="scenario-header">
       <div class="scenario-number">13</div>
       <div>
-        <h3>Agenda del día — resumen matutino</h3>
+        <h3>Agenda del día — vista matutina del gerente</h3>
         <div class="actors">
-          <span class="actor-badge" style="background:#fac186;color:#5a3300">Gerente de Sucursal</span>
-          <span class="actor-badge" style="background:#d6d9f3;color:#373644">Sistema</span>
+          <span class="actor-badge" style="background:#fac186;color:#7a3a00">Gerente de Sucursal</span>
         </div>
       </div>
     </div>
@@ -732,42 +819,45 @@ flowchart TD
         <h4>¿Cómo funciona?</h4>
         <ul class="step-list">
           <li>Cada mañana, al inicio de operaciones, el gerente entra a la sección de Agenda.</li>
-          <li class="system">🤖 El sistema muestra automáticamente el resumen del día: total de citas, distribución por médica, y primeras citas de cada una.</li>
-          <li>El gerente puede ver de un vistazo cuántas pacientes se esperan por hora y si alguna médica tiene la agenda muy cargada o muy vacía.</li>
-          <li class="decision">🔀 ¿Hay citas sin confirmar del día anterior?</li>
-          <li>El sistema resalta en naranja las citas del día anterior que quedaron sin marcar (ni confirmadas ni como no-show).</li>
-          <li>El gerente notifica a la recepcionista para que las regularice antes de que avance el día.</li>
-          <li class="success">✅ El gerente inicia el día con visibilidad completa de la operación de la sucursal, sin necesidad de revisar cita por cita.</li>
+          <li>El sistema muestra la vista del día de la sucursal: citas agendadas, médicas, horarios y estados actuales de cada cita.</li>
+          <li>El gerente puede ver de un vistazo cuántas pacientes se esperan por hora y cómo está distribuida la carga entre médicas.</li>
+          <li class="decision">🔀 ¿Hay citas sin resolver del día anterior?</li>
+          <li>El gerente puede filtrar la agenda por fecha para revisar el día anterior y verificar si quedaron citas en estado pendiente (scheduled o confirmed) sin gestionar.</li>
+          <li>Si las hay, notifica a la recepcionista para que las marque como no-show o las regularice.</li>
+          <li class="success">✅ El gerente inicia el día con visibilidad completa de la operación de la sucursal.</li>
         </ul>
-        <div class="notes"><strong>Consejo operativo:</strong> Revisar el resumen matutino antes de las 9 am permite ajustar la distribución de pacientes si se detecta un desequilibrio entre médicas.</div>
+        <div class="notes"><strong>Importante:</strong> No existe un "resumen matutino" automático ni una notificación push/correo que el sistema envíe al gerente por las mañanas. La vista del día se abre manualmente cuando el gerente entra a la sección de Agenda. No hay cron que genere ni envíe ese resumen. La detección de citas pendientes del día anterior tampoco tiene un resaltado automático en naranja — el gerente la revisa filtrando por fecha.</div>
       </div>
       <div class="diagram-wrap">
         <h4>Diagrama de flujo</h4>
         <div class="mermaid">
 flowchart TD
-    A([Gerente entra al sistema por la mañana]) --> B[Sistema carga resumen del día]
-    B --> C[Total de citas + distribución por médica]
-    C --> D{¿Citas sin resolver del día anterior?}
-    D -- Sí --> E[Sistema resalta citas pendientes de regularizar]
-    E --> F[Gerente notifica a recepcionista]
-    F --> G[Recepcionista confirma o marca inasistencias]
-    D -- No --> H[Agenda del día limpia]
-    G --> H
-    H --> I{¿Alguna médica con sobrecarga o sin citas?}
-    I -- Sí --> J[Gerente evalúa redistribución o apertura de horarios]
-    I -- No --> K([Operación normal — inicio del día])
-    J --> K
+    A([Gerente entra a Agenda por la mañana]) --> B[Vista del día cargada: citas, médicas, estados]
+    B --> C[Revisar distribución de pacientes por médica]
+    C --> D{¿Revisar citas sin gestionar del día anterior?}
+    D -- Sí --> E[Filtrar agenda por fecha anterior]
+    E --> F{¿Citas scheduled o confirmed sin resolver?}
+    F -- Sí --> G[Notificar a recepcionista para regularizar]
+    G --> H[Recepcionista marca no_show o check-in tardío]
+    F -- No --> I[Día anterior limpio]
+    H --> I
+    D -- No --> I
+    I --> J{¿Alguna médica con sobrecarga o sin citas?}
+    J -- Sí --> K[Gerente evalúa redistribución o apertura de horarios]
+    J -- No --> L([Operación normal — inicio del día])
+    K --> L
     style A fill:#fac186,color:#5a3300,stroke:#a25cbf
-    style B fill:#d6d9f3,color:#373644,stroke:#a25cbf
+    style B fill:#fac186,color:#5a3300,stroke:#a25cbf
     style C fill:#fac186,color:#5a3300,stroke:#a25cbf
     style D fill:#fac186,color:#5a3300,stroke:#a25cbf
     style E fill:#fac186,color:#5a3300,stroke:#a25cbf
     style F fill:#fac186,color:#5a3300,stroke:#a25cbf
-    style G fill:#7eb8f7,color:#1a3a5c,stroke:#1a3a5c
-    style H fill:#afd393,color:#2d5a1b,stroke:#2d5a1b
-    style I fill:#fac186,color:#5a3300,stroke:#a25cbf
+    style G fill:#fac186,color:#5a3300,stroke:#a25cbf
+    style H fill:#7eb8f7,color:#1a3a5c,stroke:#1a3a5c
+    style I fill:#afd393,color:#2d5a1b,stroke:#2d5a1b
     style J fill:#fac186,color:#5a3300,stroke:#a25cbf
-    style K fill:#afd393,color:#2d5a1b,stroke:#2d5a1b
+    style K fill:#fac186,color:#5a3300,stroke:#a25cbf
+    style L fill:#afd393,color:#2d5a1b,stroke:#2d5a1b
         </div>
       </div>
     </div>

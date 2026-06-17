@@ -40,6 +40,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
 .mermaid{font-size:13px}
 .notes{margin-top:1rem;padding:.75rem 1rem;background:#fff8e1;border-radius:.5rem;border-left:3px solid var(--warning);font-size:.85rem;color:var(--text)}
 .notes strong{color:#b45309}
+.planned-banner{background:#fff8e1;border:1px solid #fac186;border-radius:8px;padding:.75rem 1rem;margin-bottom:1rem;font-size:.85rem;color:#7a3a00}
+.infra-banner{background:#f0f4ff;border:1px solid #a0b4e0;border-radius:8px;padding:.75rem 1rem;margin-bottom:1rem;font-size:.85rem;color:#1a3a6b}
 .footer{text-align:center;padding:2rem;color:var(--muted);font-size:.8rem;border-top:1px solid var(--border);margin-top:2rem}
 </style>
 </head>
@@ -67,7 +69,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
 
   <div class="section-intro">
     <h2>¿De qué trata esta sección?</h2>
-    <p>Esta sección describe los procesos que el sistema ejecuta de forma <strong>automática</strong>, sin que ninguna persona tenga que hacer algo para iniciarlos. Ocurren en segundo plano — a ciertas horas del día, cuando se cumple alguna condición, o de forma continua — para mantener la operación de las sucursales funcionando de manera ordenada y segura. El personal de la plataforma recibe avisos cuando alguno de estos procesos requiere su atención.</p>
+    <p>Esta sección describe los procesos que el sistema ejecuta de forma <strong>automática</strong>, sin que ninguna persona tenga que iniciarlos. Algunos corren cada pocos minutos (como marcar inasistencias o enviar recordatorios de multicanal), otros cada hora o cada varios días. El personal operativo nota estos procesos cuando algo falla — por eso es importante saber cómo funcionan realmente, para poder reportar correctamente si algo no ocurre cuando debería.</p>
   </div>
 
   <!-- ESCENARIO 1 -->
@@ -86,29 +88,29 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
       <div class="steps">
         <h4>¿Cómo funciona?</h4>
         <ul class="step-list">
-          <li class="system">🤖 El sistema revisa constantemente el avance de cada contrato activo.</li>
-          <li class="decision">🔀 ¿Ya se atendieron todas las citas incluidas en el plan?</li>
-          <li class="system">🤖 Si todas las citas están marcadas como "atendida", el sistema cambia el estado del contrato a <strong>Completado</strong>.</li>
-          <li class="system">🤖 El sistema registra la fecha y hora exacta del cierre.</li>
-          <li class="system">🤖 Se envía una notificación automática a la consejera asignada para informarle que el plan de su paciente ha concluido.</li>
-          <li class="success">✅ El contrato queda cerrado. La consejera puede hacer seguimiento o proponer una renovación.</li>
-          <li class="error">❌ Si quedan citas pendientes o canceladas sin reprogramar, el sistema no cierra el contrato y la consejera recibe un aviso de "citas faltantes".</li>
+          <li class="system">🤖 Cuando la recepcionista o el sistema marca una cita como <strong>atendida</strong> (<em>completed</em>), en ese mismo momento el sistema evalúa automáticamente el contrato vinculado a esa cita.</li>
+          <li class="decision">🔀 ¿Se han consumido todas las citas del plan (cantidad atendida ≥ cantidad total de cada servicio del contrato)?</li>
+          <li class="success">✅ Si sí, el sistema cambia el estado del contrato a <strong>Completado</strong> de forma inmediata, con actor <em>system_auto_complete</em>. La consejera lo verá reflejado al abrir el contrato.</li>
+          <li class="system">🤖 Si aún quedan citas por consumir, el contrato permanece en estado <strong>Activo</strong> sin ningún aviso — simplemente no hace nada todavía.</li>
+          <li class="error">❌ Si el contrato ya no tenía cupo disponible para esa cita (error de sobre-consumo), el sistema rechaza la operación completa: la cita <em>no</em> queda marcada como atendida y el contrato <em>no</em> cambia de estado. La recepcionista verá un error al intentar completar la cita.</li>
+          <li class="error">❌ Si el contrato está en estado <strong>Suspendido</strong>, el auto-completado no se ejecuta. El contrato debe regresar a Activo antes de que el cierre automático pueda ocurrir.</li>
         </ul>
         <div class="notes">
-          <strong>Nota operativa:</strong> Ninguna persona cierra el contrato manualmente. Si el sistema no lo cierra cuando debería, verificar que todas las citas del plan estén registradas como atendidas en la agenda.
+          <strong>Nota operativa:</strong> Ninguna persona cierra el contrato manualmente — el sistema lo hace al completar la última cita. Si el contrato no se cierra cuando debería, verificar que todas las citas del plan estén registradas como <em>atendidas</em> (no canceladas ni reprogramadas pendientes). Si una cita da error al marcarse como atendida, reportar al soporte técnico con el número de contrato.
         </div>
       </div>
       <div class="diagram-wrap">
         <h4>Diagrama de estados del contrato</h4>
         <div class="mermaid">
 stateDiagram-v2
-    [*] --> Activo : Contrato firmado
-    Activo --> EnProgreso : Primera cita atendida
-    EnProgreso --> EnProgreso : Citas siguientes atendidas
-    EnProgreso --> Completado : Todas las citas atendidas
-    EnProgreso --> ConCitasFaltantes : Citas sin reprogramar
-    ConCitasFaltantes --> EnProgreso : Consejera reprograma
-    Completado --> [*]
+    [*] --> draft : Contrato creado
+    draft --> active : Consejera activa el contrato
+    active --> suspended : Gerente suspende
+    suspended --> active : Gerente reactiva
+    active --> cancelled : Cancelación (terminal)
+    active --> completed : Todas las citas atendidas\n(auto-complete)
+    cancelled --> [*]
+    completed --> [*]
         </div>
       </div>
     </div>
@@ -119,9 +121,10 @@ stateDiagram-v2
     <div class="scenario-header">
       <div class="scenario-number">2</div>
       <div>
-        <h3>Crear ruta clínica en primera cita de especialidad</h3>
+        <h3>Ruta clínica creada al activar un contrato de especialidad</h3>
         <div class="actors">
           <span class="actor-badge" style="background:#d6d9f3;color:#373644">Sistema</span>
+          <span class="actor-badge" style="background:#c58fe8;color:#4a1a6b">Consejera</span>
           <span class="actor-badge" style="background:#c58fe8;color:#4a1a6b">Médica</span>
         </div>
       </div>
@@ -130,33 +133,31 @@ stateDiagram-v2
       <div class="steps">
         <h4>¿Cómo funciona?</h4>
         <ul class="step-list">
-          <li>La paciente tiene su primera cita de una especialidad (por ejemplo, su primera consulta de dermatología).</li>
-          <li class="system">🤖 El sistema detecta que es la primera vez que esta paciente asiste a esa especialidad en el grupo.</li>
-          <li class="decision">🔀 ¿Existe ya un expediente de seguimiento para esta paciente en esa especialidad?</li>
-          <li class="system">🤖 Si no existe, el sistema abre automáticamente un expediente de seguimiento para esa especialidad.</li>
-          <li class="system">🤖 El expediente queda vinculado al perfil de la paciente y disponible para la médica desde ese mismo momento.</li>
-          <li class="success">✅ La médica puede registrar notas, diagnósticos y próximos pasos directamente en el expediente recién creado.</li>
-          <li class="error">❌ Si la cita se cancela antes de iniciarse, el expediente no se crea — solo se genera cuando la cita se marca como "en curso" o "atendida".</li>
+          <li>La consejera <strong>activa un contrato</strong> (lo pasa de borrador a activo). En ese momento — no al momento de la primera cita — el sistema verifica si ya existe una ruta clínica para esa paciente en esa especialidad.</li>
+          <li class="decision">🔀 ¿Ya existe una ruta clínica activa para esta paciente y esta especialidad en el grupo?</li>
+          <li class="system">🤖 Si no existe, el sistema crea automáticamente una nueva ruta clínica y asigna a la médica principal del contrato como responsable de seguimiento.</li>
+          <li class="system">🤖 Si ya existe una ruta activa, el sistema simplemente vincula el nuevo contrato a esa ruta existente, sin reasignar médico ni crear duplicados.</li>
+          <li class="success">✅ La médica accede a la ruta clínica — un expediente longitudinal de la paciente en esa especialidad — para ver el historial de todas las consultas previas en esa área.</li>
         </ul>
         <div class="notes">
-          <strong>Nota operativa:</strong> La médica no necesita crear el expediente manualmente. Estará disponible en la pantalla de la cita al momento de iniciar la consulta.
+          <strong>Nota operativa:</strong> La ruta clínica NO es un formulario de consulta individual. Es el expediente de seguimiento a lo largo del tiempo: una paciente puede tener una sola ruta de dermatología con 10 contratos a lo largo de años. Si dos contratos de la misma paciente se activan al mismo tiempo, el sistema resuelve la colisión automáticamente y vincula ambos a la misma ruta sin pérdida de datos.
         </div>
       </div>
       <div class="diagram-wrap">
         <h4>Diagrama de flujo</h4>
         <div class="mermaid">
 flowchart TD
-    A([Cita iniciada]) --> B{¿Primera cita\nde esta especialidad?}
-    B -- No --> C[Abre expediente\nexistente]
-    B -- Sí --> D[Sistema crea expediente\nde seguimiento]
-    D --> E[Expediente disponible\npara la médica]
-    C --> E
-    E --> F([Médica registra\nla consulta])
+    A([Consejera activa\nel contrato]) --> B{¿Existe ruta clínica\npara esta paciente\nen esta especialidad?}
+    B -- No --> C[Sistema crea ruta clínica\ny asigna médica responsable]
+    B -- Sí --> D[Sistema vincula el contrato\na la ruta existente]
+    C --> E[Ruta disponible\npara la médica]
+    D --> E
+    E --> F([Médica consulta\nhistorial longitudinal])
     style A fill:#c58fe8,color:#fff,stroke:#7a3daa
     style B fill:#d9d8f5,color:#373644,stroke:#a25cbf
-    style D fill:#d6d9f3,color:#373644,stroke:#565386
-    style E fill:#d6d9f3,color:#373644,stroke:#565386
     style C fill:#d6d9f3,color:#373644,stroke:#565386
+    style D fill:#d6d9f3,color:#373644,stroke:#565386
+    style E fill:#afd393,color:#2d5a1b,stroke:#5a9a3a
     style F fill:#c58fe8,color:#fff,stroke:#7a3daa
         </div>
       </div>
@@ -168,9 +169,10 @@ flowchart TD
     <div class="scenario-header">
       <div class="scenario-number">3</div>
       <div>
-        <h3>Reintento de notificación fallida (proceso nocturno)</h3>
+        <h3>Marcado automático de inasistencias (auto no-show)</h3>
         <div class="actors">
           <span class="actor-badge" style="background:#d6d9f3;color:#373644">Sistema</span>
+          <span class="actor-badge" style="background:#7eb8f7;color:#1a3a5c">Recepcionista</span>
         </div>
       </div>
     </div>
@@ -178,44 +180,34 @@ flowchart TD
       <div class="steps">
         <h4>¿Cómo funciona?</h4>
         <ul class="step-list">
-          <li class="system">🤖 Cada noche, el sistema revisa si hay notificaciones que no se entregaron correctamente durante el día (por ejemplo, un WhatsApp que no llegó por problemas de conexión).</li>
-          <li class="decision">🔀 ¿Hay notificaciones pendientes de entrega?</li>
-          <li class="system">🤖 Para cada notificación fallida, el sistema verifica cuántas veces ya se intentó enviar.</li>
-          <li class="decision">🔀 ¿Se ha intentado menos de 3 veces?</li>
-          <li class="system">🤖 Si aún hay intentos disponibles, el sistema reenvía la notificación automáticamente.</li>
-          <li class="success">✅ Si el reenvío llega correctamente, la notificación se marca como "entregada".</li>
-          <li class="error">❌ Si después de 3 intentos sigue fallando, el sistema registra la notificación como "no entregada" y el equipo técnico recibe un reporte para revisarla manualmente.</li>
+          <li class="system">🤖 Cada 5 minutos, el sistema revisa automáticamente todas las citas con estado <em>agendada</em> o <em>confirmada</em> cuya hora ya haya pasado.</li>
+          <li class="decision">🔀 ¿La cita venció su hora de inicio más el periodo de gracia configurado sin que la recepcionista la marcara como atendida, en curso o cancelada?</li>
+          <li class="system">🤖 Si sí, el sistema la marca automáticamente como <strong>no_show</strong> (inasistencia).</li>
+          <li class="success">✅ La cita queda registrada como inasistencia en la agenda. El historial de la paciente refleja el no-show.</li>
+          <li class="system">🤖 Si la recepcionista ya actualizó el estado de la cita antes del siguiente ciclo, el sistema no la toca.</li>
         </ul>
         <div class="notes">
-          <strong>Nota operativa:</strong> Este proceso ocurre automáticamente en la madrugada. Si una paciente reporta que no recibió un recordatorio, es posible que el sistema lo esté reintentando. Si persiste al día siguiente, avisar al soporte técnico.
+          <strong>Nota operativa:</strong> La recepcionista rara vez necesita marcar manualmente una inasistencia — el sistema lo hace solo a los pocos minutos de que vence la cita. Si una paciente llega tarde y la cita ya fue marcada como no-show, la recepcionista puede corregir el estado manualmente desde la agenda.
         </div>
       </div>
       <div class="diagram-wrap">
-        <h4>Diagrama de flujo nocturno</h4>
+        <h4>Diagrama de flujo</h4>
         <div class="mermaid">
 flowchart TD
-    A([Proceso nocturno\ninicia]) --> B{¿Hay notificaciones\nno entregadas?}
-    B -- No --> Z([Proceso termina\nsin cambios])
-    B -- Sí --> C[Toma la siguiente\nnotificación fallida]
-    C --> D{¿Intentos\nmenores a 3?}
-    D -- Sí --> E[Reenvía la\nnotificación]
-    E --> F{¿Llegó\ncorrectamente?}
-    F -- Sí --> G[Marca como\nEntregada]
-    F -- No --> H[Suma un intento\nfallido más]
-    H --> D
-    D -- No --> I[Marca como\nNo entregada permanente]
-    I --> J[Alerta al equipo\ntécnico]
-    G --> B
-    J --> B
+    A([Cron cada\n5 minutos]) --> B[Busca citas agendadas\no confirmadas cuya\nhora ya venció]
+    B --> C{¿Hay citas\nvencidas?}
+    C -- No --> Z([Espera siguiente\nciclo])
+    C -- Sí --> D{¿Recepcionista ya\ncambió el estado?}
+    D -- Sí --> Z
+    D -- No --> E[Sistema marca\nla cita como no_show]
+    E --> F([Inasistencia registrada\nen historial])
+    F --> Z
     style A fill:#d6d9f3,color:#373644,stroke:#565386
-    style Z fill:#afd393,color:#2d5a1b,stroke:#5a9a3a
-    style E fill:#d6d9f3,color:#373644,stroke:#565386
-    style G fill:#afd393,color:#2d5a1b,stroke:#5a9a3a
-    style I fill:#ff3759,color:#fff,stroke:#cc1a33
-    style J fill:#fac186,color:#5a3a00,stroke:#c07a2a
-    style B fill:#d9d8f5,color:#373644,stroke:#a25cbf
+    style C fill:#d9d8f5,color:#373644,stroke:#a25cbf
     style D fill:#d9d8f5,color:#373644,stroke:#a25cbf
-    style F fill:#d9d8f5,color:#373644,stroke:#a25cbf
+    style E fill:#fac186,color:#7a3a00,stroke:#c07a2a
+    style F fill:#afd393,color:#2d5a1b,stroke:#5a9a3a
+    style Z fill:#d6d9f3,color:#373644,stroke:#565386
         </div>
       </div>
     </div>
@@ -226,11 +218,11 @@ flowchart TD
     <div class="scenario-header">
       <div class="scenario-number">4</div>
       <div>
-        <h3>Resumen de agenda — generación automática matutina</h3>
+        <h3>Recordatorio WhatsApp 24 horas antes de la cita</h3>
         <div class="actors">
+          <span class="actor-badge" style="background:#25D366;color:#fff">Bot WA</span>
           <span class="actor-badge" style="background:#d6d9f3;color:#373644">Sistema</span>
-          <span class="actor-badge" style="background:#7eb8f7;color:#1a3a5c">Recepcionista</span>
-          <span class="actor-badge" style="background:#fac186;color:#5a3a00">Gerente de Sucursal</span>
+          <span class="actor-badge" style="background:#afd393;color:#2d5a1b">Paciente</span>
         </div>
       </div>
     </div>
@@ -238,16 +230,14 @@ flowchart TD
       <div class="steps">
         <h4>¿Cómo funciona?</h4>
         <ul class="step-list">
-          <li class="system">🤖 Cada mañana, antes de que abra la sucursal, el sistema recopila todas las citas confirmadas del día para cada sucursal.</li>
-          <li class="system">🤖 Organiza las citas por horario, médica y tipo de servicio.</li>
-          <li class="system">🤖 Genera un resumen con el total de citas, los horarios de mayor demanda y cualquier cita que requiera atención especial (por ejemplo, primera consulta o paciente de plan).</li>
-          <li class="system">🤖 Envía el resumen automáticamente a la recepcionista y al gerente de cada sucursal, ya sea por correo o mediante una notificación en la plataforma.</li>
-          <li class="success">✅ El personal llega a la sucursal sabiendo exactamente qué esperar durante el día.</li>
-          <li class="decision">🔀 Si el día no tiene citas agendadas, el sistema envía un aviso indicando que la agenda está vacía.</li>
-          <li class="error">❌ Si hay algún problema para generar el resumen, el sistema lo reintenta una vez más. Si falla dos veces, el equipo técnico recibe una alerta.</li>
+          <li class="system">🤖 Cada hora, el sistema busca todas las citas agendadas que caigan dentro de una ventana de 23 a 25 horas a partir de ese momento.</li>
+          <li class="system">🤖 Para cada cita encontrada, crea un registro de recordatorio y encola un mensaje de WhatsApp usando la plantilla oficial <em>appt_24h_reminder</em>.</li>
+          <li class="system">🤖 El bot de WhatsApp entrega el mensaje al número de teléfono de la paciente.</li>
+          <li class="success">✅ La paciente recibe un recordatorio con el día, hora, sucursal y tipo de servicio de su cita.</li>
+          <li class="error">❌ Si el mensaje falla al entregarse, el sistema lo reintenta automáticamente hasta 3 veces con pausa creciente entre intentos (comportamiento nativo del job). Si las 3 fallas, el job queda en estado <em>failed</em> y requiere revisión del equipo técnico.</li>
         </ul>
         <div class="notes">
-          <strong>Nota operativa:</strong> El resumen llega antes de las 7:00 a.m. Si a las 8:00 a.m. no se ha recibido, revisar el correo no deseado o notificaciones de la plataforma y avisar a soporte si persiste.
+          <strong>Nota operativa:</strong> Este proceso corre en forma automática — no hay que hacer nada para activarlo. Si una paciente reporta que no recibió su recordatorio, verificar que su número de WhatsApp esté registrado correctamente en su perfil. Si el número es correcto y no llegó, reportar al soporte técnico con el identificador de la cita.
         </div>
       </div>
       <div class="diagram-wrap">
@@ -255,16 +245,19 @@ flowchart TD
         <div class="mermaid">
 sequenceDiagram
     participant S as Sistema
-    participant R as Recepcionista
-    participant G as Gerente de Sucursal
+    participant WA as Bot WhatsApp
+    participant P as Paciente
 
-    Note over S: Proceso matutino automático
-    S->>S: Recopila citas del día por sucursal
-    S->>S: Organiza por horario y médica
-    S->>S: Genera resumen por sucursal
-    S-->>R: Envía resumen (correo / notificación)
-    S-->>G: Envía resumen (correo / notificación)
-    Note over R,G: El personal revisa el resumen antes de abrir
+    Note over S: Cada hora UTC
+    S->>S: Busca citas en ventana 23-25h
+    S->>S: Crea registro de recordatorio
+    S->>WA: Encola mensaje appt_24h_reminder
+    WA-->>P: Envía mensaje WhatsApp
+    alt Entrega exitosa
+        P-->>WA: Mensaje recibido
+    else Fallo de entrega
+        WA->>S: Error — reintentar (máx. 3 veces)
+    end
         </div>
       </div>
     </div>
@@ -275,10 +268,11 @@ sequenceDiagram
     <div class="scenario-header">
       <div class="scenario-number">5</div>
       <div>
-        <h3>Expiración automática de sesiones inactivas</h3>
+        <h3>Indicaciones pre-cita por WhatsApp</h3>
         <div class="actors">
+          <span class="actor-badge" style="background:#25D366;color:#fff">Bot WA</span>
           <span class="actor-badge" style="background:#d6d9f3;color:#373644">Sistema</span>
-          <span class="actor-badge" style="background:#7eb8f7;color:#1a3a5c">Cualquier usuario</span>
+          <span class="actor-badge" style="background:#afd393;color:#2d5a1b">Paciente</span>
         </div>
       </div>
     </div>
@@ -286,38 +280,38 @@ sequenceDiagram
       <div class="steps">
         <h4>¿Cómo funciona?</h4>
         <ul class="step-list">
-          <li>Un usuario (recepcionista, médica, gerente, etc.) inicia sesión en la plataforma.</li>
-          <li class="system">🤖 El sistema comienza a monitorear el tiempo desde la última acción del usuario en la pantalla.</li>
-          <li class="decision">🔀 ¿El usuario lleva más de 30 minutos sin tocar ninguna pantalla?</li>
-          <li class="system">🤖 Si es así, el sistema muestra un aviso: "Tu sesión está a punto de cerrarse por inactividad".</li>
-          <li class="decision">🔀 ¿El usuario responde al aviso dentro de los próximos 2 minutos?</li>
-          <li class="success">✅ Si responde, la sesión continúa normalmente desde donde la dejó.</li>
-          <li class="system">🤖 Si no responde, el sistema cierra la sesión automáticamente y redirige a la pantalla de inicio de sesión.</li>
-          <li class="error">❌ Cualquier cambio no guardado se pierde al cerrarse la sesión. El sistema muestra un mensaje explicando por qué se cerró.</li>
+          <li class="system">🤖 Cada 6 horas, el sistema busca citas que caigan dentro de una ventana de 23 a 25 horas cuyas recomendaciones de preparación (<em>appointment_recommendations</em>) estén configuradas para ese tipo de servicio.</li>
+          <li class="system">🤖 Para cada cita elegible, encola un mensaje de WhatsApp usando la plantilla <em>appt_preparation</em>, que incluye las indicaciones específicas del servicio (por ejemplo: "Llega sin maquillaje", "No apliques crema el día del procedimiento").</li>
+          <li class="system">🤖 El bot de WhatsApp entrega el mensaje al número de la paciente.</li>
+          <li class="success">✅ La paciente recibe las instrucciones necesarias para llegar preparada a su cita.</li>
+          <li class="system">🤖 Si el servicio no tiene recomendaciones de preparación configuradas, no se envía ningún mensaje para esa cita.</li>
         </ul>
         <div class="notes">
-          <strong>Nota operativa:</strong> Este proceso protege la información de las pacientes. Si compartes computadora con otra persona, asegúrate de cerrar sesión manualmente cuando termines, sin esperar a que expire sola.
+          <strong>Nota operativa:</strong> Las indicaciones pre-cita solo se envían si el servicio tiene instrucciones de preparación configuradas en el catálogo. Si una paciente no recibió indicaciones y el servicio debería tenerlas, verificar con el gerente de sucursal que las recomendaciones estén cargadas en la configuración del servicio.
         </div>
       </div>
       <div class="diagram-wrap">
         <h4>Diagrama de flujo</h4>
         <div class="mermaid">
 flowchart TD
-    A([Usuario activo\nen la plataforma]) --> B{¿Inactividad\nsuperior a 30 min?}
-    B -- No --> A
-    B -- Sí --> C[Sistema muestra\naviso de cierre]
-    C --> D{¿Usuario responde\nen 2 minutos?}
-    D -- Sí --> E[Sesión continúa\nnormalmente]
-    E --> A
-    D -- No --> F[Sistema cierra\nla sesión]
-    F --> G([Pantalla de\ninicio de sesión])
-    style A fill:#7eb8f7,color:#1a3a5c,stroke:#3a7acc
-    style B fill:#d9d8f5,color:#373644,stroke:#a25cbf
-    style C fill:#fac186,color:#5a3a00,stroke:#c07a2a
-    style D fill:#d9d8f5,color:#373644,stroke:#a25cbf
-    style E fill:#afd393,color:#2d5a1b,stroke:#5a9a3a
-    style F fill:#d6d9f3,color:#373644,stroke:#565386
-    style G fill:#7eb8f7,color:#1a3a5c,stroke:#3a7acc
+    A([Cron cada\n6 horas]) --> B[Busca citas en ventana\n23-25h con recomendaciones\nde preparación]
+    B --> C{¿Hay citas\nelegibles?}
+    C -- No --> Z([Espera siguiente\nciclo])
+    C -- Sí --> D[Encola mensaje\nappt_preparation\npor cita]
+    D --> E[Bot WA envía\nindicaciones a la paciente]
+    E --> F{¿Entrega\nexitosa?}
+    F -- Sí --> G([Paciente recibe\nindicaciones])
+    F -- No --> H[Reintentar\nhasta 3 veces]
+    H --> Z
+    G --> Z
+    style A fill:#d6d9f3,color:#373644,stroke:#565386
+    style C fill:#d9d8f5,color:#373644,stroke:#a25cbf
+    style D fill:#25D366,color:#fff,stroke:#1a9e4a
+    style E fill:#25D366,color:#fff,stroke:#1a9e4a
+    style F fill:#d9d8f5,color:#373644,stroke:#a25cbf
+    style G fill:#afd393,color:#2d5a1b,stroke:#5a9a3a
+    style H fill:#fac186,color:#7a3a00,stroke:#c07a2a
+    style Z fill:#d6d9f3,color:#373644,stroke:#565386
         </div>
       </div>
     </div>
@@ -328,10 +322,11 @@ flowchart TD
     <div class="scenario-header">
       <div class="scenario-number">6</div>
       <div>
-        <h3>Limpieza de horarios vencidos sin confirmar</h3>
+        <h3>Liberación automática de horarios reservados sin confirmar</h3>
         <div class="actors">
           <span class="actor-badge" style="background:#d6d9f3;color:#373644">Sistema</span>
           <span class="actor-badge" style="background:#afd393;color:#2d5a1b">Paciente</span>
+          <span class="actor-badge" style="background:#7eb8f7;color:#1a3a5c">Recepcionista</span>
         </div>
       </div>
     </div>
@@ -339,29 +334,34 @@ flowchart TD
       <div class="steps">
         <h4>¿Cómo funciona?</h4>
         <ul class="step-list">
-          <li>Una paciente (o el bot de WhatsApp) reserva un horario de manera tentativa, pero no lo confirma de inmediato.</li>
-          <li class="system">🤖 El sistema bloquea ese horario y comienza a contar el tiempo establecido para confirmar (por ejemplo, 15 minutos).</li>
-          <li class="decision">🔀 ¿La paciente confirmó la cita antes de que venza el tiempo?</li>
-          <li class="success">✅ Si confirmó, el horario queda reservado de forma definitiva y la paciente recibe su comprobante.</li>
-          <li class="system">🤖 Si el tiempo venció sin confirmación, el sistema libera el horario automáticamente.</li>
-          <li class="system">🤖 El horario vuelve a aparecer como disponible en la agenda para que cualquier otra paciente pueda agendarlo.</li>
-          <li class="error">❌ La paciente que no confirmó a tiempo no tiene ya ese horario garantizado y tendría que iniciar el proceso de agendar de nuevo.</li>
+          <li>Mientras la recepcionista o el bot de WhatsApp llenan el formulario de reserva, el sistema bloquea temporalmente ese horario para que nadie más lo tome al mismo tiempo.</li>
+          <li class="system">🤖 El bloqueo dura exactamente <strong>5 minutos</strong>. No es un estado en la base de datos — es una reserva temporal en Redis (el sistema de caché) que desaparece sola al vencer el tiempo.</li>
+          <li class="decision">🔀 ¿Se guardó la cita antes de que venzan los 5 minutos?</li>
+          <li class="success">✅ Si sí, la cita queda registrada de forma definitiva en la agenda y el bloqueo temporal se elimina.</li>
+          <li class="system">🤖 Si los 5 minutos pasan sin que se guardara la cita, el bloqueo desaparece automáticamente. El horario vuelve a estar disponible para cualquier otra reserva sin que nadie tenga que hacer nada.</li>
+          <li class="error">❌ La persona que no completó la reserva a tiempo tendrá que iniciar el proceso de nuevo. No hay garantía de que el horario siga disponible.</li>
         </ul>
         <div class="notes">
-          <strong>Nota operativa:</strong> Este proceso evita que los horarios queden "bloqueados" por reservas abandonadas. Si una paciente llama diciendo que "ya lo había reservado", verificar en la agenda si el tiempo de confirmación venció.
+          <strong>Nota operativa:</strong> Si una paciente llama diciendo que "ya lo había reservado por WhatsApp" pero no aparece en la agenda, lo más probable es que no completó la reserva dentro de los 5 minutos y el bloqueo venció. Hay que volver a agendarla desde cero.
         </div>
       </div>
       <div class="diagram-wrap">
-        <h4>Diagrama de estados del horario</h4>
+        <h4>Ciclo de vida del bloqueo de horario</h4>
         <div class="mermaid">
-stateDiagram-v2
-    [*] --> Disponible
-    Disponible --> Tentativo : Paciente inicia reserva
-    Tentativo --> Confirmado : Paciente confirma a tiempo
-    Tentativo --> Disponible : Tiempo vence sin confirmación
-    Confirmado --> Atendido : Cita se realiza
-    Confirmado --> Disponible : Paciente cancela
-    Atendido --> [*]
+flowchart TD
+    A([Inicia reserva]) --> B[Sistema bloquea el horario\npor 5 minutos en Redis]
+    B --> C{¿Se guarda la cita\nantes de 5 min?}
+    C -- Sí --> D[Cita registrada\nen agenda]
+    C -- No --> E[Redis expira el bloqueo\nautomáticamente]
+    D --> F([Horario confirmado])
+    E --> G([Horario disponible\npara otra reserva])
+    style A fill:#7eb8f7,color:#1a3a5c,stroke:#3a7acc
+    style B fill:#d6d9f3,color:#373644,stroke:#565386
+    style C fill:#d9d8f5,color:#373644,stroke:#a25cbf
+    style D fill:#afd393,color:#2d5a1b,stroke:#5a9a3a
+    style E fill:#fac186,color:#7a3a00,stroke:#c07a2a
+    style F fill:#afd393,color:#2d5a1b,stroke:#5a9a3a
+    style G fill:#d6d9f3,color:#373644,stroke:#565386
         </div>
       </div>
     </div>
@@ -372,11 +372,10 @@ stateDiagram-v2
     <div class="scenario-header">
       <div class="scenario-number">7</div>
       <div>
-        <h3>Sincronización de datos entre módulos</h3>
+        <h3>Recordatorios multicanal de citas (SMS y correo)</h3>
         <div class="actors">
           <span class="actor-badge" style="background:#d6d9f3;color:#373644">Sistema</span>
-          <span class="actor-badge" style="background:#25D366;color:#fff">Bot WA</span>
-          <span class="actor-badge" style="background:#fac186;color:#5a3a00">Gerente de Sucursal</span>
+          <span class="actor-badge" style="background:#afd393;color:#2d5a1b">Paciente</span>
         </div>
       </div>
     </div>
@@ -384,36 +383,35 @@ stateDiagram-v2
       <div class="steps">
         <h4>¿Cómo funciona?</h4>
         <ul class="step-list">
-          <li>Un gerente o admin corporativo actualiza algún dato importante: por ejemplo, cambia el horario de atención de una médica o modifica los servicios disponibles en una sucursal.</li>
-          <li class="system">🤖 El sistema detecta el cambio en el módulo donde se realizó (por ejemplo, el módulo de configuración de sucursal).</li>
-          <li class="system">🤖 Automáticamente propaga el cambio a todos los módulos que dependen de esa información: la agenda, el bot de WhatsApp, el módulo de contratos y los reportes.</li>
-          <li class="decision">🔀 ¿Algún módulo no pudo recibir el cambio correctamente?</li>
-          <li class="success">✅ Si todos los módulos se actualizan sin problema, el cambio entra en vigor de inmediato en toda la plataforma.</li>
-          <li class="error">❌ Si algún módulo no se actualizó correctamente, el sistema reintenta la sincronización. Si falla dos veces, el equipo técnico recibe una alerta y el módulo afectado muestra datos anteriores hasta que se resuelva.</li>
+          <li class="system">🤖 Cada 5 minutos, el sistema revisa el registro de notificaciones (<em>notification_log</em>) para encontrar recordatorios de citas pendientes de envío cuya ventana de tiempo se haya alcanzado.</li>
+          <li class="system">🤖 Drena la cola y envía los recordatorios por los canales configurados: SMS y/o correo electrónico, según lo registrado en el perfil de la paciente.</li>
+          <li class="success">✅ La paciente recibe el recordatorio por el canal disponible.</li>
+          <li class="error">❌ Si el canal no está disponible (número sin SMS, correo inválido), la notificación queda en estado fallido en el registro.</li>
         </ul>
         <div class="notes">
-          <strong>Nota operativa:</strong> Si después de actualizar un horario o un servicio el bot de WhatsApp sigue mostrando información antigua, esperar unos minutos y probar de nuevo. Si persiste después de 10 minutos, reportar al soporte técnico.
+          <strong>Nota operativa:</strong> Este proceso es independiente de los recordatorios por WhatsApp (que tienen su propio cron cada hora). Si una paciente reporta que no recibió ningún tipo de recordatorio, verificar que sus datos de contacto estén actualizados en su perfil.
         </div>
       </div>
       <div class="diagram-wrap">
-        <h4>Diagrama de secuencia</h4>
+        <h4>Diagrama de flujo</h4>
         <div class="mermaid">
-sequenceDiagram
-    participant G as Gerente de Sucursal
-    participant S as Sistema
-    participant A as Agenda
-    participant B as Bot WA
-    participant C as Contratos
-
-    G->>S: Actualiza horario de médica
-    S->>S: Detecta el cambio
-    S->>A: Propaga nuevo horario
-    S->>B: Actualiza disponibilidad en Bot WA
-    S->>C: Ajusta fechas de contratos afectados
-    A-->>S: Confirmación OK
-    B-->>S: Confirmación OK
-    C-->>S: Confirmación OK
-    S-->>G: Cambio aplicado en toda la plataforma
+flowchart TD
+    A([Cron cada\n5 minutos]) --> B[Revisa notification_log:\nrecordatorios pendientes\ncuya ventana se cumplió]
+    B --> C{¿Hay\nnotificaciones?}
+    C -- No --> Z([Espera siguiente\nciclo])
+    C -- Sí --> D[Envía por canal\nconfigrado: SMS / correo]
+    D --> E{¿Entrega\nexitosa?}
+    E -- Sí --> F([Notificación entregada\nregistrada en log])
+    E -- No --> G([Notificación fallida\nregistrada en log])
+    F --> Z
+    G --> Z
+    style A fill:#d6d9f3,color:#373644,stroke:#565386
+    style C fill:#d9d8f5,color:#373644,stroke:#a25cbf
+    style D fill:#d6d9f3,color:#373644,stroke:#565386
+    style E fill:#d9d8f5,color:#373644,stroke:#a25cbf
+    style F fill:#afd393,color:#2d5a1b,stroke:#5a9a3a
+    style G fill:#ff3759,color:#fff,stroke:#cc1a33
+    style Z fill:#d6d9f3,color:#373644,stroke:#565386
         </div>
       </div>
     </div>
@@ -424,10 +422,10 @@ sequenceDiagram
     <div class="scenario-header">
       <div class="scenario-number">8</div>
       <div>
-        <h3>Monitor de salud del sistema</h3>
+        <h3>Sincronización con Zoho CRM (drenado continuo)</h3>
         <div class="actors">
           <span class="actor-badge" style="background:#d6d9f3;color:#373644">Sistema</span>
-          <span class="actor-badge" style="background:#ed80a8;color:#6b1a34">Admin Corporativo</span>
+          <span class="actor-badge" style="background:#ed80a8;color:#7a1a3a">Admin Corporativo</span>
         </div>
       </div>
     </div>
@@ -435,44 +433,171 @@ sequenceDiagram
       <div class="steps">
         <h4>¿Cómo funciona?</h4>
         <ul class="step-list">
-          <li class="system">🤖 El sistema verifica continuamente que todos sus componentes funcionen correctamente: la plataforma web, el bot de WhatsApp, las notificaciones, la agenda y el acceso de usuarios.</li>
-          <li class="decision">🔀 ¿Todos los componentes responden con normalidad?</li>
-          <li class="success">✅ Si todo está bien, el sistema continúa operando sin interrupciones y sin alertar a nadie.</li>
-          <li class="decision">🔀 ¿Se detectó algún componente con problemas o lento?</li>
-          <li class="system">🤖 El sistema clasifica el problema por nivel de urgencia: bajo (lentitud), medio (función degradada) o alto (componente caído).</li>
-          <li class="system">🤖 Dependiendo de la urgencia, el sistema notifica al equipo técnico por correo o SMS con un resumen del problema detectado.</li>
-          <li class="system">🤖 Para problemas de urgencia baja o media, el sistema intenta resolver la situación automáticamente (reiniciando el componente afectado, por ejemplo).</li>
-          <li class="error">❌ Si el componente no se recupera, el admin corporativo y el equipo técnico reciben una alerta prioritaria para atenderlo de inmediato.</li>
+          <li class="system">🤖 Cada minuto, el sistema revisa la tabla de salida (<em>zoho_outbox</em>) para ver si hay cambios de pacientes que deban propagarse al CRM externo Zoho.</li>
+          <li class="system">🤖 Si hay registros pendientes, los envía a Zoho CRM de forma automática y los marca como sincronizados.</li>
+          <li class="success">✅ Los datos del paciente (nombre, teléfono, correo, historial de contacto) quedan actualizados en el CRM corporativo.</li>
+          <li class="error">❌ Si Zoho no está disponible en ese momento, los registros permanecen en la cola y se reintentarán en el siguiente ciclo de 1 minuto.</li>
+          <li class="system">🤖 Adicionalmente, cada 6 días a las 03:00 UTC el sistema re-suscribe automáticamente el webhook de Zoho CRM, que expira cada 7 días. Esto evita que se pierda la conexión con el CRM.</li>
         </ul>
         <div class="notes">
-          <strong>Nota operativa:</strong> El personal no necesita monitorear la salud del sistema — el sistema se vigila a sí mismo. Si experimentan lentitud o errores en la plataforma, pueden reportarlo al equipo técnico; es posible que ya estén trabajando en ello.
+          <strong>Nota operativa:</strong> Este proceso ocurre en segundo plano y el personal de sucursal no lo ve directamente. Si el equipo corporativo reporta que los datos de un paciente no aparecen actualizados en Zoho, puede haber una demora de hasta 1-2 minutos o un problema temporal de conectividad con el CRM. Reportar al equipo técnico si persiste más de 10 minutos.
         </div>
       </div>
       <div class="diagram-wrap">
-        <h4>Diagrama de flujo</h4>
+        <h4>Diagrama de secuencia</h4>
+        <div class="mermaid">
+sequenceDiagram
+    participant S as Sistema
+    participant Z as Zoho CRM
+
+    Note over S: Cada 1 minuto
+    S->>S: Revisa zoho_outbox
+    alt Hay registros pendientes
+        S->>Z: Envía cambios de pacientes
+        Z-->>S: Confirmación OK
+        S->>S: Marca registros como sincronizados
+    else No hay registros
+        S->>S: Espera siguiente ciclo
+    end
+
+    Note over S: Cada 6 días a las 03:00 UTC
+    S->>Z: Re-suscribe webhook (expira c/7 días)
+    Z-->>S: Webhook activo confirmado
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ESCENARIO 9 -->
+  <div class="scenario-card">
+    <div class="scenario-header">
+      <div class="scenario-number">9</div>
+      <div>
+        <h3>Verificación de salud de la plataforma</h3>
+        <div class="actors">
+          <span class="actor-badge" style="background:#d6d9f3;color:#373644">Sistema</span>
+          <span class="actor-badge" style="background:#a25cbf;color:#fff">Platform Admin</span>
+        </div>
+      </div>
+    </div>
+    <div class="scenario-body">
+      <div class="steps">
+        <h4>¿Cómo funciona?</h4>
+        <ul class="step-list">
+          <li class="system">🤖 La plataforma expone un endpoint de salud (<code>/api/health</code>) que los balanceadores de carga de AWS consultan automáticamente de forma continua.</li>
+          <li class="system">🤖 Ese endpoint realiza tres verificaciones básicas: que la base de datos PostgreSQL responda, que el caché Redis responda, y que el servicio de autenticación Cognito esté accesible.</li>
+          <li class="success">✅ Si las tres verificaciones pasan, el endpoint responde con <em>healthy</em> (código 200) y el balanceador sigue enviando tráfico normal a la plataforma.</li>
+          <li class="error">❌ Si PostgreSQL, Redis o Cognito no responden, el endpoint retorna <em>unhealthy</em> (código 503) y el balanceador de AWS deja de enviar tráfico a esa instancia para evitar errores a los usuarios.</li>
+        </ul>
+        <div class="notes" style="background:#f0f4ff;border-left-color:#a0b4e0">
+          <strong style="color:#1a3a6b">Infraestructura, no código de la aplicación:</strong> El monitoreo activo de la plataforma — alertas por correo o SMS, escalamiento automático, reinicio de contenedores, clasificación de urgencias — lo gestiona el equipo técnico usando herramientas de AWS (CloudWatch, ALB, ECS). La aplicación únicamente responde cuando se le consulta; no vigila ni se reinicia a sí misma.
+        </div>
+      </div>
+      <div class="diagram-wrap">
+        <h4>Diagrama de flujo del health check</h4>
         <div class="mermaid">
 flowchart TD
-    A([Monitor activo\ncontinuamente]) --> B{¿Todos los\ncomponentes OK?}
-    B -- Sí --> A
-    B -- No --> C{¿Nivel de\nurgencia?}
-    C -- Bajo --> D[Sistema intenta\nrecuperación automática]
-    C -- Medio --> D
-    C -- Alto --> E[Alerta inmediata\nal equipo técnico]
-    D --> F{¿Se resolvió\nsolo?}
-    F -- Sí --> G[Componente\nrecuperado]
-    G --> A
-    F -- No --> E
-    E --> H[Admin Corporativo\nrecibe alerta prioritaria]
-    H --> I([Equipo técnico\natiende el problema])
+    A([AWS ALB consulta\n/api/health]) --> B[Verifica PostgreSQL\nRedis · Cognito]
+    B --> C{¿Los tres\nresponden?}
+    C -- Sí --> D[Responde healthy\nHTTP 200]
+    C -- No --> E[Responde unhealthy\nHTTP 503]
+    D --> F([ALB enruta\ntráfico normalmente])
+    E --> G([ALB retira la instancia\nde la rotación de tráfico])
+    G --> H([CloudWatch detecta el 503\ny alerta al equipo técnico])
     style A fill:#d6d9f3,color:#373644,stroke:#565386
-    style B fill:#d9d8f5,color:#373644,stroke:#a25cbf
+    style B fill:#d6d9f3,color:#373644,stroke:#565386
     style C fill:#d9d8f5,color:#373644,stroke:#a25cbf
+    style D fill:#afd393,color:#2d5a1b,stroke:#5a9a3a
+    style E fill:#ff3759,color:#fff,stroke:#cc1a33
+    style F fill:#afd393,color:#2d5a1b,stroke:#5a9a3a
+    style G fill:#fac186,color:#7a3a00,stroke:#c07a2a
+    style H fill:#a25cbf,color:#fff,stroke:#7a1a8b
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ESCENARIO 10 — PLANIFICADO -->
+  <div class="scenario-card">
+    <div class="scenario-header">
+      <div class="scenario-number">10</div>
+      <div>
+        <h3>Reintento de notificaciones fallidas (proceso independiente)</h3>
+        <div class="actors">
+          <span class="actor-badge" style="background:#d6d9f3;color:#373644">Sistema</span>
+        </div>
+      </div>
+    </div>
+    <div class="scenario-body">
+      <div class="steps">
+        <h4>¿Cómo funciona hoy?</h4>
+        <div class="planned-banner">
+          ⚠️ <strong>Funcionalidad planificada</strong> — No existe un proceso nocturno o periódico que revise el historial de notificaciones fallidas y las reintente como lote. Esta función no está disponible aún en el sistema. No usar para capacitación hasta que sea implementada.
+        </div>
+        <ul class="step-list">
+          <li class="system">🤖 Actualmente, el reintento de notificaciones de WhatsApp fallidas ocurre de forma <strong>inmediata e inline</strong>: cada vez que un mensaje falla al enviarse, el job se reencola automáticamente hasta 3 veces con pausa creciente entre intentos.</li>
+          <li class="error">❌ Si las 3 fallas, el job queda en estado <em>failed</em>. No hay un proceso que lo retome más tarde de forma automática.</li>
+          <li class="system">🤖 Para notificaciones de SMS y correo, el estado fallido queda registrado en <em>notification_log</em> y requiere revisión manual del equipo técnico.</li>
+        </ul>
+        <div class="notes">
+          <strong>Nota operativa:</strong> Si una paciente reporta que no recibió ninguna notificación y ya pasaron varios días, no existe un proceso automático que la reenvíe retroactivamente. Hay que reenviarla manualmente o reagendarla.
+        </div>
+      </div>
+      <div class="diagram-wrap">
+        <h4>Comportamiento actual de reintentos WA</h4>
+        <div class="mermaid">
+flowchart TD
+    A([Mensaje WA\nfalla al enviarse]) --> B{¿Intentos\nrealizados < 3?}
+    B -- Sí --> C[Reencola con\npausa creciente]
+    C --> D([Reintento automático\ninmediato])
+    D --> B
+    B -- No --> E([Job queda en estado\nfailed — revisión manual])
+    style A fill:#ff3759,color:#fff,stroke:#cc1a33
+    style B fill:#d9d8f5,color:#373644,stroke:#a25cbf
+    style C fill:#fac186,color:#7a3a00,stroke:#c07a2a
     style D fill:#d6d9f3,color:#373644,stroke:#565386
     style E fill:#ff3759,color:#fff,stroke:#cc1a33
-    style F fill:#d9d8f5,color:#373644,stroke:#a25cbf
-    style G fill:#afd393,color:#2d5a1b,stroke:#5a9a3a
-    style H fill:#ed80a8,color:#fff,stroke:#a25cbf
-    style I fill:#fac186,color:#5a3a00,stroke:#c07a2a
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ESCENARIO 11 — PLANIFICADO -->
+  <div class="scenario-card">
+    <div class="scenario-header">
+      <div class="scenario-number">11</div>
+      <div>
+        <h3>Resumen de agenda matutino</h3>
+        <div class="actors">
+          <span class="actor-badge" style="background:#d6d9f3;color:#373644">Sistema</span>
+          <span class="actor-badge" style="background:#7eb8f7;color:#1a3a5c">Recepcionista</span>
+          <span class="actor-badge" style="background:#fac186;color:#7a3a00">Gerente de Sucursal</span>
+        </div>
+      </div>
+    </div>
+    <div class="scenario-body">
+      <div class="steps">
+        <h4>Estado actual</h4>
+        <div class="planned-banner">
+          ⚠️ <strong>Funcionalidad planificada</strong> — No existe ningún cron, job ni función en el sistema que genere y envíe un resumen de agenda cada mañana. Esta función no está disponible aún en el sistema. No usar para capacitación hasta que sea implementada.
+        </div>
+        <ul class="step-list">
+          <li>Hoy, la recepcionista y el gerente de sucursal consultan la agenda del día abriendo la plataforma directamente.</li>
+          <li>No existe un envío automático matutino por correo, WhatsApp ni notificación interna.</li>
+        </ul>
+        <div class="notes">
+          <strong>Nota operativa:</strong> Para conocer las citas del día, entrar a la agenda de la sucursal desde la plataforma. El sistema no envía este resumen automáticamente.
+        </div>
+      </div>
+      <div class="diagram-wrap">
+        <h4>Flujo actual (manual)</h4>
+        <div class="mermaid">
+flowchart TD
+    A([Recepcionista o Gerente\nabre la plataforma]) --> B[Navega a la\nagenda de la sucursal]
+    B --> C([Consulta las citas\ndel día manualmente])
+    style A fill:#7eb8f7,color:#1a3a5c,stroke:#3a7acc
+    style B fill:#d6d9f3,color:#373644,stroke:#565386
+    style C fill:#afd393,color:#2d5a1b,stroke:#5a9a3a
         </div>
       </div>
     </div>

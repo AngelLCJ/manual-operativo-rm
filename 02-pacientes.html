@@ -40,6 +40,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
 .mermaid{font-size:13px}
 .notes{margin-top:1rem;padding:.75rem 1rem;background:#fff8e1;border-radius:.5rem;border-left:3px solid var(--warning);font-size:.85rem;color:var(--text)}
 .notes strong{color:#b45309}
+.planned-banner{background:#fff8e1;border:1px solid #fac186;border-radius:8px;padding:.75rem 1rem;margin-bottom:1rem;font-size:.85rem;color:#7a3a00}
 .footer{text-align:center;padding:2rem;color:var(--muted);font-size:.8rem;border-top:1px solid var(--border);margin-top:2rem}
 </style>
 </head>
@@ -87,32 +88,43 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
         <h4>¿Cómo funciona?</h4>
         <ul class="step-list">
           <li>La recepcionista abre la sección de Pacientes y hace clic en "Nueva paciente".</li>
-          <li>Captura los datos requeridos: nombre completo, teléfono, correo electrónico y fecha de nacimiento.</li>
-          <li class="system">🤖 El sistema verifica en tiempo real si ya existe un perfil con el mismo correo o teléfono.</li>
-          <li class="decision">🔀 ¿Ya existe una paciente con esos datos?</li>
-          <li class="error">❌ Si ya existe: el sistema muestra una alerta y sugiere abrir el perfil encontrado en lugar de crear uno nuevo.</li>
-          <li class="success">✅ Si no existe: el sistema crea el perfil y muestra la ficha de la nueva paciente.</li>
-          <li>La recepcionista puede agregar información complementaria (dirección, notas de contacto) antes de guardar.</li>
+          <li>Captura los datos requeridos: nombre completo, teléfono (solo si la paciente es mayor de edad), correo electrónico y fecha de nacimiento.</li>
+          <li class="system">🤖 El sistema calcula la CURP automáticamente a partir del nombre, fecha de nacimiento, sexo y estado de nacimiento. La recepcionista no la captura manualmente en el flujo normal.</li>
+          <li class="system">🤖 Al guardar el registro, el sistema busca perfiles similares en la base de datos.</li>
+          <li class="decision">🔀 ¿Ya existe una paciente con datos muy parecidos?</li>
+          <li class="error">❌ Si se detectan coincidencias: el sistema muestra una alerta con los perfiles encontrados. La recepcionista puede abrir el perfil existente o confirmar que es una persona nueva y proceder con el registro.</li>
+          <li class="error">❌ Si el correo ya existe en la base de datos (duplicado exacto): el sistema falla con un mensaje de error. No sugiere el perfil — simplemente bloquea el guardado.</li>
+          <li class="success">✅ Si no hay coincidencias: el sistema crea el perfil y muestra la ficha de la nueva paciente.</li>
+          <li class="system">🤖 El paciente queda automáticamente vinculada a la sucursal del personal que la registra.</li>
         </ul>
-        <div class="notes"><strong>Importante:</strong> No se puede registrar una paciente sin nombre completo y al menos un medio de contacto (teléfono o correo). Estos campos son obligatorios.</div>
+        <div class="notes"><strong>Importante:</strong> No se puede registrar una paciente sin nombre completo. Para menores de edad, el teléfono primario no se captura. Si se captura un correo ya existente en otro perfil, el sistema bloquea el guardado con un mensaje de error.</div>
       </div>
       <div class="diagram-wrap">
         <h4>Diagrama de flujo</h4>
         <div class="mermaid">
 flowchart TD
-    A([Recepcionista abre\nNueva paciente]) --> B[Captura nombre,\nteléfono, correo,\nfecha de nacimiento]
-    B --> C{El sistema busca\nperfiles similares}
-    C -- Perfil encontrado --> D[Muestra alerta\nde posible duplicado]
-    D --> E([Recepcionista abre\nperfil existente])
-    C -- Sin coincidencias --> F[Crea el perfil\nnuevo]
+    A([Recepcionista abre\nNueva paciente]) --> B[Captura nombre,\ncorreo, fecha de nacimiento\ny teléfono si es mayor de edad]
+    B --> C[Guarda el registro]
+    C --> D[El sistema calcula CURP\ny busca perfiles similares]
+    D --> E{¿Coincidencias\ndetectadas?}
+    E -- Sin coincidencias --> F[Crea el perfil nuevo\ny lo vincula a la sucursal]
     F --> G([Paciente registrada\ncorrectamente])
+    E -- Posibles duplicados --> H[Muestra alerta\ncon perfiles similares]
+    H --> I{¿Recepcionista\nconfirma persona nueva?}
+    I -- Sí es nueva --> F
+    I -- Abrir perfil existente --> J([Abre el perfil\nexistente])
+    E -- Email exacto duplicado --> K([Error: correo ya\nregistrado en otro perfil])
     style A fill:#7eb8f7,color:#1a3a5c,stroke:#4a90d9
-    style B fill:#d6d9f3,color:#373644,stroke:#a25cbf
-    style C fill:#fac186,color:#373644,stroke:#d48a50
-    style D fill:#ff3759,color:#fff,stroke:#c0001f
-    style E fill:#7eb8f7,color:#1a3a5c,stroke:#4a90d9
+    style B fill:#7eb8f7,color:#1a3a5c,stroke:#4a90d9
+    style C fill:#7eb8f7,color:#1a3a5c,stroke:#4a90d9
+    style D fill:#d6d9f3,color:#373644,stroke:#a25cbf
+    style E fill:#fac186,color:#373644,stroke:#d48a50
     style F fill:#d6d9f3,color:#373644,stroke:#a25cbf
     style G fill:#afd393,color:#2d5a1b,stroke:#6aa84f
+    style H fill:#fac186,color:#373644,stroke:#d48a50
+    style I fill:#fac186,color:#373644,stroke:#d48a50
+    style J fill:#7eb8f7,color:#1a3a5c,stroke:#4a90d9
+    style K fill:#ff3759,color:#fff,stroke:#c0001f
         </div>
       </div>
     </div>
@@ -134,14 +146,14 @@ flowchart TD
       <div class="steps">
         <h4>¿Cómo funciona?</h4>
         <ul class="step-list">
-          <li>El usuario escribe en el buscador el nombre, teléfono o correo de la paciente.</li>
-          <li class="system">🤖 El sistema muestra resultados coincidentes en tiempo real, conforme se escribe.</li>
+          <li>El usuario escribe en el buscador el nombre, CURP, teléfono o correo de la paciente.</li>
+          <li class="system">🤖 El sistema muestra resultados coincidentes conforme se escribe (con un pequeño retardo de 300 ms para no sobrecargar la búsqueda).</li>
           <li class="decision">🔀 ¿Aparece la paciente en los resultados?</li>
           <li class="success">✅ Sí aparece: el usuario hace clic sobre su nombre para abrir el perfil completo.</li>
           <li class="error">❌ No aparece: puede intentar con otro dato de contacto o registrar a la paciente como nueva.</li>
-          <li>Los resultados muestran nombre, teléfono, correo y sucursal de origen del perfil.</li>
+          <li>Los resultados muestran nombre y sucursal de origen del perfil. Los datos de contacto (teléfono, correo, CURP) solo se muestran si la paciente está vinculada a tu sucursal.</li>
         </ul>
-        <div class="notes"><strong>Consejo:</strong> Si la paciente tiene apellidos compuestos, prueba buscar solo por teléfono o correo para encontrarla más rápido.</div>
+        <div class="notes"><strong>Consejo:</strong> La CURP es el dato de búsqueda más confiable. Si la paciente tiene apellidos compuestos, busca por CURP o teléfono para encontrarla más rápido.</div>
       </div>
       <div class="diagram-wrap">
         <h4>Diagrama de flujo</h4>
@@ -149,8 +161,9 @@ flowchart TD
 sequenceDiagram
     participant U as Recepcionista / Médica
     participant S as Sistema
-    U->>S: Escribe nombre, teléfono o correo
-    S-->>U: Muestra resultados en tiempo real
+    U->>S: Escribe nombre, CURP, teléfono o correo
+    S-->>U: Muestra resultados conforme se escribe
+    Note over U,S: Datos de contacto visibles solo si la paciente está vinculada a tu sucursal
     U->>S: Selecciona a la paciente
     S-->>U: Abre perfil completo
     Note over U,S: Si no hay resultados, se puede registrar como nueva paciente
@@ -167,7 +180,7 @@ sequenceDiagram
         <h3>Editar datos del paciente</h3>
         <div class="actors">
           <span class="actor-badge" style="background:#7eb8f7;color:#1a3a5c">Recepcionista</span>
-          <span class="actor-badge" style="background:#ed80a8;color:#6b0030">Admin Corporativo</span>
+          <span class="actor-badge" style="background:#ed80a8;color:#7a1a3a">Admin Corporativo</span>
         </div>
       </div>
     </div>
@@ -176,34 +189,39 @@ sequenceDiagram
         <h4>¿Cómo funciona?</h4>
         <ul class="step-list">
           <li>El usuario abre el perfil de la paciente y hace clic en "Editar".</li>
-          <li class="system">🤖 El sistema muestra solo los campos que ese rol tiene permitido modificar, según la configuración de la sucursal.</li>
-          <li>El usuario realiza los cambios necesarios (por ejemplo, actualizar el teléfono o correo).</li>
-          <li class="decision">🔀 ¿El campo que quiere editar está habilitado para su rol?</li>
+          <li class="system">🤖 El sistema muestra solo los grupos de campos que ese rol tiene permitido modificar, según la configuración de la sucursal.</li>
+          <li>El usuario realiza los cambios necesarios.</li>
+          <li class="decision">🔀 ¿El grupo de campos que quiere editar está habilitado para su rol?</li>
           <li class="success">✅ Sí está habilitado: guarda el cambio y el sistema registra quién lo hizo y cuándo.</li>
           <li class="error">❌ No está habilitado: el campo aparece bloqueado. Contactar al Admin Corporativo para el ajuste.</li>
-          <li class="system">🤖 El sistema guarda un historial de cada modificación: dato anterior, dato nuevo, fecha y quién lo cambió.</li>
+          <li class="error">❌ Restricción fija — email y teléfono principal: independientemente de la configuración de permisos, estos campos solo pueden ser modificados por roles admin (gerente de sucursal o corporativo). La recepcionista nunca puede cambiarlos.</li>
+          <li class="system">🤖 Los cambios se registran en el log de auditoría del sistema con el estado anterior del perfil (snapshot). No existe un historial campo a campo — el registro es del objeto completo en el momento del cambio.</li>
         </ul>
-        <div class="notes"><strong>Importante:</strong> El historial de cambios no puede borrarse. Cualquier modificación queda registrada permanentemente para auditoría.</div>
+        <div class="notes"><strong>Importante:</strong> El correo y el teléfono principal son campos de acceso exclusivo de roles admin, sin excepción. El log de auditoría guarda un snapshot del perfil completo al momento de cada cambio, no un historial por campo individual.</div>
       </div>
       <div class="diagram-wrap">
         <h4>Diagrama de flujo</h4>
         <div class="mermaid">
 flowchart TD
-    A([Usuario abre perfil\ny hace clic en Editar]) --> B{¿El campo está\nhabilitado para\nsu rol?}
-    B -- Sí --> C[Usuario edita\nel campo]
-    C --> D[Guarda el cambio]
-    D --> E[El sistema registra\ncambio en historial]
-    E --> F([Perfil actualizado])
-    B -- No --> G[Campo bloqueado\nen pantalla]
-    G --> H([Contactar al\nAdmin Corporativo])
+    A([Usuario abre perfil\ny hace clic en Editar]) --> B{¿El grupo de campos\nestá habilitado\npara su rol?}
+    B -- Sí --> C{¿Es email o\nteléfono principal?}
+    C -- No --> D[Usuario edita\nel campo]
+    D --> E[Guarda el cambio]
+    E --> F[El sistema registra\nel cambio en audit log\nSnapshot del perfil completo]
+    F --> G([Perfil actualizado])
+    C -- Sí y no es admin --> H([Campo bloqueado:\nsolo roles admin])
+    B -- No --> I[Campo bloqueado\nen pantalla]
+    I --> J([Contactar al\nAdmin Corporativo])
     style A fill:#7eb8f7,color:#1a3a5c,stroke:#4a90d9
     style B fill:#fac186,color:#373644,stroke:#d48a50
-    style C fill:#7eb8f7,color:#1a3a5c,stroke:#4a90d9
-    style D fill:#d6d9f3,color:#373644,stroke:#a25cbf
+    style C fill:#fac186,color:#373644,stroke:#d48a50
+    style D fill:#7eb8f7,color:#1a3a5c,stroke:#4a90d9
     style E fill:#d6d9f3,color:#373644,stroke:#a25cbf
-    style F fill:#afd393,color:#2d5a1b,stroke:#6aa84f
-    style G fill:#ff3759,color:#fff,stroke:#c0001f
-    style H fill:#ed80a8,color:#6b0030,stroke:#b85080
+    style F fill:#d6d9f3,color:#373644,stroke:#a25cbf
+    style G fill:#afd393,color:#2d5a1b,stroke:#6aa84f
+    style H fill:#ff3759,color:#fff,stroke:#c0001f
+    style I fill:#ff3759,color:#fff,stroke:#c0001f
+    style J fill:#ed80a8,color:#7a1a3a,stroke:#b85080
         </div>
       </div>
     </div>
@@ -225,21 +243,21 @@ flowchart TD
       <div class="steps">
         <h4>¿Cómo funciona?</h4>
         <ul class="step-list">
-          <li>La recepcionista abre el perfil de la paciente que será la titular del grupo familiar.</li>
+          <li>La recepcionista abre el perfil de la paciente que iniciará el grupo familiar.</li>
           <li>Hace clic en "Crear grupo familiar" dentro de la ficha de la paciente.</li>
-          <li>Confirma que esa paciente será la titular (responsable de pago o referencia del grupo).</li>
-          <li class="system">🤖 El sistema crea el grupo y asigna automáticamente a esa paciente como titular.</li>
+          <li>Confirma que esa paciente será la referencia inicial del grupo (titular de referencia).</li>
+          <li class="system">🤖 El sistema crea el grupo y asigna a esa paciente como titular de referencia inicial.</li>
           <li class="success">✅ El grupo queda activo y listo para agregar más miembros.</li>
           <li>A partir de ese momento, se pueden vincular familiares al grupo (ver Escenario 5).</li>
         </ul>
-        <div class="notes"><strong>Nota:</strong> Solo puede haber un titular por grupo familiar. Si es necesario cambiar la titular más adelante, consulta el Escenario 12.</div>
+        <div class="notes"><strong>Nota:</strong> El campo de "titular" es una referencia de conveniencia para el grupo. El sistema no impide que más de un miembro tenga ese marcador activo simultáneamente — la unicidad no está forzada en la base de datos. Para cambiar el titular en el futuro, consulta el Escenario 12 (ver nota de disponibilidad).</div>
       </div>
       <div class="diagram-wrap">
         <h4>Diagrama de flujo</h4>
         <div class="mermaid">
 flowchart TD
     A([Recepcionista abre\nperfil de la paciente]) --> B[Hace clic en\nCrear grupo familiar]
-    B --> C[Confirma que esta\npaciente será la titular]
+    B --> C[Confirma que esta\npaciente será la titular\nde referencia inicial]
     C --> D[El sistema crea\nel grupo familiar]
     D --> E([Grupo activo\nlisto para agregar miembros])
     style A fill:#7eb8f7,color:#1a3a5c,stroke:#4a90d9
@@ -268,7 +286,7 @@ flowchart TD
       <div class="steps">
         <h4>¿Cómo funciona?</h4>
         <ul class="step-list">
-          <li>La recepcionista abre el grupo familiar de la titular y hace clic en "Agregar familiar".</li>
+          <li>La recepcionista abre el grupo familiar y hace clic en "Agregar familiar".</li>
           <li>Busca al familiar por nombre, teléfono o correo.</li>
           <li class="decision">🔀 ¿El familiar ya tiene perfil en el sistema?</li>
           <li class="success">✅ Sí tiene perfil: se selecciona de los resultados y se vincula al grupo de inmediato.</li>
@@ -276,7 +294,7 @@ flowchart TD
           <li class="system">🤖 El sistema registra la relación familiar y muestra al nuevo miembro dentro del grupo.</li>
           <li class="success">✅ El familiar queda vinculado y puede usarse en citas y contratos del grupo.</li>
         </ul>
-        <div class="notes"><strong>Nota:</strong> Un perfil solo puede pertenecer a un grupo familiar a la vez. Si la paciente ya pertenece a otro grupo, el sistema lo informará antes de confirmar el vínculo.</div>
+        <div class="notes"><strong>Modelo multi-familia:</strong> Un perfil de paciente puede pertenecer a más de un grupo familiar al mismo tiempo. Esto permite que, por ejemplo, una paciente sea miembro del grupo de su familia de origen y también de la familia de su pareja. El sistema no impide esta configuración.</div>
       </div>
       <div class="diagram-wrap">
         <h4>Diagrama de flujo</h4>
@@ -291,6 +309,7 @@ flowchart TD
     F --> G
     G --> H[El sistema confirma\nel vínculo]
     H --> I([Familiar agregado\nal grupo])
+    Note1[Un paciente puede\npertenecer a varios grupos\nde forma simultánea]
     style A fill:#7eb8f7,color:#1a3a5c,stroke:#4a90d9
     style B fill:#7eb8f7,color:#1a3a5c,stroke:#4a90d9
     style C fill:#7eb8f7,color:#1a3a5c,stroke:#4a90d9
@@ -300,6 +319,7 @@ flowchart TD
     style G fill:#d6d9f3,color:#373644,stroke:#a25cbf
     style H fill:#d6d9f3,color:#373644,stroke:#a25cbf
     style I fill:#afd393,color:#2d5a1b,stroke:#6aa84f
+    style Note1 fill:#fff8e1,color:#7a3a00,stroke:#fac186
         </div>
       </div>
     </div>
@@ -313,7 +333,7 @@ flowchart TD
         <h3>Detectar paciente duplicada</h3>
         <div class="actors">
           <span class="actor-badge" style="background:#d6d9f3;color:#373644">Sistema</span>
-          <span class="actor-badge" style="background:#7eb8f7;color:#1a3a5c">Recepcionista</span>
+          <span class="actor-badge" style="background:#ed80a8;color:#7a1a3a">Admin Corporativo</span>
         </div>
       </div>
     </div>
@@ -321,37 +341,38 @@ flowchart TD
       <div class="steps">
         <h4>¿Cómo funciona?</h4>
         <ul class="step-list">
-          <li class="system">🤖 El sistema revisa continuamente los perfiles buscando coincidencias por nombre, teléfono o correo.</li>
-          <li class="system">🤖 Cuando detecta dos perfiles que podrían ser la misma persona, genera una alerta de posible duplicado.</li>
-          <li>La recepcionista recibe la notificación o la ve en la sección de "Alertas" del panel.</li>
-          <li>Revisa los dos perfiles lado a lado para comparar la información.</li>
-          <li class="decision">🔀 ¿Son realmente la misma paciente?</li>
-          <li class="success">✅ Sí son la misma: procede a unificar los perfiles (ver Escenario 7).</li>
-          <li class="error">❌ No son la misma: descarta la alerta y el sistema la marca como revisada.</li>
+          <li class="system">🤖 El sistema detecta posibles duplicados automáticamente al momento de registrar una paciente nueva (comparando nombre, CURP, correo y teléfono con puntuación ponderada).</li>
+          <li>Adicionalmente, el Admin Corporativo puede ejecutar una revisión manual de toda la base de datos desde el panel de Duplicados en cualquier momento.</li>
+          <li class="decision">🔀 ¿Se detectan pares con alta coincidencia?</li>
+          <li class="success">✅ Sí hay coincidencias: el panel muestra los pares de perfiles lado a lado para comparar.</li>
+          <li>El Admin Corporativo revisa los dos perfiles y decide si son la misma persona.</li>
+          <li class="success">✅ Son la misma: procede a unificar los perfiles (ver Escenario 7).</li>
         </ul>
-        <div class="notes"><strong>Importante:</strong> Solo el Admin Corporativo puede ejecutar la unificación definitiva. La recepcionista puede detectar y reportar, pero no fusionar perfiles.</div>
+        <div class="notes"><strong>Acceso restringido:</strong> El panel de Duplicados solo está disponible para el Admin Corporativo y el Gerente de Sucursal. La recepcionista no tiene acceso a esta sección. El sistema califica las coincidencias con un score ponderado: CURP 40%, nombre 25%, fecha de nacimiento 20%, correo 10%, teléfono 5%.</div>
       </div>
       <div class="diagram-wrap">
         <h4>Diagrama de flujo</h4>
         <div class="mermaid">
 flowchart TD
-    A[El sistema compara\nperfiles por nombre,\nteléfono y correo] --> B{¿Coincidencia\ndetectada?}
+    A[Al registrar paciente nueva:\nel sistema calcula score\nde similitud con perfiles existentes] --> B{¿Score alto\nde coincidencia?}
     B -- No --> C([Sin acción necesaria])
-    B -- Sí --> D[Genera alerta\nde duplicado]
-    D --> E[Recepcionista revisa\nambos perfiles]
-    E --> F{¿Son la\nmisma paciente?}
-    F -- Sí --> G([Procede a unificar\nver Escenario 7])
-    F -- No --> H[Descarta la alerta]
-    H --> I([Alerta marcada\ncomo revisada])
+    B -- Sí --> D[Marca par como\nposible duplicado]
+    D --> E[Admin Corporativo accede\nal panel de Duplicados]
+    E --> F[Revisa ambos\nperfiles lado a lado]
+    F --> G{¿Son la\nmisma paciente?}
+    G -- Sí --> H([Procede a unificar\nver Escenario 7])
+    G -- No --> I([Admin descarta\nel par manualmente])
+    A2([Admin ejecuta revisión\nbatch manual desde\npanel de Duplicados]) --> E
     style A fill:#d6d9f3,color:#373644,stroke:#a25cbf
+    style A2 fill:#ed80a8,color:#7a1a3a,stroke:#b85080
     style B fill:#fac186,color:#373644,stroke:#d48a50
     style C fill:#afd393,color:#2d5a1b,stroke:#6aa84f
-    style D fill:#ff3759,color:#fff,stroke:#c0001f
-    style E fill:#7eb8f7,color:#1a3a5c,stroke:#4a90d9
-    style F fill:#fac186,color:#373644,stroke:#d48a50
-    style G fill:#afd393,color:#2d5a1b,stroke:#6aa84f
-    style H fill:#d6d9f3,color:#373644,stroke:#a25cbf
-    style I fill:#afd393,color:#2d5a1b,stroke:#6aa84f
+    style D fill:#fac186,color:#373644,stroke:#d48a50
+    style E fill:#ed80a8,color:#7a1a3a,stroke:#b85080
+    style F fill:#ed80a8,color:#7a1a3a,stroke:#b85080
+    style G fill:#fac186,color:#373644,stroke:#d48a50
+    style H fill:#afd393,color:#2d5a1b,stroke:#6aa84f
+    style I fill:#d6d9f3,color:#373644,stroke:#a25cbf
         </div>
       </div>
     </div>
@@ -364,7 +385,7 @@ flowchart TD
       <div>
         <h3>Unificar perfiles duplicados (merge)</h3>
         <div class="actors">
-          <span class="actor-badge" style="background:#ed80a8;color:#6b0030">Admin Corporativo</span>
+          <span class="actor-badge" style="background:#ed80a8;color:#7a1a3a">Admin Corporativo</span>
           <span class="actor-badge" style="background:#d6d9f3;color:#373644">Sistema</span>
         </div>
       </div>
@@ -373,14 +394,17 @@ flowchart TD
       <div class="steps">
         <h4>¿Cómo funciona?</h4>
         <ul class="step-list">
-          <li>El Admin Corporativo abre la alerta de duplicado o busca manualmente los dos perfiles a unificar.</li>
-          <li>Compara ambos perfiles y elige cuál será el perfil principal (el que se conservará).</li>
+          <li>El Admin Corporativo abre los dos perfiles a unificar desde el panel de duplicados o buscándolos manualmente.</li>
+          <li>Compara ambos perfiles y elige cuál será el perfil principal (el que se conservará activo).</li>
+          <li>Para ciertos campos como alergias, el sistema permite elegir cuál versión conservar. El operador selecciona la información correcta antes de confirmar.</li>
           <li>Hace clic en "Unificar perfiles" y confirma la acción.</li>
-          <li class="system">🤖 El sistema transfiere al perfil principal todas las citas, contratos, notas clínicas y datos del perfil secundario.</li>
-          <li class="system">🤖 El perfil secundario queda archivado (no se borra, solo se oculta del directorio activo).</li>
-          <li class="success">✅ A partir de ese momento, existe un solo perfil unificado con el historial completo de la paciente.</li>
+          <li class="system">🤖 El sistema transfiere al perfil principal: teléfonos adicionales, alergias, notas clínicas, documentos y membresías de grupos familiares del perfil secundario.</li>
+          <li class="system">🤖 Las citas y contratos del perfil secundario no se transfieren. Permanecen bajo el ID del perfil secundario y deben revisarse manualmente si es necesario.</li>
+          <li class="system">🤖 Si el perfil secundario tenía cuenta de WhatsApp activa, el número se transfiere al perfil principal (siempre que este no tenga uno propio ya registrado).</li>
+          <li class="system">🤖 El perfil secundario queda marcado como "fusionado" (isMerged=true) e inactivo. No se elimina de la base de datos.</li>
+          <li class="success">✅ A partir de ese momento, el perfil principal concentra los datos transferidos. El perfil secundario se conserva en la base de datos como registro histórico.</li>
         </ul>
-        <div class="notes"><strong>Advertencia:</strong> Esta acción no se puede deshacer fácilmente. Revisar bien ambos perfiles antes de confirmar la unificación.</div>
+        <div class="notes"><strong>Reversible:</strong> Esta acción puede revertirse desde el historial de fusiones del perfil, siempre que un admin ejecute la separación. Al revertir, ambos perfiles se restauran desde sus copias de seguridad internas. Nota: si una nota fue editada después de la fusión, es posible que esa edición no se restaure en el perfil original al deshacer.</div>
       </div>
       <div class="diagram-wrap">
         <h4>Diagrama de flujo</h4>
@@ -388,17 +412,29 @@ flowchart TD
 flowchart TD
     A([Admin Corporativo\nabre los dos perfiles]) --> B[Compara información\nde ambos perfiles]
     B --> C[Elige el perfil\nprincipal a conservar]
-    C --> D[Confirma la unificación]
-    D --> E[El sistema transfiere\ncitas, contratos y notas\nal perfil principal]
-    E --> F[El perfil secundario\nqueda archivado]
-    F --> G([Un solo perfil unificado\ncon historial completo])
-    style A fill:#ed80a8,color:#6b0030,stroke:#b85080
-    style B fill:#ed80a8,color:#6b0030,stroke:#b85080
+    C --> D[Selecciona versión\ncorrecta de campos\nen conflicto como alergias]
+    D --> E[Confirma la unificación]
+    E --> F[El sistema transfiere:\nteléfonos, alergias, notas,\ndocumentos y grupos familiares]
+    F --> G[Citas y contratos\ndel secundario NO se mueven:\nquedan bajo su ID original]
+    G --> H[WhatsApp del secundario\nse transfiere al principal\nsi el principal no tiene uno]
+    H --> I[El perfil secundario\nqueda marcado como fusionado\nno se elimina de la BD]
+    I --> J([Perfil principal unificado\ncon los datos transferidos])
+    J --> K{¿Necesita revertir?}
+    K -- Sí --> L([Admin ejecuta separación\ndesde historial de fusiones])
+    K -- No --> M([Proceso completado])
+    style A fill:#ed80a8,color:#7a1a3a,stroke:#b85080
+    style B fill:#ed80a8,color:#7a1a3a,stroke:#b85080
     style C fill:#fac186,color:#373644,stroke:#d48a50
     style D fill:#fac186,color:#373644,stroke:#d48a50
-    style E fill:#d6d9f3,color:#373644,stroke:#a25cbf
+    style E fill:#fac186,color:#373644,stroke:#d48a50
     style F fill:#d6d9f3,color:#373644,stroke:#a25cbf
-    style G fill:#afd393,color:#2d5a1b,stroke:#6aa84f
+    style G fill:#fac186,color:#7a3a00,stroke:#d48a50
+    style H fill:#25D366,color:#fff,stroke:#1a9e4a
+    style I fill:#d6d9f3,color:#373644,stroke:#a25cbf
+    style J fill:#afd393,color:#2d5a1b,stroke:#6aa84f
+    style K fill:#fac186,color:#373644,stroke:#d48a50
+    style L fill:#ed80a8,color:#7a1a3a,stroke:#b85080
+    style M fill:#afd393,color:#2d5a1b,stroke:#6aa84f
         </div>
       </div>
     </div>
@@ -413,7 +449,7 @@ flowchart TD
         <div class="actors">
           <span class="actor-badge" style="background:#c58fe8;color:#4a1a6b">Médica</span>
           <span class="actor-badge" style="background:#7eb8f7;color:#1a3a5c">Recepcionista</span>
-          <span class="actor-badge" style="background:#fac186;color:#6b3a10">Gerente de Sucursal</span>
+          <span class="actor-badge" style="background:#fac186;color:#7a3a00">Gerente de Sucursal</span>
         </div>
       </div>
     </div>
@@ -448,7 +484,7 @@ flowchart TD
     style B fill:#fac186,color:#373644,stroke:#d48a50
     style C fill:#7eb8f7,color:#1a3a5c,stroke:#4a90d9
     style D fill:#c58fe8,color:#4a1a6b,stroke:#8a5cbf
-    style E fill:#fac186,color:#6b3a10,stroke:#d48a50
+    style E fill:#fac186,color:#7a3a00,stroke:#d48a50
     style F fill:#afd393,color:#2d5a1b,stroke:#6aa84f
     style G fill:#fac186,color:#373644,stroke:#d48a50
         </div>
@@ -463,7 +499,8 @@ flowchart TD
       <div>
         <h3>Agregar paciente a lista restringida</h3>
         <div class="actors">
-          <span class="actor-badge" style="background:#ed80a8;color:#6b0030">Admin Corporativo</span>
+          <span class="actor-badge" style="background:#7eb8f7;color:#1a3a5c">Cualquier personal</span>
+          <span class="actor-badge" style="background:#ed80a8;color:#7a1a3a">Admin / Gerente</span>
           <span class="actor-badge" style="background:#d6d9f3;color:#373644">Sistema</span>
         </div>
       </div>
@@ -472,28 +509,37 @@ flowchart TD
       <div class="steps">
         <h4>¿Cómo funciona?</h4>
         <ul class="step-list">
-          <li>El Admin Corporativo abre el perfil de la paciente y selecciona "Restringir perfil".</li>
-          <li>Escribe el motivo de la restricción (campo obligatorio para auditoría interna).</li>
-          <li>Confirma la acción.</li>
-          <li class="system">🤖 El sistema marca el perfil y bloquea la creación de nuevas citas para esa paciente en todas las sucursales.</li>
-          <li class="system">🤖 Las citas ya agendadas no se cancelan automáticamente; deben gestionarse por separado.</li>
-          <li>Si cualquier usuario intenta agendar una cita para esa paciente, verá una nota de restricción en pantalla.</li>
-          <li class="success">✅ Para desbloquear el perfil, solo el Admin Corporativo puede hacerlo desde la misma sección.</li>
+          <li><strong>Paso 1 — Solicitud:</strong> cualquier personal autenticado puede abrir el perfil de la paciente y seleccionar "Solicitar restricción de perfil".</li>
+          <li>Se debe escribir el motivo de la restricción (campo obligatorio para auditoría interna). Sin motivo no se puede enviar la solicitud.</li>
+          <li class="system">🤖 El sistema registra la solicitud con estado "pendiente" y notifica al Admin Corporativo o Gerente de Sucursal para su revisión.</li>
+          <li><strong>Paso 2 — Aprobación o rechazo:</strong> el Admin Corporativo o Gerente revisa la solicitud.</li>
+          <li class="decision">🔀 ¿El admin aprueba la restricción?</li>
+          <li class="success">✅ Aprueba: el sistema marca el perfil como restringido y bloquea la creación de nuevas citas para esa paciente en todas las sucursales.</li>
+          <li class="error">❌ Rechaza: la solicitud queda marcada como "rechazada". El perfil de la paciente no cambia.</li>
+          <li class="system">🤖 Las citas ya agendadas no se cancelan automáticamente al restringir el perfil; deben gestionarse por separado.</li>
+          <li class="success">✅ Para levantar la restricción, solo el Admin Corporativo o Gerente puede hacerlo desde la misma sección.</li>
         </ul>
-        <div class="notes"><strong>Uso excepcional:</strong> Esta función se reserva para casos muy puntuales (por ejemplo, adeudos graves o situaciones extraordinarias). No debe usarse como práctica habitual.</div>
+        <div class="notes"><strong>Uso excepcional:</strong> Esta función se reserva para casos muy puntuales (por ejemplo, adeudos graves o situaciones extraordinarias). No debe usarse como práctica habitual. El bloqueo afecta solo el agendamiento futuro — las citas existentes no se cancelan automáticamente.</div>
       </div>
       <div class="diagram-wrap">
         <h4>Diagrama de flujo</h4>
         <div class="mermaid">
 stateDiagram-v2
     [*] --> Activo : Paciente registrada
-    Activo --> Restringido : Admin aplica restricción
+    Activo --> SolicitudPendiente : Cualquier personal solicita\nrestricción con motivo
+    SolicitudPendiente --> Restringido : Admin aprueba la solicitud
+    SolicitudPendiente --> Activo : Admin rechaza la solicitud
     Restringido --> Activo : Admin levanta restricción
     Restringido --> Restringido : Intento de cita bloqueado
     note right of Restringido
-        No se pueden agendar citas.
+        No se pueden agendar citas nuevas.
         Las citas previas no se cancelan.
-        Solo Admin Corporativo puede desbloquear.
+        Solo Admin o Gerente puede desbloquear.
+    end note
+    note right of SolicitudPendiente
+        Motivo obligatorio.
+        Admin recibe notificación.
+        Puede aprobar o rechazar.
     end note
         </div>
       </div>
@@ -507,7 +553,7 @@ stateDiagram-v2
       <div>
         <h3>Configurar campos editables de paciente</h3>
         <div class="actors">
-          <span class="actor-badge" style="background:#ed80a8;color:#6b0030">Admin Corporativo</span>
+          <span class="actor-badge" style="background:#ed80a8;color:#7a1a3a">Admin Corporativo</span>
         </div>
       </div>
     </div>
@@ -516,37 +562,37 @@ stateDiagram-v2
         <h4>¿Cómo funciona?</h4>
         <ul class="step-list">
           <li>El Admin Corporativo entra a la configuración de la sucursal y busca la sección "Permisos de edición de paciente".</li>
-          <li>Ve una lista de todos los campos del perfil de paciente (nombre, teléfono, correo, fecha de nacimiento, dirección, etc.).</li>
-          <li>Para cada campo, activa o desactiva el permiso de edición según el rol: recepcionista, consejera, gerente.</li>
-          <li class="decision">🔀 Ejemplo: ¿puede la recepcionista editar la fecha de nacimiento?</li>
-          <li class="success">✅ Si se activa: el campo aparece editable para ese rol en la ficha de la paciente.</li>
-          <li class="error">❌ Si se desactiva: el campo aparece en modo solo lectura para ese rol.</li>
-          <li class="system">🤖 El sistema aplica la configuración en tiempo real a todas las sesiones activas de ese rol.</li>
+          <li>Ve una lista de grupos de campos predefinidos del perfil de paciente. Los grupos disponibles son: datos personales, datos de contacto, familia, alertas médicas, información financiera, documentos, notas y auditoría.</li>
+          <li>Para cada grupo, activa o desactiva el permiso de edición según el rol: recepcionista, consejera, gerente. La configuración aplica al grupo completo — no es posible habilitar un campo individual dentro del grupo si el grupo está desactivado.</li>
+          <li class="decision">🔀 Ejemplo: ¿puede la recepcionista editar el grupo de datos de contacto?</li>
+          <li class="success">✅ Si se activa el grupo: los campos de ese grupo aparecen editables para ese rol en la ficha de la paciente.</li>
+          <li class="error">❌ Si se desactiva el grupo: todos los campos del grupo aparecen en modo solo lectura para ese rol.</li>
+          <li class="system">🤖 Los cambios aplican en la próxima carga del perfil de la paciente por parte del usuario afectado (no en tiempo real en sesiones ya abiertas).</li>
         </ul>
-        <div class="notes"><strong>Recomendación:</strong> Como mínimo, todos los roles deben poder editar el teléfono y el correo, ya que son los datos de contacto más dinámicos.</div>
+        <div class="notes"><strong>Importante:</strong> La configuración es por grupo de campos, no campo a campo. No es posible, por ejemplo, habilitar solo el teléfono sin también habilitar el correo — ambos forman parte del grupo "datos de contacto". Además, email y teléfono principal tienen una restricción fija de sistema que los reserva para roles admin, independientemente de esta configuración.</div>
       </div>
       <div class="diagram-wrap">
         <h4>Diagrama de flujo</h4>
         <div class="mermaid">
 flowchart TD
     A([Admin Corporativo\nabre Configuración\nde sucursal]) --> B[Accede a Permisos\nde edición de paciente]
-    B --> C[Selecciona un campo\npor ejemplo Teléfono]
-    C --> D{¿Activar edición\npara qué roles?}
+    B --> C[Selecciona un GRUPO\nde campos por ejemplo\nDatos de contacto]
+    C --> D{¿Activar edición\nde ese grupo\npara qué roles?}
     D --> E[Recepcionista]
     D --> F[Consejera]
     D --> G[Gerente]
     E --> H[Guarda configuración]
     F --> H
     G --> H
-    H --> I[El sistema aplica\ncambios inmediatamente]
-    I --> J([Campos actualizados\nen todas las vistas])
-    style A fill:#ed80a8,color:#6b0030,stroke:#b85080
-    style B fill:#ed80a8,color:#6b0030,stroke:#b85080
-    style C fill:#ed80a8,color:#6b0030,stroke:#b85080
+    H --> I[Cambios aplican en\nla próxima carga\ndel perfil]
+    I --> J([Grupos de campos\nactualizados por rol])
+    style A fill:#ed80a8,color:#7a1a3a,stroke:#b85080
+    style B fill:#ed80a8,color:#7a1a3a,stroke:#b85080
+    style C fill:#ed80a8,color:#7a1a3a,stroke:#b85080
     style D fill:#fac186,color:#373644,stroke:#d48a50
     style E fill:#7eb8f7,color:#1a3a5c,stroke:#4a90d9
     style F fill:#d9d8f5,color:#373644,stroke:#a25cbf
-    style G fill:#fac186,color:#6b3a10,stroke:#d48a50
+    style G fill:#fac186,color:#7a3a00,stroke:#d48a50
     style H fill:#d6d9f3,color:#373644,stroke:#a25cbf
     style I fill:#d6d9f3,color:#373644,stroke:#a25cbf
     style J fill:#afd393,color:#2d5a1b,stroke:#6aa84f
@@ -564,7 +610,7 @@ flowchart TD
         <div class="actors">
           <span class="actor-badge" style="background:#7eb8f7;color:#1a3a5c">Recepcionista</span>
           <span class="actor-badge" style="background:#c58fe8;color:#4a1a6b">Médica</span>
-          <span class="actor-badge" style="background:#fac186;color:#6b3a10">Gerente de Sucursal</span>
+          <span class="actor-badge" style="background:#fac186;color:#7a3a00">Gerente de Sucursal</span>
         </div>
       </div>
     </div>
@@ -616,47 +662,32 @@ sequenceDiagram
         <h3>Cambiar titular del grupo familiar</h3>
         <div class="actors">
           <span class="actor-badge" style="background:#7eb8f7;color:#1a3a5c">Recepcionista</span>
-          <span class="actor-badge" style="background:#ed80a8;color:#6b0030">Admin Corporativo</span>
+          <span class="actor-badge" style="background:#ed80a8;color:#7a1a3a">Admin Corporativo</span>
         </div>
       </div>
     </div>
     <div class="scenario-body">
       <div class="steps">
-        <h4>¿Cómo funciona?</h4>
+        <h4>Estado actual</h4>
         <ul class="step-list">
-          <li>La recepcionista o el Admin abre la ficha del grupo familiar.</li>
-          <li>Selecciona la opción "Cambiar titular".</li>
-          <li>Elige al nuevo titular entre los miembros actuales del grupo.</li>
-          <li class="decision">🔀 ¿El nuevo titular tiene datos de contacto completos?</li>
-          <li class="error">❌ Si le faltan datos: el sistema solicita completar teléfono o correo antes de confirmar el cambio.</li>
-          <li class="success">✅ Si tiene los datos completos: se confirma el cambio y el sistema actualiza la titularidad del grupo.</li>
-          <li class="system">🤖 El sistema registra el historial del cambio: titular anterior, nuevo titular, fecha y quién realizó el cambio.</li>
-          <li>La titular anterior sigue siendo miembro del grupo, solo pierde la titularidad.</li>
+          <li class="error">❌ Esta función no está disponible en el sistema actual. No existe ninguna acción en el sistema que permita actualizar la titularidad de un miembro dentro de un grupo familiar.</li>
+          <li>El campo "titular" se asigna al primer miembro al crear el grupo (Escenario 4), pero no puede cambiarse desde la interfaz.</li>
+          <li>Si necesitas cambiar el titular de un grupo familiar, contacta al administrador del sistema para una operación manual.</li>
         </ul>
-        <div class="notes"><strong>Nota:</strong> Si la titular que se quiere reemplazar tiene contratos activos a su nombre, es necesario revisar esos contratos antes o después del cambio. El cambio de titular no transfiere los contratos automáticamente.</div>
+        <div class="notes"><strong>No usar para capacitación:</strong> Este escenario describe una funcionalidad planificada que no está implementada. El contenido detallado del flujo se publicará cuando la función esté disponible.</div>
       </div>
       <div class="diagram-wrap">
         <h4>Diagrama de flujo</h4>
+        <div style="background:#fff8e1;border:1px solid #fac186;border-radius:8px;padding:.75rem 1rem;margin-bottom:1rem;font-size:.85rem;color:#7a3a00;">
+          ⚠️ <strong>Funcionalidad planificada</strong> — Esta función no está disponible aún en el sistema. No usar para capacitación hasta que sea implementada.
+        </div>
         <div class="mermaid">
 flowchart TD
-    A([Usuario abre\ngrupo familiar]) --> B[Selecciona\nCambiar titular]
-    B --> C[Elige al nuevo\ntitular del grupo]
-    C --> D{¿Tiene datos\nde contacto\ncompletos?}
-    D -- No --> E[El sistema pide\ncompletar datos]
-    E --> C
-    D -- Sí --> F[Confirma el cambio]
-    F --> G[El sistema actualiza\nla titularidad]
-    G --> H[Registra en historial:\nanterior, nuevo, fecha]
-    H --> I([Titularidad\ntransferida correctamente])
-    style A fill:#7eb8f7,color:#1a3a5c,stroke:#4a90d9
-    style B fill:#7eb8f7,color:#1a3a5c,stroke:#4a90d9
-    style C fill:#fac186,color:#373644,stroke:#d48a50
-    style D fill:#fac186,color:#373644,stroke:#d48a50
-    style E fill:#ff3759,color:#fff,stroke:#c0001f
-    style F fill:#ed80a8,color:#6b0030,stroke:#b85080
-    style G fill:#d6d9f3,color:#373644,stroke:#a25cbf
-    style H fill:#d6d9f3,color:#373644,stroke:#a25cbf
-    style I fill:#afd393,color:#2d5a1b,stroke:#6aa84f
+    A([Funcionalidad\nno implementada]) --> B[No existe acción\nen el sistema para\ncambiar titularidad]
+    B --> C([Contactar administrador\npara operación manual])
+    style A fill:#fff8e1,color:#7a3a00,stroke:#fac186
+    style B fill:#fff8e1,color:#7a3a00,stroke:#fac186
+    style C fill:#fac186,color:#7a3a00,stroke:#d48a50
         </div>
       </div>
     </div>

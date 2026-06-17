@@ -40,6 +40,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
 .mermaid{font-size:13px}
 .notes{margin-top:1rem;padding:.75rem 1rem;background:#fff8e1;border-radius:.5rem;border-left:3px solid var(--warning);font-size:.85rem;color:var(--text)}
 .notes strong{color:#b45309}
+.planned-banner{background:#fff8e1;border:1px solid #fac186;border-radius:8px;padding:.75rem 1rem;margin-bottom:1rem;font-size:.85rem;color:#7a3a00}
+.planned-banner strong{color:#7a3a00}
 .footer{text-align:center;padding:2rem;color:var(--muted);font-size:.8rem;border-top:1px solid var(--border);margin-top:2rem}
 </style>
 </head>
@@ -67,7 +69,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
 
   <div class="section-intro">
     <h2>¿De qué trata esta sección?</h2>
-    <p>La configuración del sistema es el espacio donde se define cómo opera la plataforma en cada sucursal: qué servicios se ofrecen, en qué horarios atiende cada médica, cómo responde el bot de WhatsApp y qué puede hacer cada rol del equipo. Estas opciones las administra principalmente el <strong>Admin Corporativo</strong>, aunque los <strong>Gerentes de Sucursal</strong> participan en la gestión de disponibilidad de sus médicas. Los cambios realizados aquí afectan de forma inmediata la experiencia de pacientes, recepcionistas y médicas en toda la organización.</p>
+    <p>La configuración del sistema es el espacio donde se define cómo opera la plataforma: qué servicios se ofrecen, en qué horarios atiende cada médica, qué puede hacer cada rol del equipo y qué grupos de datos del perfil de paciente puede editar cada persona. La mayoría de estas opciones las administra el <strong>Admin de Plataforma</strong>; el <strong>Admin Corporativo</strong> y los <strong>Gerentes de Sucursal</strong> pueden editar la configuración de sucursales dentro de sus permisos. Los cambios aquí afectan de forma inmediata la experiencia del personal y de los pacientes en la organización.</p>
   </div>
 
   <!-- ESCENARIO 1 -->
@@ -78,6 +80,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
         <h3>Configurar datos de una sucursal</h3>
         <div class="actors">
           <span class="actor-badge" style="background:#ed80a8;color:#fff">Admin Corporativo</span>
+          <span class="actor-badge" style="background:#fac186;color:#7a3a00">Gerente de Sucursal (solo la suya)</span>
         </div>
       </div>
     </div>
@@ -85,37 +88,33 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
       <div class="steps">
         <h4>¿Cómo funciona?</h4>
         <ul class="step-list">
-          <li>El Admin Corporativo entra al módulo de <strong>Sucursales</strong> desde el menú principal.</li>
+          <li>El Admin Corporativo (o Gerente de Sucursal para su propia sucursal) navega al módulo de <strong>Sucursales</strong> desde el menú lateral — no desde Configuración general.</li>
           <li>Selecciona la sucursal que desea actualizar de la lista.</li>
-          <li>Edita los campos necesarios: nombre, dirección, teléfono de contacto y horarios de atención.</li>
-          <li class="decision">🔀 ¿Se cambia el horario de atención al público?</li>
-          <li class="system">🤖 El sistema actualiza automáticamente la disponibilidad visible para pacientes que agendan por WhatsApp o en línea.</li>
-          <li>El admin revisa los servicios disponibles en esa sucursal y activa o desactiva los que correspondan.</li>
+          <li>Edita los campos disponibles: <strong>nombre, entidad legal, tipo de sucursal, zona horaria</strong> (obligatorios) y opcionalmente dirección, teléfono, correo y descripción.</li>
           <li>Guarda los cambios con el botón <strong>"Guardar sucursal"</strong>.</li>
-          <li class="success">✅ La información actualizada queda disponible de inmediato para todo el personal y pacientes.</li>
-          <li class="error">❌ Si algún campo obligatorio está vacío (como la dirección), el sistema muestra un aviso y no permite guardar hasta completarlo.</li>
+          <li class="success">✅ La información actualizada queda disponible de inmediato para todo el personal.</li>
+          <li class="error">❌ Si los campos obligatorios (nombre, entidad legal, tipo, zona horaria) están vacíos, el sistema no permite guardar.</li>
         </ul>
-        <div class="notes"><strong>Nota importante:</strong> Los cambios de horario afectan las citas que aún no han sido agendadas. Las citas ya confirmadas no se modifican automáticamente.</div>
+        <div class="notes"><strong>Nota importante:</strong> La activación o desactivación de servicios por sucursal se gestiona en una pestaña separada dentro de la misma sucursal (sección "Servicios"), no en el formulario principal de datos. Los Gerentes de Sucursal solo pueden editar su propia sucursal; el Admin Corporativo puede editar cualquiera.</div>
       </div>
       <div class="diagram-wrap">
         <h4>Diagrama de flujo</h4>
         <div class="mermaid">
 flowchart TD
-    A([Admin Corporativo\nabre módulo Sucursales]) --> B[Selecciona sucursal\nde la lista]
-    B --> C[Edita nombre, dirección,\nteléfono y horarios]
-    C --> D{¿Cambia\nhorarios?}
-    D -- Sí --> E[🤖 Sistema actualiza\ndisponibilidad en línea]
-    D -- No --> F[Gestiona servicios\nde la sucursal]
+    A([Admin Corporativo o\nGerente de Sucursal\nabre módulo Sucursales]) --> B[Selecciona sucursal\nde la lista]
+    B --> C{¿Quién\naccede?}
+    C -- Corp Admin --> D[Puede editar\ncualquier sucursal]
+    C -- Gerente de Sucursal --> E[Solo puede editar\nsu propia sucursal]
+    D --> F[Edita nombre, entidad legal,\ntipo, zona horaria y\ndatos opcionales]
     E --> F
-    F --> G{¿Campos\ncompletos?}
-    G -- Sí --> H[✅ Cambios guardados\ny activos]
-    G -- No --> I[❌ Aviso: completar\ncampos obligatorios]
-    I --> C
+    F --> G{¿Campos\nobligatorios\ncompletos?}
+    G -- Sí --> H[✅ Cambios guardados]
+    G -- No --> I[❌ Aviso: completar\nnombre, tipo y zona horaria]
+    I --> F
     style A fill:#ed80a8,color:#fff,stroke:#a25cbf
-    style E fill:#d6d9f3,color:#373644,stroke:#a25cbf
     style H fill:#afd393,color:#2d5a1b,stroke:#6aaa4a
     style I fill:#ff3759,color:#fff,stroke:#cc0000
-    style D fill:#fac186,color:#373644,stroke:#d48a40
+    style C fill:#fac186,color:#373644,stroke:#d48a40
     style G fill:#fac186,color:#373644,stroke:#d48a40
         </div>
       </div>
@@ -130,6 +129,7 @@ flowchart TD
         <h3>Gestión del catálogo de servicios</h3>
         <div class="actors">
           <span class="actor-badge" style="background:#ed80a8;color:#fff">Admin Corporativo</span>
+          <span class="actor-badge" style="background:#a25cbf;color:#fff">Admin de Plataforma</span>
         </div>
       </div>
     </div>
@@ -137,38 +137,37 @@ flowchart TD
       <div class="steps">
         <h4>¿Cómo funciona?</h4>
         <ul class="step-list">
-          <li>El Admin Corporativo entra al módulo de <strong>Catálogo de Servicios</strong>.</li>
+          <li>El Admin Corporativo entra al módulo de <strong>Catálogo de Servicios</strong> dentro de Configuración.</li>
           <li class="decision">🔀 ¿Se agrega un servicio nuevo o se edita uno existente?</li>
-          <li><strong>Nuevo servicio:</strong> hace clic en "Agregar servicio" e ingresa: nombre, categoría (consulta, procedimiento, laboratorio…), duración de la cita y precio.</li>
-          <li><strong>Editar servicio:</strong> busca el servicio en la lista, hace clic en "Editar" y actualiza los campos que correspondan.</li>
+          <li><strong>Nuevo servicio:</strong> hace clic en "Agregar servicio" e ingresa nombre, duración de la cita y precio.</li>
+          <li class="system">🤖 Al crear, la categoría se guarda como "Sin categoría" por defecto. Para asignar la categoría correcta, editar el servicio después de crearlo.</li>
+          <li><strong>Editar servicio:</strong> busca el servicio en la lista, hace clic en "Editar" y actualiza los campos.</li>
           <li class="decision">🔀 ¿El servicio debe desactivarse (ya no se ofrece)?</li>
-          <li>Activa el interruptor <strong>"Desactivar servicio"</strong> — el servicio deja de aparecer para nuevas citas, pero las citas existentes no se cancelan.</li>
-          <li class="system">🤖 El sistema refleja el cambio en la agenda de todas las sucursales donde ese servicio estaba disponible.</li>
-          <li class="success">✅ El catálogo actualizado queda activo de inmediato para recepcionistas y el bot de WhatsApp.</li>
-          <li class="error">❌ No se puede eliminar un servicio que tenga citas futuras confirmadas. Primero se debe desactivar.</li>
+          <li>Activa el interruptor <strong>"Desactivar servicio"</strong> — el servicio deja de aparecer para nuevas citas. Las citas existentes no se cancelan.</li>
+          <li class="system">🤖 Un servicio nuevo solo queda activo automáticamente en la sucursal actual del usuario. Otras sucursales deben asignarlo desde su pestaña de servicios.</li>
+          <li class="success">✅ El catálogo actualizado queda disponible para recepcionistas al agendar.</li>
         </ul>
-        <div class="notes"><strong>Nota importante:</strong> La duración del servicio afecta directamente cuántos espacios de agenda se bloquean al agendar una cita. Verificar bien este dato antes de guardar.</div>
+        <div class="notes"><strong>Nota importante:</strong> La duración del servicio afecta cuántos espacios de agenda se bloquean al agendar una cita. No existe bloqueo automático por citas futuras al desactivar un servicio — la desactivación es inmediata. Verificar bien antes de desactivar un servicio con citas próximas.</div>
       </div>
       <div class="diagram-wrap">
         <h4>Diagrama de flujo</h4>
         <div class="mermaid">
 flowchart TD
-    A([Admin Corporativo\nAbre Catálogo]) --> B{¿Acción?}
-    B -- Agregar nuevo --> C[Ingresa nombre,\ncategoría, duración\ny precio]
+    A([Admin Corporativo\nabre Catálogo]) --> B{¿Acción?}
+    B -- Agregar nuevo --> C[Ingresa nombre,\nduración y precio]
     B -- Editar existente --> D[Busca servicio\ny actualiza campos]
-    B -- Desactivar --> E{¿Tiene citas\nfuturas?}
-    C --> F[🤖 Sistema agrega\nservicio al catálogo]
-    D --> F
-    E -- No --> G[Desactiva servicio\nen el interruptor]
-    E -- Sí --> H[❌ No se puede eliminar.\nDesactivar primero]
-    G --> F
-    F --> I[✅ Catálogo actualizado\nen todas las sucursales]
+    B -- Desactivar --> G[Activa interruptor\n'Desactivar']
+    C --> E[🤖 Servicio creado\ncon categoría\nSin categoría]
+    E --> F[Editar servicio para\nasignar categoría real]
+    D --> K[🤖 Cambios guardados\nen catálogo global]
+    F --> K
+    G --> K
+    K --> I[✅ Servicio disponible\npara asignación\npor sucursal]
     style A fill:#ed80a8,color:#fff,stroke:#a25cbf
-    style F fill:#d6d9f3,color:#373644,stroke:#a25cbf
+    style E fill:#d6d9f3,color:#373644,stroke:#a25cbf
+    style K fill:#d6d9f3,color:#373644,stroke:#a25cbf
     style I fill:#afd393,color:#2d5a1b,stroke:#6aaa4a
-    style H fill:#ff3759,color:#fff,stroke:#cc0000
     style B fill:#fac186,color:#373644,stroke:#d48a40
-    style E fill:#fac186,color:#373644,stroke:#d48a40
         </div>
       </div>
     </div>
@@ -181,8 +180,8 @@ flowchart TD
       <div>
         <h3>Configurar disponibilidad de médicas</h3>
         <div class="actors">
-          <span class="actor-badge" style="background:#fac186;color:#7a3d00">Gerente de Sucursal</span>
-          <span class="actor-badge" style="background:#ed80a8;color:#fff">Admin Corporativo</span>
+          <span class="actor-badge" style="background:#a25cbf;color:#fff">Admin de Plataforma</span>
+          <span class="actor-badge" style="background:#fac186;color:#7a3a00">Gerente de Sucursal</span>
         </div>
       </div>
     </div>
@@ -190,35 +189,32 @@ flowchart TD
       <div class="steps">
         <h4>¿Cómo funciona?</h4>
         <ul class="step-list">
-          <li>El Gerente de Sucursal (o Admin Corporativo) entra al módulo de <strong>Disponibilidad Médica</strong> de su sucursal.</li>
-          <li>Selecciona el nombre de la médica de la lista del personal activo.</li>
+          <li>El Admin de Plataforma o Gerente de Sucursal entra a la pestaña de horarios dentro del perfil de una médica en su sucursal (<strong>Sucursales → [Sucursal] → Staff → [Médica] → Horario</strong>).</li>
           <li>Define los días de la semana y los rangos de horario en que esa médica atiende en esa sucursal.</li>
-          <li>Asigna la duración por defecto de cada tipo de cita que esa médica ofrece (por ejemplo: consulta general = 30 min, revisión postparto = 45 min).</li>
-          <li class="system">🤖 El sistema genera automáticamente los espacios disponibles en la agenda de esa médica para las próximas semanas.</li>
+          <li>Asigna la duración por defecto para los tipos de cita de esa médica.</li>
+          <li class="system">🤖 El sistema muestra visualmente si los horarios asignados se cruzan con turnos de la misma médica en otra sucursal (detección visual de conflictos).</li>
           <li class="decision">🔀 ¿La médica toma vacaciones o días de ausencia?</li>
           <li>Se bloquean las fechas de ausencia desde el calendario. El sistema oculta esos espacios para nuevas citas.</li>
-          <li class="success">✅ La disponibilidad actualizada aparece de inmediato para recepcionistas y pacientes al agendar citas.</li>
-          <li class="error">❌ Si se borra un horario donde ya hay citas confirmadas, el sistema avisa y pide reasignar esas citas antes de continuar.</li>
+          <li class="success">✅ La disponibilidad actualizada aparece de inmediato para recepcionistas al agendar.</li>
         </ul>
-        <div class="notes"><strong>Nota importante:</strong> Una médica puede estar asignada a más de una sucursal con horarios distintos en cada una. Verificar que no se traslapen los horarios entre sucursales.</div>
+        <div class="notes"><strong>Nota importante:</strong> Una médica puede estar asignada a más de una sucursal con horarios distintos. El sistema alerta visualmente si los bloques se cruzan, pero la validación final es responsabilidad del Gerente. No existe bloqueo automático de guardado por citas confirmadas en el horario eliminado — verificar antes de borrar un bloque de horario.</div>
       </div>
       <div class="diagram-wrap">
         <h4>Diagrama de flujo</h4>
         <div class="mermaid">
 sequenceDiagram
-    participant G as Gerente de Sucursal
+    participant G as Gerente / Platform Admin
     participant S as Sistema
     participant M as Médica (perfil)
-    G->>S: Abre disponibilidad médica
-    S-->>G: Muestra lista de médicas
-    G->>M: Selecciona médica
+    G->>S: Abre horario de médica\nen la sucursal
+    S-->>G: Muestra calendario\nde disponibilidad actual
     G->>S: Define días, horarios\ny duración por tipo de cita
-    S-->>G: Verifica conflictos\ncon citas existentes
+    S-->>G: Muestra conflictos visuales\ncon otras sucursales
     alt Sin conflictos
         S-->>G: ✅ Genera espacios en agenda
-    else Hay citas afectadas
-        S-->>G: ❌ Avisa: reasignar\ncitas conflictivas
-        G->>S: Reasigna citas\ny confirma cambio
+    else Conflicto detectado
+        S-->>G: Alerta visual de traslape\ncross-sucursal
+        G->>S: Corrige horario\ny confirma
     end
     G->>S: Bloquea días de ausencia\n(vacaciones/festivos)
     S-->>G: ✅ Agenda actualizada\nen todas las vistas
@@ -234,45 +230,43 @@ sequenceDiagram
       <div>
         <h3>Ajustar parámetros del bot de WhatsApp</h3>
         <div class="actors">
-          <span class="actor-badge" style="background:#ed80a8;color:#fff">Admin Corporativo</span>
+          <span class="actor-badge" style="background:#a25cbf;color:#fff">Admin de Plataforma</span>
         </div>
       </div>
     </div>
     <div class="scenario-body">
       <div class="steps">
         <h4>¿Cómo funciona?</h4>
+        <div class="planned-banner">
+          ⚠️ <strong>Funcionalidad planificada</strong> — Esta función no está disponible aún en el sistema. La configuración del bot de WhatsApp se realiza actualmente por el equipo técnico mediante herramientas de desarrollo (Kapso CLI). No usar para capacitación hasta que la UI esté implementada.
+        </div>
         <ul class="step-list">
-          <li>El Admin Corporativo entra al módulo de <strong>Configuración del Bot de WhatsApp</strong>.</li>
-          <li>Edita el <strong>mensaje de bienvenida</strong> que recibe cada paciente al escribir por primera vez.</li>
-          <li>Define el <strong>horario de atención automática</strong>: los rangos en que el bot responde solo sin necesidad de recepción humana.</li>
-          <li class="decision">🔀 ¿Fuera de ese horario, qué pasa con los mensajes?</li>
-          <li class="system">🤖 El sistema envía automáticamente un mensaje de "fuera de horario" con la hora de reapertura y, si el paciente dejó datos, genera una alerta para recepción al día siguiente.</li>
-          <li>Configura las palabras clave o momentos en que el bot <strong>transfiere la conversación a recepción</strong> (por ejemplo: "quiero hablar con alguien", quejas, urgencias).</li>
-          <li>Activa o pausa el bot completo con el interruptor principal si se necesita mantenimiento.</li>
-          <li class="success">✅ Los cambios entran en vigor en la siguiente conversación que inicie un paciente por WhatsApp.</li>
-          <li class="error">❌ Si el bot está pausado y hay mensajes entrantes, la recepción recibe una notificación para atenderlos manualmente.</li>
+          <li class="system">🤖 Hoy en día, los parámetros del bot (mensajes de bienvenida, horarios automáticos, palabras clave de handoff, activar/pausar el bot) son configurados directamente por el equipo técnico.</li>
+          <li>Si necesitas ajustar el comportamiento del bot — por ejemplo cambiar un mensaje, agregar una palabra clave de transferencia a recepción, o pausar el bot por mantenimiento — <strong>contacta al equipo de tecnología</strong> con los detalles del cambio.</li>
+          <li class="decision">🔀 ¿Es urgente (el bot está respondiendo algo incorrecto o causando confusión a pacientes)?</li>
+          <li>Notificar de inmediato al equipo técnico por el canal de soporte habitual. El equipo puede pausar el bot en minutos si es necesario.</li>
+          <li class="success">✅ Una vez que el equipo aplique el cambio, entra en vigor en la siguiente conversación de WhatsApp.</li>
         </ul>
-        <div class="notes"><strong>Nota importante:</strong> Pausar el bot no borra los flujos configurados. Al reactivarlo, retoma exactamente con la configuración guardada.</div>
+        <div class="notes"><strong>Nota importante:</strong> La integración de WhatsApp en la plataforma está marcada como "Próximamente — v1.9+". Cuando la UI esté disponible, este escenario se actualizará con el flujo de autogestión.</div>
       </div>
       <div class="diagram-wrap">
         <h4>Diagrama de flujo</h4>
+        <div class="planned-banner">
+          ⚠️ <strong>Funcionalidad planificada</strong> — Esta función no está disponible aún en el sistema. No usar para capacitación hasta que sea implementada.
+        </div>
         <div class="mermaid">
 flowchart TD
-    A([Admin Corporativo\nabre Config Bot WA]) --> B[Edita mensaje\nde bienvenida]
-    B --> C[Define horario\nde atención automática]
-    C --> D[Configura palabras clave\npara handoff a recepción]
-    D --> E{¿Bot\nactivo?}
-    E -- Sí --> F[🤖 Cambios activos en\nla siguiente conversación]
-    E -- No --> G[⏸ Bot en pausa:\nrecepción atiende manual]
-    G --> H[🔔 Notificación a\nrecepcionistas activos]
-    F --> I[✅ Bot configurado\ncon nueva lógica]
-    H --> I
-    style A fill:#ed80a8,color:#fff,stroke:#a25cbf
+    A([Staff identifica necesidad\nde cambio en el bot]) --> B[Contacta al\nequipo técnico]
+    B --> C{¿Es urgente?}
+    C -- Sí --> D[Canal de soporte\nde emergencia]
+    C -- No --> E[Canal habitual\nde solicitudes técnicas]
+    D --> F[Equipo técnico\naplica cambio]
+    E --> F
+    F --> G[✅ Cambio activo en\nsiguiente conversación WA]
+    style A fill:#d6d9f3,color:#373644,stroke:#a25cbf
     style F fill:#d6d9f3,color:#373644,stroke:#a25cbf
-    style H fill:#d6d9f3,color:#373644,stroke:#a25cbf
-    style I fill:#afd393,color:#2d5a1b,stroke:#6aaa4a
-    style G fill:#fac186,color:#373644,stroke:#d48a40
-    style E fill:#fac186,color:#373644,stroke:#d48a40
+    style G fill:#afd393,color:#2d5a1b,stroke:#6aaa4a
+    style C fill:#fac186,color:#373644,stroke:#d48a40
         </div>
       </div>
     </div>
@@ -285,7 +279,7 @@ flowchart TD
       <div>
         <h3>Gestión de roles y permisos del sistema</h3>
         <div class="actors">
-          <span class="actor-badge" style="background:#ed80a8;color:#fff">Admin Corporativo</span>
+          <span class="actor-badge" style="background:#a25cbf;color:#fff">Admin de Plataforma</span>
         </div>
       </div>
     </div>
@@ -293,39 +287,40 @@ flowchart TD
       <div class="steps">
         <h4>¿Cómo funciona?</h4>
         <ul class="step-list">
-          <li>El Admin Corporativo entra al módulo de <strong>Roles y Permisos</strong>.</li>
-          <li>Ve la lista de roles disponibles en la organización: recepcionista, médica, gerente de sucursal, consejera, enfermera, entre otros.</li>
-          <li>Selecciona el rol que desea revisar o modificar.</li>
-          <li>El sistema muestra las acciones habilitadas para ese rol (ver agenda, editar paciente, generar contrato, ver reportes, etc.).</li>
-          <li class="decision">🔀 ¿Se activa o desactiva un permiso para ese rol?</li>
-          <li>Hace clic en el interruptor junto al permiso para activarlo o quitarlo.</li>
-          <li class="system">🤖 El sistema aplica el cambio de inmediato: la próxima vez que cualquier persona con ese rol acceda, verá o dejará de ver esa función.</li>
-          <li class="success">✅ El cambio se registra en el historial de auditoría con nombre del admin, fecha y hora.</li>
-          <li class="error">❌ No se pueden quitar permisos básicos de acceso a un rol (como iniciar sesión), ya que dejaría al personal sin posibilidad de trabajar.</li>
+          <li>El <strong>Admin de Plataforma</strong> entra al módulo de <strong>Roles y Permisos</strong> dentro de Configuración. Solo este rol tiene acceso a esta sección.</li>
+          <li>Ve la lista de roles del sistema: los roles base son fijos (recepcionista, médica, gerente de sucursal, etc.) y no pueden eliminarse. También pueden existir roles personalizados creados por la organización.</li>
+          <li class="decision">🔀 ¿Se crea un rol nuevo, se editan permisos de uno existente, o se elimina un rol personalizado?</li>
+          <li><strong>Crear rol:</strong> hace clic en "Nuevo Rol", le da nombre y descripción, y luego asigna sus permisos.</li>
+          <li><strong>Editar permisos:</strong> selecciona el rol, ve la matriz de permisos (recursos × acciones) y activa o desactiva con interruptores los accesos que correspondan.</li>
+          <li><strong>Eliminar rol:</strong> solo es posible para roles personalizados (no roles del sistema). Aparece el botón de eliminar solo en esos casos.</li>
+          <li class="system">🤖 El cambio de permisos aplica de inmediato: la próxima vez que alguien con ese rol acceda al sistema, verá o dejará de ver esa función.</li>
+          <li class="success">✅ Los cambios quedan registrados en el sistema.</li>
+          <li class="error">❌ El Admin de Plataforma no puede modificar los permisos de su propio rol (platform_admin). Esta restricción es automática e inamovible.</li>
         </ul>
-        <div class="notes"><strong>Nota importante:</strong> Los cambios de permisos aplican a todos los usuarios que tengan ese rol asignado, no solo a uno en particular. Para dar un acceso especial a una sola persona, consultar con el equipo de tecnología.</div>
+        <div class="notes"><strong>Nota importante:</strong> Los cambios de permisos aplican a todos los usuarios que tengan ese rol, no a una sola persona. Los roles base del sistema (recepcionista, médica, etc.) no pueden eliminarse desde la UI. Para dar un acceso especial a una sola persona, contactar al equipo de tecnología.</div>
       </div>
       <div class="diagram-wrap">
         <h4>Diagrama de flujo</h4>
         <div class="mermaid">
 flowchart TD
-    A([Admin Corporativo\nabre Roles y Permisos]) --> B[Selecciona rol\nde la lista]
-    B --> C[Revisa permisos\nhabilitados y deshabilitados]
-    C --> D{¿Modificar\npermiso?}
-    D -- Activar --> E[Activa permiso\ncon interruptor]
-    D -- Desactivar --> F{¿Es permiso\nbásico de acceso?}
-    D -- Sin cambios --> G[✅ Sin modificaciones]
-    F -- Sí --> H[❌ No permitido:\ncampo bloqueado]
-    F -- No --> I[Desactiva permiso\ncon interruptor]
-    E --> J[🤖 Cambio inmediato\npara todos en ese rol]
-    I --> J
-    J --> K[✅ Cambio registrado\nen auditoría]
-    style A fill:#ed80a8,color:#fff,stroke:#a25cbf
+    A([Admin de Plataforma\nabre Roles y Permisos]) --> B{¿Acción?}
+    B -- Crear rol --> C[Ingresa nombre\ny descripción]
+    B -- Editar permisos --> D[Selecciona rol\nde la lista]
+    B -- Eliminar rol --> E{¿Es rol\npersonalizado?}
+    C --> F[Asigna permisos\ncon interruptores]
+    D --> G[Activa o desactiva\npermisos en la matriz]
+    E -- Sí --> H[Elimina rol\npersonalizado]
+    E -- No --> I[❌ No permitido:\nroles del sistema\nson permanentes]
+    F --> J[🤖 Cambio inmediato\npara todos en ese rol]
+    G --> J
+    H --> J
+    J --> K[✅ Configuración\nguardada]
+    style A fill:#a25cbf,color:#fff,stroke:#7a1a9a
     style J fill:#d6d9f3,color:#373644,stroke:#a25cbf
     style K fill:#afd393,color:#2d5a1b,stroke:#6aaa4a
-    style H fill:#ff3759,color:#fff,stroke:#cc0000
-    style D fill:#fac186,color:#373644,stroke:#d48a40
-    style F fill:#fac186,color:#373644,stroke:#d48a40
+    style I fill:#ff3759,color:#fff,stroke:#cc0000
+    style B fill:#fac186,color:#373644,stroke:#d48a40
+    style E fill:#fac186,color:#373644,stroke:#d48a40
         </div>
       </div>
     </div>
@@ -336,9 +331,9 @@ flowchart TD
     <div class="scenario-header">
       <div class="scenario-number">6</div>
       <div>
-        <h3>Campos del perfil de paciente que el personal puede editar</h3>
+        <h3>Permisos de visualización y edición del perfil de paciente</h3>
         <div class="actors">
-          <span class="actor-badge" style="background:#ed80a8;color:#fff">Admin Corporativo</span>
+          <span class="actor-badge" style="background:#a25cbf;color:#fff">Admin de Plataforma</span>
         </div>
       </div>
     </div>
@@ -346,38 +341,42 @@ flowchart TD
       <div class="steps">
         <h4>¿Cómo funciona?</h4>
         <ul class="step-list">
-          <li>El Admin Corporativo entra al módulo de <strong>Configuración de Pacientes</strong>.</li>
-          <li>Ve la lista completa de campos del perfil de paciente: nombre, teléfono, correo electrónico, fecha de nacimiento, dirección, CURP, entre otros.</li>
-          <li>Para cada campo, define qué roles pueden editarlo: por ejemplo, recepcionista puede editar teléfono y correo, pero no fecha de nacimiento ni CURP.</li>
-          <li class="decision">🔀 ¿Un campo es de solo lectura para todos excepto el admin?</li>
-          <li>Activa la opción <strong>"Protegido"</strong> junto al campo. Ese dato solo el Admin Corporativo podrá modificarlo.</li>
-          <li class="system">🤖 El sistema bloquea visualmente ese campo para los roles sin permiso: lo muestra en gris y sin opción de edición.</li>
-          <li>Guarda la configuración con el botón <strong>"Guardar cambios"</strong>.</li>
-          <li class="success">✅ La próxima vez que recepcionistas o médicas abran un perfil de paciente, solo verán editables los campos que les corresponden.</li>
-          <li class="error">❌ Si se desactiva accidentalmente la edición de un campo muy usado (como teléfono), la recepción no podrá actualizarlo. Verificar bien antes de guardar.</li>
+          <li>El Admin de Plataforma entra al módulo de <strong>Permisos de Pacientes</strong> dentro de Configuración.</li>
+          <li>El sistema muestra una matriz de <strong>grupos de campos</strong> del perfil de paciente: Datos personales, Contacto, Familia, Alertas médicas, Financiero, Documentos, Notas y Auditoría.</li>
+          <li>Para cada grupo, puede activar o desactivar tres tipos de acceso por rol: <strong>Ver</strong>, <strong>Editar</strong> y <strong>Ver historial de auditoría</strong>.</li>
+          <li class="decision">🔀 ¿Se quiere que un rol deje de editar un grupo de campos?</li>
+          <li>Desactiva el checkbox <strong>"Editar"</strong> de ese grupo para ese rol. El personal con ese rol seguirá viendo los datos (si "Ver" está activo) pero no podrá modificarlos.</li>
+          <li class="system">🤖 El sistema aplica los cambios de forma inmediata. La siguiente vez que el personal abra un perfil de paciente, verá solo los campos y controles que su rol tiene habilitados.</li>
+          <li>Guarda con el botón <strong>"Guardar cambios"</strong>.</li>
+          <li class="success">✅ La configuración aplica globalmente a todas las sucursales.</li>
+          <li class="error">❌ Si se desactiva la edición de un grupo muy usado (como Contacto), la recepción no podrá actualizar teléfono ni correo. Verificar bien antes de guardar.</li>
         </ul>
-        <div class="notes"><strong>Nota importante:</strong> Esta configuración aplica globalmente a todas las sucursales. No es posible actualmente dar distintos niveles de edición por sucursal.</div>
+        <div class="notes"><strong>Nota importante:</strong> La configuración opera a nivel de GRUPOS de campos, no de campos individuales. No es posible desde la UI restringir solo el CURP dentro de "Datos personales" sin restringir también nombre y fecha de nacimiento — se activa o desactiva todo el grupo para ese rol. Esta configuración aplica por igual a todas las sucursales.</div>
       </div>
       <div class="diagram-wrap">
         <h4>Diagrama de flujo</h4>
         <div class="mermaid">
 flowchart TD
-    A([Admin Corporativo\nabre Config Pacientes]) --> B[Ve lista de campos\ndel perfil]
-    B --> C[Selecciona campo\na configurar]
-    C --> D{¿Tipo de\nacceso?}
-    D -- Editable por rol --> E[Asigna qué roles\npueden editar ese campo]
-    D -- Solo lectura general --> F[Activa opción\n'Protegido']
-    E --> G[🤖 Sistema aplica\npermisos de edición\npor rol]
-    F --> G
-    G --> H{¿Más campos\npor configurar?}
-    H -- Sí --> C
-    H -- No --> I[Guarda configuración]
-    I --> J[✅ Campos actualizados\nen todos los perfiles]
-    style A fill:#ed80a8,color:#fff,stroke:#a25cbf
-    style G fill:#d6d9f3,color:#373644,stroke:#a25cbf
-    style J fill:#afd393,color:#2d5a1b,stroke:#6aaa4a
+    A([Admin de Plataforma\nabre Permisos de Pacientes]) --> B[Ve matriz:\ngrupos de campos × roles]
+    B --> C[Selecciona grupo\nde campos a configurar]
+    C --> D{¿Qué permiso\nmodificar?}
+    D -- Activar Ver --> E[Rol puede ver\nese grupo de datos]
+    D -- Activar Editar --> F[Rol puede editar\nese grupo de datos]
+    D -- Desactivar Editar --> G[Rol solo ve,\nno edita]
+    D -- Activar Auditoría --> H[Rol puede ver\nhistorial de cambios]
+    E --> I[🤖 Sistema aplica\ncambio de inmediato]
+    F --> I
+    G --> I
+    H --> I
+    I --> J{¿Más grupos\npor configurar?}
+    J -- Sí --> C
+    J -- No --> K[Guarda configuración]
+    K --> L[✅ Permisos activos\nen todos los perfiles]
+    style A fill:#a25cbf,color:#fff,stroke:#7a1a9a
+    style I fill:#d6d9f3,color:#373644,stroke:#a25cbf
+    style L fill:#afd393,color:#2d5a1b,stroke:#6aaa4a
     style D fill:#fac186,color:#373644,stroke:#d48a40
-    style H fill:#fac186,color:#373644,stroke:#d48a40
+    style J fill:#fac186,color:#373644,stroke:#d48a40
         </div>
       </div>
     </div>
@@ -388,51 +387,41 @@ flowchart TD
     <div class="scenario-header">
       <div class="scenario-number">7</div>
       <div>
-        <h3>Ver registros de auditoría</h3>
+        <h3>Revisar registros de actividad del sistema</h3>
         <div class="actors">
-          <span class="actor-badge" style="background:#ed80a8;color:#fff">Admin Corporativo</span>
-          <span class="actor-badge" style="background:#fac186;color:#7a3d00">Gerente de Sucursal</span>
+          <span class="actor-badge" style="background:#a25cbf;color:#fff">Admin de Plataforma</span>
         </div>
       </div>
     </div>
     <div class="scenario-body">
       <div class="steps">
         <h4>¿Cómo funciona?</h4>
+        <div class="planned-banner">
+          ⚠️ <strong>Funcionalidad planificada</strong> — No existe aún una pantalla de auditoría con filtros y exportación en la plataforma web. Los registros de actividad están almacenados en la base de datos, pero solo son accesibles al equipo técnico. No usar para capacitación hasta que la UI esté implementada.
+        </div>
         <ul class="step-list">
-          <li>El Admin Corporativo (o Gerente de Sucursal para ver solo su sucursal) entra al módulo de <strong>Auditoría</strong>.</li>
-          <li>Ve una lista cronológica de acciones registradas: quién hizo algo, en qué pantalla o módulo, qué dato cambió y a qué hora.</li>
-          <li>Usa los filtros disponibles para acotar la búsqueda: por rango de fechas, por nombre de usuario, por tipo de acción (creación, edición, eliminación) o por módulo (agenda, pacientes, contratos, etc.).</li>
-          <li class="system">🤖 El sistema genera automáticamente estos registros con cada acción realizada por cualquier usuario. No requiere acción del personal para activarlo.</li>
-          <li class="decision">🔀 ¿Se necesita exportar el registro para revisión externa o archivo?</li>
-          <li>Hace clic en <strong>"Exportar"</strong> y elige el formato (PDF o Excel). El archivo se descarga de inmediato.</li>
-          <li>Para ver el detalle de un cambio específico, hace clic en el registro y aparece el valor anterior y el nuevo valor lado a lado.</li>
-          <li class="success">✅ Los registros de auditoría no pueden borrarse ni modificarse — son permanentes y sirven como respaldo ante cualquier duda o incidente.</li>
-          <li class="error">❌ El Gerente de Sucursal solo puede ver registros de su propia sucursal. Para ver actividad de otras sucursales se requiere acceso de Admin Corporativo.</li>
+          <li class="system">🤖 El sistema registra automáticamente todas las acciones relevantes: quién hizo qué, en qué módulo y a qué hora. Este registro es continuo y no requiere activarse.</li>
+          <li>Hoy en día, <strong>estos registros solo son accesibles al equipo de tecnología</strong> mediante herramientas de base de datos.</li>
+          <li class="decision">🔀 ¿Necesitas saber quién hizo un cambio específico (editó un paciente, canceló una cita, modificó un contrato)?</li>
+          <li>Contacta al equipo técnico indicando: el módulo donde ocurrió, la fecha aproximada y el dato que cambió. El equipo puede consultar el historial y darte la respuesta.</li>
+          <li class="success">✅ Los registros son permanentes e inmodificables — sirven como respaldo ante cualquier incidente.</li>
         </ul>
-        <div class="notes"><strong>Nota importante:</strong> Toda acción queda registrada aunque el usuario no la haya "guardado" explícitamente. El registro incluye también intentos de acceso no autorizados.</div>
+        <div class="notes"><strong>Nota importante:</strong> Una UI de auditoría con filtros, exportación y vista de cambios (valor anterior vs. nuevo) está en el roadmap del producto. Cuando esté disponible, este escenario se actualizará.</div>
       </div>
       <div class="diagram-wrap">
         <h4>Diagrama de flujo</h4>
+        <div class="planned-banner">
+          ⚠️ <strong>Funcionalidad planificada</strong> — Esta función no está disponible aún en el sistema. No usar para capacitación hasta que sea implementada.
+        </div>
         <div class="mermaid">
-sequenceDiagram
-    participant A as Admin / Gerente
-    participant S as Sistema
-    participant R as Registro de Auditoría
-    A->>S: Abre módulo Auditoría
-    S-->>A: Muestra registros\nde los últimos 30 días
-    A->>S: Aplica filtros\n(fecha, usuario, acción, módulo)
-    S->>R: Consulta registros\ncon filtros aplicados
-    R-->>S: Devuelve lista filtrada
-    S-->>A: Muestra resultados en pantalla
-    alt Ver detalle de un cambio
-        A->>S: Hace clic en un registro
-        S-->>A: Muestra valor anterior\nvs. valor nuevo
-    end
-    alt Exportar para archivo
-        A->>S: Clic en "Exportar"
-        S-->>A: Descarga PDF o Excel\ncon los registros filtrados
-    end
-    note over R: Los registros son\npermanentes e\ninmodificables
+flowchart TD
+    A([Staff detecta necesidad\nde revisar actividad]) --> B[Contacta al\nequipo técnico]
+    B --> C[Equipo consulta\nregistros en BD]
+    C --> D[Equipo responde\ncon el detalle]
+    D --> E[✅ Incidente\naclarado]
+    style A fill:#d6d9f3,color:#373644,stroke:#a25cbf
+    style C fill:#d6d9f3,color:#373644,stroke:#a25cbf
+    style E fill:#afd393,color:#2d5a1b,stroke:#6aaa4a
         </div>
       </div>
     </div>

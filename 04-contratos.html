@@ -40,6 +40,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
 .mermaid{font-size:13px}
 .notes{margin-top:1rem;padding:.75rem 1rem;background:#fff8e1;border-radius:.5rem;border-left:3px solid var(--warning);font-size:.85rem;color:var(--text)}
 .notes strong{color:#b45309}
+.banner-planned{background:#fff8e1;border:1px solid #fac186;border-radius:8px;padding:.75rem 1rem;margin-bottom:1rem;font-size:.85rem;color:#7a3a00}
 .footer{text-align:center;padding:2rem;color:var(--muted);font-size:.8rem;border-top:1px solid var(--border);margin-top:2rem}
 .state-legend{display:flex;gap:.75rem;flex-wrap:wrap;margin-top:1rem}
 .state-pill{display:inline-flex;align-items:center;gap:.4rem;padding:.3rem .8rem;border-radius:1rem;font-size:.8rem;font-weight:500;border:1px solid transparent}
@@ -97,24 +98,26 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
       <div class="steps">
         <h4>¿Cómo funciona?</h4>
         <ul class="step-list">
-          <li>La consejera o recepcionista abre la sección de Contratos en el sistema.</li>
+          <li><strong>Camino A — desde el módulo de Contratos:</strong> la consejera o recepcionista abre la sección de Contratos en el sistema.</li>
           <li>Busca a la paciente por nombre o número de expediente y la selecciona.</li>
           <li>Elige el tipo de plan médico (por ejemplo: Plan Maternidad, Plan Pediatría, Plan Piel).</li>
           <li>Selecciona los servicios incluidos en el plan: consultas, estudios y procedimientos.</li>
           <li>Indica la cantidad de citas pactadas para cada servicio.</li>
           <li class="decision">🔀 ¿Se requiere revisión del admin corporativo antes de activar?</li>
           <li class="system">🤖 El sistema guarda el contrato en estado <strong>Borrador</strong> y genera un número de contrato único.</li>
-          <li class="success">✅ El contrato aparece en la lista de la paciente listo para ser revisado y activado.</li>
+          <li class="success">✅ El contrato aparece en la lista de la paciente listo para ser revisado y activado (Escenario 2).</li>
+          <li style="border-color:var(--secondary);background:#f9f4ff"><strong>Camino B — desde la agenda (quick-booking):</strong> cuando la recepcionista agenda la primera cita de un plan desde la pantalla de agenda, el sistema crea el contrato <em>directamente en estado Activo</em> (sin pasar por Borrador). Este camino lo gestiona el flujo de agendamiento; ver Escenario 9 y la sección de Agenda.</li>
         </ul>
         <div class="notes">
-          <strong>Nota:</strong> Un contrato en Borrador no permite agendar citas todavía. Primero debe activarse (Escenario 2).
+          <strong>Nota:</strong> Un contrato creado por el Camino A (Borrador) no permite agendar citas todavía. Primero debe activarse (Escenario 2). Un contrato creado por el Camino B (quick-booking) ya está activo desde el primer momento.
         </div>
       </div>
       <div class="diagram-wrap">
         <h4>Diagrama de flujo</h4>
         <div class="mermaid">
 flowchart TD
-    A([Inicio]) --> B[Abrir sección Contratos]
+    A([Inicio]) --> PA{¿Desde dónde\ncrea el contrato?}
+    PA -- Módulo Contratos --> B[Abrir sección Contratos]
     B --> C[Buscar y seleccionar paciente]
     C --> D[Elegir tipo de plan]
     D --> E[Seleccionar servicios incluidos]
@@ -122,9 +125,13 @@ flowchart TD
     F --> G{¿Requiere revisión?}
     G -- Sí --> H[Guardar como Borrador\npara revisión]
     G -- No --> I[Guardar como Borrador\nlisto para activar]
-    H --> J([Contrato creado en Borrador])
+    H --> J([Contrato en Borrador\nActivar en Escenario 2])
     I --> J
+    PA -- Agenda / quick-booking --> QB[Recepcionista agenda\nprimera cita del plan]
+    QB --> QC[🤖 Sistema crea contrato\ndirectamente en Activo]
+    QC --> QD([Contrato Activo\ndesde el primer momento])
     style A fill:#d9d8f5,color:#373644,stroke:#a25cbf
+    style PA fill:#fac186,color:#7a4a00,stroke:#d97706
     style B fill:#c58fe8,color:#fff,stroke:#a25cbf
     style C fill:#c58fe8,color:#fff,stroke:#a25cbf
     style D fill:#c58fe8,color:#fff,stroke:#a25cbf
@@ -133,7 +140,10 @@ flowchart TD
     style G fill:#fac186,color:#7a4a00,stroke:#d97706
     style H fill:#d6d9f3,color:#373644,stroke:#a25cbf
     style I fill:#d6d9f3,color:#373644,stroke:#a25cbf
-    style J fill:#afd393,color:#2d5a1b,stroke:#5a9a3a
+    style J fill:#d6d9f3,color:#373644,stroke:#a25cbf
+    style QB fill:#7eb8f7,color:#1a3a5c,stroke:#3a7bd5
+    style QC fill:#d6d9f3,color:#373644,stroke:#a25cbf
+    style QD fill:#afd393,color:#2d5a1b,stroke:#5a9a3a
         </div>
       </div>
     </div>
@@ -158,14 +168,14 @@ flowchart TD
         <ul class="step-list">
           <li>La consejera o el admin corporativo abre el contrato en estado Borrador.</li>
           <li>Revisa que los servicios, la paciente asignada y la consejera responsable sean correctos.</li>
-          <li class="decision">🔀 ¿El contrato tiene consejera asignada?</li>
+          <li class="decision">🔀 ¿El contrato tiene consejera asignada? <em>(Esta validación aplica solo en la activación inicial desde Borrador, no al reanudar un contrato suspendido.)</em></li>
           <li class="error">❌ Si no tiene consejera asignada, el sistema no permite activarlo hasta que se asigne (ver Escenario 8).</li>
           <li>Si todo está en orden, hace clic en el botón <strong>Activar contrato</strong>.</li>
-          <li class="system">🤖 El sistema cambia el estado a <strong>Activo</strong> y registra la fecha y hora de activación.</li>
+          <li class="system">🤖 El sistema cambia el estado a <strong>Activo</strong> y registra la fecha y hora de activación en el historial.</li>
           <li class="success">✅ A partir de este momento, la recepcionista puede agendar citas del plan para la paciente.</li>
         </ul>
         <div class="notes">
-          <strong>Nota:</strong> La activación es un paso deliberado: nadie puede empezar a usar el plan hasta que alguien con el permiso correcto lo active de forma explícita.
+          <strong>Nota:</strong> La validación de consejera asignada solo ocurre en esta activación inicial (Borrador → Activo). Al reanudar un contrato suspendido (Escenario 4), el sistema no vuelve a verificar si la consejera sigue activa.
         </div>
       </div>
       <div class="diagram-wrap">
@@ -174,14 +184,14 @@ flowchart TD
 flowchart TD
     A([Contrato en Borrador]) --> B[Abrir contrato]
     B --> C[Revisar datos: paciente, servicios, consejera]
-    C --> D{¿Tiene consejera\nasignada?}
+    C --> D{¿Tiene consejera\nasignada?\nSolo para activación\ndesde Borrador}
     D -- No --> E[Asignar consejera primero]
     E --> C
     D -- Sí --> F{¿Datos correctos?}
     F -- No --> G[Corregir datos]
     G --> C
     F -- Sí --> H[Clic: Activar contrato]
-    H --> I[🤖 Sistema registra\nfecha de activación]
+    H --> I[🤖 Sistema registra\nfecha de activación\nen historial]
     I --> J([Contrato Activo\nCitas disponibles])
     style A fill:#d6d9f3,color:#373644,stroke:#a25cbf
     style B fill:#c58fe8,color:#fff,stroke:#a25cbf
@@ -217,15 +227,15 @@ flowchart TD
         <ul class="step-list">
           <li>La consejera detecta que la paciente tiene un impedimento temporal (viaje, enfermedad, situación personal) y necesita pausar su plan.</li>
           <li>Abre el contrato activo de la paciente y selecciona la opción <strong>Suspender</strong>.</li>
-          <li>Escribe el motivo de la suspensión (queda guardado en el historial).</li>
+          <li>Escribe el motivo de la suspensión (queda guardado en el historial del contrato).</li>
           <li class="decision">🔀 ¿La suspensión requiere autorización del gerente de sucursal?</li>
           <li>Si aplica, el gerente revisa y confirma la suspensión.</li>
-          <li class="system">🤖 El sistema cambia el estado a <strong>Suspendido</strong> y bloquea el uso de las citas restantes del plan.</li>
+          <li class="system">🤖 El sistema cambia el estado a <strong>Suspendido</strong> y registra el cambio en el historial (estado anterior, estado nuevo, motivo, quién lo hizo y cuándo).</li>
           <li class="error">❌ Mientras el contrato esté suspendido, no se pueden agendar nuevas citas de ese plan.</li>
           <li class="success">✅ La paciente conserva sus citas pendientes; solo quedan en pausa hasta que se reactive.</li>
         </ul>
         <div class="notes">
-          <strong>Nota:</strong> Suspender un contrato NO cancela las citas ya agendadas. Esas deben manejarse por separado desde la agenda.
+          <strong>Nota:</strong> Suspender un contrato NO cancela las citas ya agendadas ni envía ninguna notificación automática. Las citas existentes deben manejarse por separado desde la agenda. El sistema solo registra el cambio de estado en el historial.
         </div>
       </div>
       <div class="diagram-wrap">
@@ -241,8 +251,9 @@ sequenceDiagram
     G-->>C: Autoriza suspensión
     C->>S: Confirmar: Suspender contrato
     S-->>S: Cambia estado a Suspendido
-    S-->>C: Notificación: contrato suspendido
+    S-->>S: Registra en historial (motivo, actor, fecha)
     Note over S: Citas restantes quedan bloqueadas
+    Note over S: No se envían notificaciones automáticas
         </div>
       </div>
     </div>
@@ -256,6 +267,7 @@ sequenceDiagram
         <h3>Reactivar un contrato suspendido</h3>
         <div class="actors">
           <span class="actor-badge" style="background:#c58fe8;color:#3b0764">Consejera</span>
+          <span class="actor-badge" style="background:#7eb8f7;color:#1a3a5c">Recepcionista</span>
           <span class="actor-badge" style="background:#fac186;color:#7a4a00">Gerente de Sucursal</span>
         </div>
       </div>
@@ -265,7 +277,7 @@ sequenceDiagram
         <h4>¿Cómo funciona?</h4>
         <ul class="step-list">
           <li>La paciente avisa que ya puede retomar su plan médico.</li>
-          <li>La consejera localiza el contrato en estado Suspendido desde la pantalla de contratos de la paciente.</li>
+          <li>La consejera, recepcionista o gerente localiza el contrato en estado Suspendido desde la pantalla de contratos de la paciente.</li>
           <li>Selecciona la opción <strong>Reactivar</strong>.</li>
           <li class="decision">🔀 ¿La reactivación requiere autorización del gerente de sucursal?</li>
           <li>Si aplica, el gerente confirma la reactivación.</li>
@@ -273,7 +285,7 @@ sequenceDiagram
           <li class="success">✅ La recepcionista ya puede agendar nuevas citas del plan para la paciente.</li>
         </ul>
         <div class="notes">
-          <strong>Nota:</strong> La reactivación no altera el conteo de citas. Si la paciente usó 3 de 8 antes de suspender, al reactivar siguen disponibles 5.
+          <strong>Nota:</strong> La reactivación no altera el conteo de citas. Si la paciente usó 3 de 8 antes de suspender, al reactivar siguen disponibles 5. La validación de consejera asignada NO se repite al reanudar — solo aplica en la activación inicial (Escenario 2).
         </div>
       </div>
       <div class="diagram-wrap">
@@ -281,7 +293,7 @@ sequenceDiagram
         <div class="mermaid">
 flowchart TD
     A([Contrato Suspendido]) --> B[Paciente avisa que retoma el plan]
-    B --> C[Consejera localiza el contrato]
+    B --> C[Consejera, Recepcionista\no Gerente localiza el contrato]
     C --> D[Selecciona: Reactivar]
     D --> E{¿Requiere autorización\ndel gerente?}
     E -- Sí --> F[Gerente revisa y autoriza]
@@ -323,16 +335,16 @@ flowchart TD
         <h4>¿Cómo funciona?</h4>
         <ul class="step-list">
           <li>El gerente de sucursal o el admin corporativo identifica que el contrato debe cerrarse de forma definitiva (por ejemplo: solicitud expresa de la paciente, incumplimiento, o error en la creación).</li>
-          <li>Abre el contrato y selecciona la opción <strong>Cancelar contrato</strong>.</li>
+          <li>Abre el contrato (puede estar en estado Activo, Suspendido o incluso Borrador) y selecciona la opción <strong>Cancelar contrato</strong>.</li>
           <li>Registra el motivo detallado de la cancelación.</li>
           <li class="decision">🔀 ¿La cancelación requiere confirmación del admin corporativo?</li>
           <li>El admin corporativo revisa el motivo y da su aprobación.</li>
-          <li class="system">🤖 El sistema cambia el estado a <strong>Cancelado</strong>, bloquea todas las citas restantes del plan y registra la acción en el historial.</li>
+          <li class="system">🤖 El sistema cambia el estado a <strong>Cancelado</strong> y cancela todas las citas futuras agendadas o confirmadas de ese plan (dentro de la misma operación). Registra la acción completa en el historial.</li>
           <li class="error">❌ Esta acción es irreversible: un contrato cancelado no puede volver a estado activo.</li>
           <li class="success">✅ El historial queda completo: quién canceló, cuándo y por qué.</li>
         </ul>
         <div class="notes">
-          <strong>Advertencia:</strong> Antes de cancelar, verificar si hay citas ya agendadas de este plan. Esas citas deben cancelarse o reasignarse por separado desde la agenda.
+          <strong>Advertencia:</strong> Al cancelar, el sistema cancela automáticamente todas las citas futuras agendadas o confirmadas del plan. Esto es visible en la agenda del día de cada recepcionista. No se envían notificaciones automáticas a la paciente ni al personal. Si la paciente tiene citas ese mismo día, coordinar la cancelación directamente con el equipo antes de ejecutar esta acción.
         </div>
       </div>
       <div class="diagram-wrap">
@@ -342,17 +354,17 @@ sequenceDiagram
     participant G as Gerente
     participant A as Admin Corp.
     participant S as Sistema
-    G->>S: Abrir contrato activo o suspendido
+    G->>S: Abrir contrato (activo, suspendido o borrador)
     G->>G: Registra motivo de cancelación
     G->>A: Solicita aprobación de cancelación
     A->>A: Revisa motivo
     A-->>G: Aprueba cancelación
     G->>S: Confirmar: Cancelar contrato
     S-->>S: Estado → Cancelado
-    S-->>S: Bloquea citas restantes del plan
+    S-->>S: Cancela citas futuras agendadas/confirmadas
     S-->>S: Registra en historial (quién, cuándo, por qué)
-    S-->>G: Notificación: contrato cancelado
     Note over S: Acción irreversible
+    Note over S: No se envían notificaciones automáticas
         </div>
       </div>
     </div>
@@ -363,7 +375,7 @@ sequenceDiagram
     <div class="scenario-header">
       <div class="scenario-number">6</div>
       <div>
-        <h3>Contrato completado automáticamente por el sistema</h3>
+        <h3>Ciclo de vida del contrato (FSM) y cierre automático</h3>
         <div class="actors">
           <span class="actor-badge" style="background:#d6d9f3;color:#373644">Sistema</span>
         </div>
@@ -374,30 +386,34 @@ sequenceDiagram
         <h4>¿Cómo funciona?</h4>
         <ul class="step-list">
           <li>La paciente atiende su última cita incluida en el plan médico.</li>
-          <li class="system">🤖 El sistema detecta que todas las citas del plan han sido atendidas y marcadas como completadas.</li>
-          <li class="system">🤖 El sistema cambia automáticamente el estado del contrato a <strong>Completado</strong>.</li>
-          <li class="system">🤖 Se registra la fecha y hora de cierre en el historial del contrato.</li>
-          <li>No se requiere ninguna acción del personal: el cierre es completamente automático.</li>
+          <li class="system">🤖 El sistema detecta que <strong>todas las citas del plan han sido marcadas como COMPLETADAS</strong>. Los estados <em>no asistió</em> (no_show) y <em>cancelada</em> NO cuentan para el cierre automático; solo el estado <em>completada</em> incrementa el contador del plan.</li>
+          <li class="system">🤖 Si el contrato está en estado <strong>Activo</strong>, cambia automáticamente a <strong>Completado</strong>. No se requiere ninguna acción del personal.</li>
+          <li class="system">🤖 Se registra la fecha y hora de cierre en el historial del contrato con el actor "Sistema".</li>
+          <li class="error">❌ <strong>Bloqueo importante:</strong> si el contrato está en estado <strong>Suspendido</strong> cuando se intenta marcar la última cita como completada, el sistema muestra un error y revierte la operación completa. La cita tampoco queda como completada. Para resolver esto: primero reactivar el contrato (Escenario 4), luego marcar la cita como completada.</li>
           <li class="success">✅ El contrato completado queda visible en el historial de la paciente como referencia.</li>
           <li class="success">✅ Si la paciente desea continuar recibiendo servicios, se puede crear un nuevo contrato desde cero.</li>
         </ul>
         <div class="notes">
-          <strong>Nota:</strong> Un contrato completado es diferente a uno cancelado: completado significa que la paciente recibió todos los servicios pactados exitosamente.
+          <strong>Nota técnica:</strong> El cierre automático se dispara tanto desde el tablero Kanban de agenda como desde la vista de Agenda. El estado Completado es <em>exclusivamente automático</em>: ningún rol puede marcarlo manualmente, ni siquiera el administrador. Un plan sin servicios registrados (0 ítems) no se cierra automáticamente y requiere cancelación manual.
         </div>
       </div>
       <div class="diagram-wrap">
-        <h4>Diagrama de flujo</h4>
+        <h4>Diagrama de estados (FSM)</h4>
         <div class="mermaid">
 stateDiagram-v2
-    [*] --> Borrador: Creación del contrato
-    Borrador --> Activo: Activación manual
-    Activo --> Suspendido: Suspensión (con motivo)
-    Suspendido --> Activo: Reactivación
-    Activo --> Completado: Todas las citas atendidas\n(automático)
-    Activo --> Cancelado: Cancelación definitiva
-    Suspendido --> Cancelado: Cancelación definitiva
+    [*] --> Borrador : Creación del contrato
+    Borrador --> Activo : Activación manual\n(requiere consejera asignada)
+    Borrador --> Cancelado : Cancelación desde Borrador\n(solo Admin Clínica / Admin Corp.)
+    Activo --> Suspendido : Suspensión (con motivo)
+    Suspendido --> Activo : Reactivación
+    Activo --> Completado : Todas las citas marcadas\ncomo COMPLETADAS (automático)\nno_show y cancelada no cuentan
+    Activo --> Cancelado : Cancelación definitiva
+    Suspendido --> Cancelado : Cancelación definitiva
     Completado --> [*]
     Cancelado --> [*]
+        </div>
+        <div class="notes" style="margin-top:.75rem">
+          <strong>Si el contrato está Suspendido al completar la última cita:</strong> el sistema muestra un error y revierte la operación. Flujo correcto: Reactivar (Escenario 4) → marcar cita como completada.
         </div>
       </div>
     </div>
@@ -433,7 +449,7 @@ stateDiagram-v2
               <li>Historial de cambios de estado</li>
             </ul>
           </li>
-          <li class="success">✅ Esta vista es de solo lectura para quienes no tienen permisos de edición (como médicas).</li>
+          <li class="success">✅ Esta vista es de solo lectura para quienes no tienen permisos de edición (como médicas y especialistas).</li>
         </ul>
       </div>
       <div class="diagram-wrap">
@@ -490,12 +506,13 @@ flowchart TD
           <li>Abre la lista de consejeras disponibles en esa sucursal.</li>
           <li class="decision">🔀 ¿Hay más de una consejera disponible?</li>
           <li>Selecciona a la consejera más adecuada según carga de trabajo y especialidad del plan.</li>
-          <li class="system">🤖 El sistema registra la asignación y notifica a la consejera seleccionada.</li>
+          <li class="system">🤖 Antes de guardar, el sistema verifica que la persona seleccionada tenga rol activo de Consejera en esa sucursal. Si cambió de rol o fue desactivada, la asignación falla con un mensaje de error claro.</li>
+          <li class="system">🤖 Si la validación es correcta, el sistema guarda la asignación y registra el cambio en el historial del contrato.</li>
           <li class="success">✅ La consejera asignada aparece en el detalle del contrato y en su propia lista de contratos activos.</li>
           <li class="success">✅ Ahora el contrato puede ser activado (Escenario 2).</li>
         </ul>
         <div class="notes">
-          <strong>Regla clave:</strong> Un contrato no puede activarse sin consejera asignada. La consejera es la responsable de acompañar a la paciente durante todo el plan.
+          <strong>Regla clave:</strong> Un contrato no puede activarse sin consejera asignada. La consejera es la responsable de acompañar a la paciente durante todo el plan. La asignación no genera ninguna notificación automática a la consejera; debe comunicarse por los canales habituales del equipo.
         </div>
       </div>
       <div class="diagram-wrap">
@@ -504,16 +521,19 @@ flowchart TD
 sequenceDiagram
     participant G as Gerente
     participant S as Sistema
-    participant C as Consejera
     G->>S: Abrir contrato en Borrador
     G->>S: Consultar consejeras disponibles
     S-->>G: Lista de consejeras de la sucursal
     G->>G: Selecciona la consejera adecuada
     G->>S: Guardar: asignar consejera X al contrato
-    S-->>S: Registra la asignación
-    S-->>C: Notificación: nuevo contrato asignado
-    S-->>G: Confirmación de asignación exitosa
-    Note over G,S: El contrato ya puede activarse
+    S-->>S: Validar: ¿consejera tiene rol activo\nen esta sucursal?
+    alt Rol activo confirmado
+        S-->>S: Registra la asignación en historial
+        S-->>G: Confirmación de asignación exitosa
+        Note over G,S: El contrato ya puede activarse
+    else Rol inactivo o cambió de rol
+        S-->>G: Error: la persona seleccionada\nno tiene rol activo de consejera
+    end
         </div>
       </div>
     </div>
@@ -543,12 +563,14 @@ sequenceDiagram
             <ul style="margin-top:.3rem;margin-left:1rem;font-size:.85rem">
               <li><strong>Pendiente:</strong> el servicio no ha sido agendado todavía</li>
               <li><strong>Agendado:</strong> tiene fecha y hora asignadas</li>
-              <li><strong>Completado:</strong> la cita ya fue atendida</li>
-              <li><strong>Cancelado:</strong> la cita se canceló (la paciente no asistió o se reprogramó)</li>
+              <li><strong>Completado:</strong> la cita ya fue atendida — <em>este es el único estado que cuenta hacia el cierre automático del plan</em></li>
+              <li><strong>No asistió (no_show):</strong> la paciente no se presentó — no cuenta para el cierre del plan</li>
+              <li><strong>Cancelado:</strong> la cita se canceló — no cuenta para el cierre del plan</li>
             </ul>
           </li>
           <li class="decision">🔀 ¿Hay servicios pendientes que se deban agendar?</li>
           <li>La recepcionista puede agendar las citas pendientes directamente desde esta vista.</li>
+          <li class="error">❌ <strong>Atención:</strong> si el contrato padre está en estado Suspendido, intentar marcar la última cita como completada generará un error y revertirá la operación. Primero reactivar el contrato (Escenario 4), luego marcar la cita.</li>
           <li class="success">✅ El seguimiento del plan queda claro para todos: médica, consejera y recepcionista ven el mismo estado.</li>
         </ul>
       </div>
@@ -561,15 +583,19 @@ flowchart TD
     C --> D{¿Estado de cada servicio?}
     D --> E[Pendiente\nno agendado]
     D --> F[Agendado\ntiene fecha]
-    D --> G[Completado\natendido]
-    D --> H[Cancelado]
+    D --> G[Completado\natendido ✔ cuenta\npara cierre del plan]
+    D --> H[No asistió o Cancelado\nno cuenta para cierre]
     E --> I{¿Agendar ahora?}
     I -- Sí --> J[Recepcionista\nagenda la cita]
     I -- No --> K([Vista consultada])
     F --> K
-    G --> K
+    G --> L{¿Es la última\ncita del plan?}
+    L -- Sí y contrato Activo --> M[🤖 Sistema cierra\ncontrato automáticamente]
+    L -- Sí y contrato Suspendido --> N[❌ Error: reactivar\ncontrato primero]
+    L -- No --> K
     H --> K
     J --> K
+    M --> K
     style A fill:#d9d8f5,color:#373644,stroke:#a25cbf
     style B fill:#7eb8f7,color:#1a3a5c,stroke:#3a7bd5
     style C fill:#d6d9f3,color:#373644,stroke:#a25cbf
@@ -581,6 +607,9 @@ flowchart TD
     style I fill:#fac186,color:#7a4a00,stroke:#d97706
     style J fill:#7eb8f7,color:#1a3a5c,stroke:#3a7bd5
     style K fill:#afd393,color:#2d5a1b,stroke:#5a9a3a
+    style L fill:#fac186,color:#7a4a00,stroke:#d97706
+    style M fill:#afd393,color:#2d5a1b,stroke:#5a9a3a
+    style N fill:#ff3759,color:#fff,stroke:#8b0000
         </div>
       </div>
     </div>
@@ -602,12 +631,13 @@ flowchart TD
       <div class="steps">
         <h4>¿Quién puede hacer qué?</h4>
         <ul class="step-list">
-          <li><strong>Médica:</strong> solo puede <em>ver</em> el detalle del contrato. No puede crear, editar ni cambiar estados.</li>
-          <li><strong>Recepcionista:</strong> puede ver contratos y agendar citas de un plan activo. No puede crear ni cambiar el estado del contrato.</li>
-          <li><strong>Consejera:</strong> puede crear contratos en Borrador y activarlos. No puede cancelar.</li>
-          <li><strong>Gerente de Sucursal:</strong> puede crear, activar, suspender y reactivar contratos de su sucursal. Puede asignar consejeras.</li>
+          <li><strong>Médica y Especialista:</strong> solo pueden <em>ver</em> el detalle del contrato. No pueden crear, editar ni cambiar estados. Los botones de acción no aparecen en su pantalla; el bloqueo definitivo está en cada acción del servidor.</li>
+          <li><strong>Recepcionista:</strong> puede ver contratos, agendar citas de un plan activo y <em>reanudar</em> contratos suspendidos. No puede crear ni cancelar.</li>
+          <li><strong>Consejera:</strong> puede crear contratos en Borrador, activarlos y <em>reanudarlos</em> si estaban suspendidos. No puede cancelar.</li>
+          <li><strong>Gerente de Sucursal:</strong> puede crear, activar, suspender, reactivar y <em>cancelar</em> contratos de su sucursal. Puede asignar consejeras.</li>
           <li><strong>Admin Corporativo:</strong> tiene acceso completo: puede crear, activar, suspender, reactivar y cancelar contratos de cualquier sucursal.</li>
-          <li class="system">🤖 El sistema aplica estos permisos automáticamente: si un rol no tiene acceso a una acción, el botón correspondiente no aparece en pantalla.</li>
+          <li><strong>Completar un contrato:</strong> ningún rol puede hacerlo manualmente. Es una acción exclusiva del sistema automático (ver Escenario 6).</li>
+          <li class="system">🤖 Los roles de solo lectura (Médica, Especialista) ven la pantalla de contratos pero sin botones de acción. El bloqueo definitivo está en cada acción del servidor, no solo en la interfaz visual.</li>
           <li class="decision">🔀 Si alguien intenta realizar una acción sin el permiso necesario...</li>
           <li class="error">❌ El sistema muestra un mensaje de "No tienes permiso para realizar esta acción" y no ejecuta el cambio.</li>
         </ul>
@@ -617,12 +647,12 @@ flowchart TD
         <div class="mermaid">
 flowchart TD
     A[Acción sobre contrato] --> B{¿Qué rol\ntiene el usuario?}
-    B -- Médica --> C[Solo lectura\nVer detalle]
-    B -- Recepcionista --> D[Ver + agendar\ncitas del plan]
-    B -- Consejera --> E[Crear + activar\nen su sucursal]
-    B -- Gerente --> F[Crear, activar,\nsuspender, reactivar\nasignar consejera]
+    B -- Médica o\nEspecialista --> C[Solo lectura\nVer detalle\nSin botones de acción]
+    B -- Recepcionista --> D[Ver + agendar\ncitas del plan\n+ reanudar]
+    B -- Consejera --> E[Crear + activar\n+ reanudar\nen su sucursal]
+    B -- Gerente --> F[Crear, activar,\nsuspender, reactivar,\ncancelar, asignar\nconsejera]
     B -- Admin Corp. --> G[Acceso total:\ntodos los estados\ntodas las sucursales]
-    C --> H([🤖 Sistema muestra\nsolo lo permitido])
+    C --> H([🤖 Bloqueo definitivo\nen servidor])
     D --> H
     E --> H
     F --> H
@@ -668,7 +698,7 @@ flowchart TD
               <li><strong>Motivo (si aplica):</strong> texto registrado al suspender o cancelar</li>
             </ul>
           </li>
-          <li class="system">🤖 El sistema registra automáticamente cada cambio, sin que el usuario tenga que hacer nada extra.</li>
+          <li class="system">🤖 El sistema registra automáticamente cada cambio, sin que el usuario tenga que hacer nada extra. Cuando el cierre es automático, el actor registrado es "Sistema".</li>
           <li class="success">✅ El historial garantiza trazabilidad total: en caso de auditoría o disputa, siempre hay un registro claro de qué pasó y quién intervino.</li>
           <li>Este historial es de solo lectura: nadie puede editarlo ni eliminarlo.</li>
         </ul>

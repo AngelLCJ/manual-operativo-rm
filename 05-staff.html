@@ -40,6 +40,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
 .mermaid{font-size:13px}
 .notes{margin-top:1rem;padding:.75rem 1rem;background:#fff8e1;border-radius:.5rem;border-left:3px solid var(--warning);font-size:.85rem;color:var(--text)}
 .notes strong{color:#b45309}
+.planned-banner{background:#fff8e1;border:1px solid #fac186;border-radius:8px;padding:.75rem 1rem;margin-bottom:1rem;font-size:.85rem;color:#7a3a00;}
 .footer{text-align:center;padding:2rem;color:var(--muted);font-size:.8rem;border-top:1px solid var(--border);margin-top:2rem}
 </style>
 </head>
@@ -67,7 +68,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
 
   <div class="section-intro">
     <h2>¿De qué trata esta sección?</h2>
-    <p>Aquí se explica cómo registrar, configurar y gestionar a todo el personal que trabaja en las sucursales de Grupo Reina Madre: recepcionistas, consejeras, médicas, gerentes y administradores corporativos. Los procesos de esta sección los ejecutan principalmente el <strong>Admin Corporativo</strong> y los <strong>Gerentes de Sucursal</strong>, con diferentes niveles de permiso según su rol.</p>
+    <p>Aquí se explica cómo registrar, configurar y gestionar a todo el personal que trabaja en las sucursales de Grupo Reina Madre: recepcionistas, consejeras, médicas, gerentes y administradores. Los procesos de esta sección los ejecutan el <strong>Platform Admin</strong>, el <strong>Admin Corporativo</strong>, los <strong>Gerentes de Sucursal</strong> y el área de <strong>Recursos Humanos (RRHH)</strong>, cada uno con niveles de permiso distintos según su rol y con restricciones de jerarquía — nadie puede asignar permisos mayores a los que tiene.</p>
   </div>
 
   <!-- ESCENARIO 1 -->
@@ -77,8 +78,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
       <div>
         <h3>Dar de alta un nuevo colaborador</h3>
         <div class="actors">
-          <span class="actor-badge" style="background:#ed80a8;color:#fff">Admin Corporativo</span>
-          <span class="actor-badge" style="background:#fac186;color:#5a3000">Gerente de Sucursal</span>
+          <span class="actor-badge" style="background:#a25cbf;color:#fff">Platform Admin</span>
+          <span class="actor-badge" style="background:#f0c060;color:#5a3a00">RRHH</span>
+          <span class="actor-badge" style="background:#fac186;color:#7a3a00">Gerente de Sucursal</span>
           <span class="actor-badge" style="background:#d6d9f3;color:#373644">Sistema</span>
         </div>
       </div>
@@ -87,16 +89,26 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
       <div class="steps">
         <h4>¿Cómo funciona?</h4>
         <ul class="step-list">
-          <li>El Admin Corporativo o Gerente de Sucursal accede al módulo <strong>Personal y Staff</strong> y hace clic en "Agregar colaborador".</li>
+          <li>El administrador autorizado (Platform Admin, RRHH o Gerente de Sucursal) accede al módulo <strong>Personal y Staff</strong> y hace clic en "Agregar colaborador".</li>
           <li>Captura los datos del nuevo colaborador: nombre completo, correo electrónico institucional y teléfono.</li>
-          <li>Selecciona el <strong>rol</strong> que tendrá (Recepcionista, Consejera, Médica, Gerente, Admin Corporativo) y la o las <strong>sucursales</strong> donde trabajará.</li>
-          <li class="decision">🔀 ¿El correo ingresado ya está registrado en el sistema?</li>
-          <li class="error">❌ Si el correo ya existe, el sistema muestra un aviso y no permite duplicarlo. Se debe usar otro correo.</li>
-          <li class="system">🤖 Si todo está correcto, el sistema crea el acceso del colaborador y le envía un correo de bienvenida con las instrucciones para ingresar por primera vez.</li>
-          <li class="success">✅ El colaborador aparece en la lista del personal activo y puede iniciar sesión con su correo.</li>
+          <li>Selecciona el <strong>rol</strong> que tendrá (Recepcionista, Consejera, Médica, etc.) y la o las <strong>sucursales</strong> donde trabajará.</li>
+          <li class="decision">🔀 Restricción de jerarquía: ¿el rol seleccionado tiene un nivel igual o mayor al del administrador que da de alta?</li>
+          <li class="error">❌ Si el administrador intenta asignar un rol de nivel superior al suyo (por ejemplo, un Gerente creando otro Gerente), el sistema rechaza la operación. Un Gerente solo puede crear roles menores al suyo (Recepcionista, Consejera, Médica, Enfermería).</li>
+          <li class="decision">🔀 ¿El correo ingresado ya está registrado en el sistema o en el directorio de identidad?</li>
+          <li class="error">❌ Si el correo ya existe en la base de datos o en el directorio de identidad, el sistema muestra un aviso y no permite duplicarlo.</li>
+          <li class="decision">🔀 ¿Existen otros errores? (cédula profesional duplicada, servicios inválidos, turnos solapados entre sucursales)</li>
+          <li class="error">❌ Si hay datos inválidos el sistema los indica y bloquea el alta hasta corregirlos.</li>
+          <li class="system">🤖 Si todo es correcto, el sistema registra primero al colaborador en el <strong>directorio de identidad</strong> (Cognito) y después en la base de datos interna. El colaborador recibe automáticamente un correo de invitación de Cognito con una contraseña temporal para su primer ingreso.</li>
+          <li class="decision">🔀 ¿El nuevo colaborador tiene un rol clínico (Médica, Especialista, Enfermería)?</li>
+          <li>Si tiene rol clínico, su perfil queda en estado <strong>"Pendiente de validación"</strong> y no aparece disponible en la agenda hasta que se completen sus documentos de onboarding.</li>
+          <li class="success">✅ Para roles no clínicos, el colaborador aparece en la lista del personal activo y puede iniciar sesión. Para roles clínicos, queda pendiente de validación de documentos.</li>
         </ul>
         <div class="notes">
-          <strong>Nota:</strong> El correo de bienvenida incluye un enlace temporal para que el colaborador establezca su propia contraseña. El enlace expira en 24 horas.
+          <strong>Quién puede dar de alta y con qué alcance:</strong><br>
+          <strong>Platform Admin</strong> — puede crear staff con cualquier rol.<br>
+          <strong>RRHH (corp_hr)</strong> — puede crear staff con roles hasta su nivel.<br>
+          <strong>Gerente de Sucursal (clinic_admin)</strong> — puede crear staff solo para su sucursal y solo con roles inferiores al suyo (no puede crear otro Gerente ni Admin Corporativo).<br><br>
+          <strong>Nota técnica:</strong> El correo del colaborador es el identificador en el directorio de identidad. Si algo falla en el paso de base de datos interna después de que el directorio ya creó la cuenta, el área de Sistemas puede resolverlo; el colaborador no podrá iniciar sesión hasta que se complete el proceso.
         </div>
       </div>
       <div class="diagram-wrap">
@@ -106,21 +118,39 @@ flowchart TD
     A([Inicio]) --> B[Admin abre módulo\nPersonal y Staff]
     B --> C[Captura nombre,\ncorreo y teléfono]
     C --> D[Selecciona rol\ny sucursal]
-    D --> E{¿Correo\nya existe?}
-    E -- Sí --> F[❌ Muestra aviso\nde correo duplicado]
-    F --> C
-    E -- No --> G[🤖 Sistema crea\nel acceso]
-    G --> H[🤖 Envía correo\nde bienvenida]
-    H --> I([✅ Colaborador activo])
-    style A fill:#ed80a8,color:#fff,stroke:#a25cbf
-    style B fill:#ed80a8,color:#fff,stroke:#a25cbf
-    style C fill:#ed80a8,color:#fff,stroke:#a25cbf
-    style D fill:#ed80a8,color:#fff,stroke:#a25cbf
+    D --> E{¿Rol supera\njerarquía del admin?}
+    E -- Sí --> ERR1[❌ Rechazado:\nrol fuera de alcance]
+    ERR1 --> D
+    E -- No --> F{¿Correo\nya existe?}
+    F -- Sí --> ERR2[❌ Correo duplicado]
+    ERR2 --> C
+    F -- No --> G{¿Otros\nconflictos?}
+    G -- Cédula / servicios\n/ turnos solapados --> ERR3[❌ Error de validación]
+    ERR3 --> C
+    G -- No --> H[🤖 Sistema registra\nen directorio de identidad\nCognito primero]
+    H --> I[🤖 Sistema registra\nen base de datos interna]
+    I --> J[🤖 Colaborador recibe\ncorreo de invitación\ncon contraseña temporal]
+    J --> K{¿Rol\nclínico?}
+    K -- Sí --> L[Perfil en estado\nPendiente de validación\nno aparece en agenda]
+    K -- No --> M([✅ Colaborador activo\nen el sistema])
+    L --> N([⏳ Pendiente de\nvalidación de documentos])
+    style A fill:#a25cbf,color:#fff,stroke:#a25cbf
+    style B fill:#a25cbf,color:#fff,stroke:#a25cbf
+    style C fill:#a25cbf,color:#fff,stroke:#a25cbf
+    style D fill:#a25cbf,color:#fff,stroke:#a25cbf
     style E fill:#fac186,color:#5a3000,stroke:#a25cbf
-    style F fill:#ff3759,color:#fff,stroke:#a25cbf
-    style G fill:#d6d9f3,color:#373644,stroke:#a25cbf
+    style ERR1 fill:#ff3759,color:#fff,stroke:#a25cbf
+    style F fill:#fac186,color:#5a3000,stroke:#a25cbf
+    style ERR2 fill:#ff3759,color:#fff,stroke:#a25cbf
+    style G fill:#fac186,color:#5a3000,stroke:#a25cbf
+    style ERR3 fill:#ff3759,color:#fff,stroke:#a25cbf
     style H fill:#d6d9f3,color:#373644,stroke:#a25cbf
-    style I fill:#afd393,color:#2d5a1b,stroke:#a25cbf
+    style I fill:#d6d9f3,color:#373644,stroke:#a25cbf
+    style J fill:#d6d9f3,color:#373644,stroke:#a25cbf
+    style K fill:#fac186,color:#5a3000,stroke:#a25cbf
+    style L fill:#fac186,color:#5a3000,stroke:#a25cbf
+    style M fill:#afd393,color:#2d5a1b,stroke:#a25cbf
+    style N fill:#fac186,color:#5a3000,stroke:#a25cbf
         </div>
       </div>
     </div>
@@ -131,9 +161,12 @@ flowchart TD
     <div class="scenario-header">
       <div class="scenario-number">2</div>
       <div>
-        <h3>Asignar rol a un colaborador</h3>
+        <h3>Asignar o cambiar el rol de un colaborador</h3>
         <div class="actors">
-          <span class="actor-badge" style="background:#ed80a8;color:#fff">Admin Corporativo</span>
+          <span class="actor-badge" style="background:#a25cbf;color:#fff">Platform Admin</span>
+          <span class="actor-badge" style="background:#f0c060;color:#5a3a00">RRHH</span>
+          <span class="actor-badge" style="background:#fac186;color:#7a3a00">Gerente de Sucursal</span>
+          <span class="actor-badge" style="background:#d6d9f3;color:#373644">Sistema</span>
         </div>
       </div>
     </div>
@@ -141,17 +174,22 @@ flowchart TD
       <div class="steps">
         <h4>¿Cómo funciona?</h4>
         <ul class="step-list">
-          <li>El Admin Corporativo busca al colaborador en la lista de personal y abre su perfil.</li>
+          <li>El administrador autorizado (Platform Admin, RRHH o Gerente de Sucursal) busca al colaborador en la lista de personal y abre su perfil.</li>
           <li>Hace clic en "Editar rol" y elige el nuevo rol de la lista disponible.</li>
-          <li class="decision">🔀 ¿El colaborador ya tiene un rol asignado que se va a cambiar?</li>
-          <li>Si tiene rol previo, el sistema muestra un aviso indicando qué permisos perderá y cuáles ganará con el cambio.</li>
-          <li>El Admin Corporativo confirma el cambio.</li>
-          <li class="system">🤖 El sistema aplica el nuevo rol de forma inmediata. La próxima vez que el colaborador inicie sesión, verá solo las opciones que corresponden a su nuevo rol.</li>
-          <li class="success">✅ El perfil del colaborador muestra el rol actualizado.</li>
+          <li class="decision">🔀 ¿El nuevo rol tiene un nivel mayor al del administrador que hace el cambio?</li>
+          <li class="error">❌ No es posible asignar un rol de nivel superior al del propio administrador. El sistema bloquea el cambio.</li>
+          <li class="decision">🔀 ¿El colaborador ya tiene un rol distinto al que se quiere asignar?</li>
+          <li>Si tiene rol previo diferente, el sistema muestra un panel con los permisos que perderá y los que ganará con el cambio. El administrador debe marcar una <strong>casilla de confirmación</strong> antes de poder guardar — el botón queda bloqueado hasta confirmar.</li>
+          <li>El administrador confirma el cambio.</li>
+          <li class="system">🤖 El sistema actualiza el rol en el directorio de identidad (Cognito) y en la base de datos interna. El cambio se sincroniza en ambos sistemas.</li>
+          <li class="decision">🔀 ¿El nuevo rol es Admin de Plataforma (Platform Admin)?</li>
+          <li class="system">🤖 Si el nuevo rol es Platform Admin, el sistema activa automáticamente el segundo factor de autenticación (MFA). En su próximo inicio de sesión, el colaborador verá un código QR para configurar su app de autenticación (Google Authenticator o similar).</li>
+          <li class="success">✅ El perfil del colaborador muestra el rol actualizado. Si tiene una sesión activa en ese momento, el cambio se reflejará en su próximo inicio de sesión o en máximo 1 hora.</li>
         </ul>
         <div class="notes">
-          <strong>Roles disponibles y qué puede hacer cada uno:</strong><br>
-          <strong>Recepcionista</strong> — agenda citas y registra pacientes. <strong>Consejera</strong> — gestiona planes y atención de seguimiento. <strong>Médica</strong> — consulta expedientes y agenda personal. <strong>Gerente de Sucursal</strong> — administra su sucursal y el personal asignado. <strong>Admin Corporativo</strong> — acceso completo a todas las sucursales.
+          <strong>Quién puede cambiar roles:</strong> Platform Admin (cualquier rol), RRHH y Gerente de Sucursal (solo roles hasta su propio nivel de jerarquía). El Gerente solo puede cambiar el rol de personal de su propia sucursal.<br><br>
+          <strong>Importante — Sesiones activas:</strong> El cambio de rol actualiza el directorio de identidad (Cognito) y la base de datos de inmediato. Sin embargo, si el colaborador tiene una sesión abierta, su acceso actual sigue siendo válido hasta que expire el token de seguridad — máximo 1 hora. No hay cierre de sesión automático al cambiar el rol. En la práctica esto significa que, si la médica o recepcionista está trabajando en ese momento, seguirá viendo sus permisos anteriores por un rato. Si hay urgencia, la solución es pedirle que cierre sesión y vuelva a entrar.<br><br>
+          <strong>Si ocurre un fallo técnico</strong> durante el cambio, el sistema muestra un mensaje de error. El cambio puede demorar en reflejarse hasta el próximo inicio de sesión del colaborador.
         </div>
       </div>
       <div class="diagram-wrap">
@@ -160,20 +198,36 @@ flowchart TD
 flowchart TD
     A([Inicio]) --> B[Admin busca\nal colaborador]
     B --> C[Abre perfil\ny clic en Editar rol]
-    C --> D{¿Ya tiene\nrol asignado?}
-    D -- Sí --> E[Sistema muestra\nresumen de cambios]
-    E --> F[Admin confirma\nel cambio]
-    D -- No --> F
-    F --> G[🤖 Rol aplicado\nal instante]
-    G --> H([✅ Perfil\nactualizado])
-    style A fill:#ed80a8,color:#fff,stroke:#a25cbf
-    style B fill:#ed80a8,color:#fff,stroke:#a25cbf
-    style C fill:#ed80a8,color:#fff,stroke:#a25cbf
-    style D fill:#fac186,color:#5a3000,stroke:#a25cbf
-    style E fill:#d6d9f3,color:#373644,stroke:#a25cbf
-    style F fill:#ed80a8,color:#fff,stroke:#a25cbf
+    C --> D[Selecciona\nnuevo rol]
+    D --> E{¿Rol supera\njerarquía del admin?}
+    E -- Sí --> ERR[❌ Bloqueado:\nsin permiso]
+    ERR --> D
+    E -- No --> F{¿Rol diferente\nal actual?}
+    F -- Sí --> G[Sistema muestra\npanel Gana / Pierde\npermisos]
+    G --> H[Admin marca casilla\nde confirmación]
+    H --> I[Guardar cambio]
+    F -- No --> I
+    I --> J[🤖 Actualiza en\ndirectorio de identidad\nCognito]
+    J --> K[🤖 Actualiza en\nbase de datos interna]
+    K --> L{¿Nuevo rol es\nPlatform Admin?}
+    L -- Sí --> M[🤖 Activa MFA TOTP\nautomáticamente]
+    M --> N([✅ Rol actualizado\nefectivo al próximo login\no en máx. 1 hora])
+    L -- No --> N
+    style A fill:#a25cbf,color:#fff,stroke:#a25cbf
+    style B fill:#a25cbf,color:#fff,stroke:#a25cbf
+    style C fill:#a25cbf,color:#fff,stroke:#a25cbf
+    style D fill:#a25cbf,color:#fff,stroke:#a25cbf
+    style E fill:#fac186,color:#5a3000,stroke:#a25cbf
+    style ERR fill:#ff3759,color:#fff,stroke:#a25cbf
+    style F fill:#fac186,color:#5a3000,stroke:#a25cbf
     style G fill:#d6d9f3,color:#373644,stroke:#a25cbf
-    style H fill:#afd393,color:#2d5a1b,stroke:#a25cbf
+    style H fill:#a25cbf,color:#fff,stroke:#a25cbf
+    style I fill:#a25cbf,color:#fff,stroke:#a25cbf
+    style J fill:#d6d9f3,color:#373644,stroke:#a25cbf
+    style K fill:#d6d9f3,color:#373644,stroke:#a25cbf
+    style L fill:#fac186,color:#5a3000,stroke:#a25cbf
+    style M fill:#d6d9f3,color:#373644,stroke:#a25cbf
+    style N fill:#afd393,color:#2d5a1b,stroke:#a25cbf
         </div>
       </div>
     </div>
@@ -186,8 +240,10 @@ flowchart TD
       <div>
         <h3>Asignar o cambiar sucursal de un colaborador</h3>
         <div class="actors">
-          <span class="actor-badge" style="background:#ed80a8;color:#fff">Admin Corporativo</span>
-          <span class="actor-badge" style="background:#fac186;color:#5a3000">Gerente de Sucursal</span>
+          <span class="actor-badge" style="background:#a25cbf;color:#fff">Platform Admin</span>
+          <span class="actor-badge" style="background:#ed80a8;color:#7a1a3a">Admin Corporativo</span>
+          <span class="actor-badge" style="background:#f0c060;color:#5a3a00">RRHH</span>
+          <span class="actor-badge" style="background:#fac186;color:#7a3a00">Gerente de Sucursal</span>
         </div>
       </div>
     </div>
@@ -196,15 +252,18 @@ flowchart TD
         <h4>¿Cómo funciona?</h4>
         <ul class="step-list">
           <li>Desde el perfil del colaborador, se accede a la sección "Sucursales asignadas".</li>
-          <li class="decision">🔀 ¿Quién está haciendo el cambio: Gerente de Sucursal o Admin Corporativo?</li>
-          <li>Si es <strong>Gerente de Sucursal</strong>, solo puede agregar o quitar al colaborador de su propia sucursal. No puede asignarlo a otras.</li>
-          <li>Si es <strong>Admin Corporativo</strong>, puede agregar o quitar el colaborador de cualquier sucursal del grupo.</li>
+          <li class="decision">🔀 ¿Quién está haciendo el cambio?</li>
+          <li>Si es <strong>Gerente de Sucursal</strong>, solo puede agregar o quitar al colaborador de su propia sucursal. No puede asignarlo a sucursales de otros Gerentes ni moverlo entre sucursales.</li>
+          <li>Si es <strong>Admin Corporativo, RRHH o Platform Admin</strong>, puede agregar o quitar el colaborador de cualquier sucursal del grupo.</li>
           <li>Se seleccionan o deseleccionan las sucursales deseadas y se guarda el cambio.</li>
+          <li class="decision">🔀 ¿Quedaron cero sucursales asignadas después del cambio?</li>
+          <li class="error">❌ Si se eliminaron todas las sucursales del colaborador, el sistema lo desactiva automáticamente a nivel plataforma. Equivale a una baja lógica. Si esto no era la intención, se debe asignar al menos una sucursal o reactivar al colaborador manualmente.</li>
           <li class="system">🤖 El sistema actualiza los accesos del colaborador. En la próxima sesión, verá únicamente la información de las sucursales que tenga asignadas.</li>
           <li class="success">✅ El colaborador queda vinculado a las nuevas sucursales seleccionadas.</li>
         </ul>
         <div class="notes">
-          <strong>Nota:</strong> Un colaborador puede trabajar en más de una sucursal simultáneamente. Esto es útil para médicas que rotan entre clínicas o para personal de apoyo compartido.
+          <strong>Nota sobre mover entre sucursales:</strong> Solo Admin Corporativo, RRHH y Platform Admin pueden trasladar a un colaborador de una sucursal a otra. El Gerente de Sucursal solo puede operar dentro de su propia sucursal.<br><br>
+          <strong>Un colaborador puede estar en más de una sucursal</strong> simultáneamente (útil para médicas que rotan entre clínicas). El límite técnico del sistema es 13 sucursales por colaborador.
         </div>
       </div>
       <div class="diagram-wrap">
@@ -214,13 +273,16 @@ flowchart TD
     A([Inicio]) --> B[Abrir perfil\ndel colaborador]
     B --> C[Ir a sección\nSucursales asignadas]
     C --> D{¿Quién\nrealiza el cambio?}
-    D -- Gerente --> E[Solo puede modificar\nsu propia sucursal]
-    D -- Admin Corp --> F[Puede modificar\ncualquier sucursal]
+    D -- Gerente de Sucursal --> E[Solo puede modificar\nsu propia sucursal]
+    D -- Admin Corp / RRHH\n/ Platform Admin --> F[Puede modificar\ncualquier sucursal]
     E --> G[Seleccionar o\ndeseleccionar sucursales]
     F --> G
     G --> H[Guardar cambios]
-    H --> I[🤖 Sistema actualiza\naccesos del colaborador]
-    I --> J([✅ Sucursales\nactualizadas])
+    H --> I{¿Quedan sucursales\nasignadas?}
+    I -- No --> J[🤖 Sistema desactiva\nal colaborador\nautomáticamente]
+    J --> K([⚠️ Colaborador\ndesactivado])
+    I -- Sí --> L[🤖 Sistema actualiza\naccesos en Cognito\ny base de datos]
+    L --> M([✅ Sucursales\nactualizadas])
     style A fill:#fac186,color:#5a3000,stroke:#a25cbf
     style B fill:#fac186,color:#5a3000,stroke:#a25cbf
     style C fill:#fac186,color:#5a3000,stroke:#a25cbf
@@ -229,8 +291,11 @@ flowchart TD
     style F fill:#ed80a8,color:#fff,stroke:#a25cbf
     style G fill:#d9d8f5,color:#373644,stroke:#a25cbf
     style H fill:#d9d8f5,color:#373644,stroke:#a25cbf
-    style I fill:#d6d9f3,color:#373644,stroke:#a25cbf
-    style J fill:#afd393,color:#2d5a1b,stroke:#a25cbf
+    style I fill:#fac186,color:#5a3000,stroke:#a25cbf
+    style J fill:#d6d9f3,color:#373644,stroke:#a25cbf
+    style K fill:#ff3759,color:#fff,stroke:#a25cbf
+    style L fill:#d6d9f3,color:#373644,stroke:#a25cbf
+    style M fill:#afd393,color:#2d5a1b,stroke:#a25cbf
         </div>
       </div>
     </div>
@@ -243,8 +308,8 @@ flowchart TD
       <div>
         <h3>Configurar horarios de una médica</h3>
         <div class="actors">
-          <span class="actor-badge" style="background:#fac186;color:#5a3000">Gerente de Sucursal</span>
-          <span class="actor-badge" style="background:#ed80a8;color:#fff">Admin Corporativo</span>
+          <span class="actor-badge" style="background:#fac186;color:#7a3a00">Gerente de Sucursal</span>
+          <span class="actor-badge" style="background:#ed80a8;color:#7a1a3a">Admin Corporativo</span>
         </div>
       </div>
     </div>
@@ -255,11 +320,11 @@ flowchart TD
           <li>El Gerente de Sucursal o Admin Corporativo abre el perfil de la médica y va a la sección "Horarios de atención".</li>
           <li>Selecciona la sucursal para la que quiere configurar el horario (una médica puede tener horarios distintos en cada sucursal).</li>
           <li>Define los días de la semana en que atiende y el rango de horas de inicio y fin de consulta.</li>
-          <li class="decision">🔀 ¿Hay traslapes con otro horario ya configurado en la misma sucursal para esa médica?</li>
-          <li class="error">❌ Si hay traslape de horarios, el sistema lo indica y no permite guardar hasta corregirlo.</li>
+          <li class="decision">🔀 ¿Hay traslapes con otro horario ya configurado para esa médica en la misma sucursal?</li>
+          <li class="error">❌ Si hay traslape de horarios, el sistema lo indica y no permite guardar hasta corregirlo. El sistema aplica un margen de 30 minutos de separación entre bloques.</li>
           <li>Se confirman los horarios y se guardan.</li>
-          <li class="system">🤖 El sistema genera automáticamente los bloques de disponibilidad (slots) en la agenda de esa médica para los días y horas configurados.</li>
-          <li class="success">✅ La agenda de la médica queda lista. Las recepcionistas y el bot de WhatsApp ya pueden ofrecer esos horarios para agendar citas.</li>
+          <li class="system">🤖 El sistema registra los bloques de turno de la médica. Estos turnos definen su plantilla de disponibilidad para la agenda.</li>
+          <li class="success">✅ Los turnos de la médica quedan configurados y la agenda puede utilizarlos para ofrecer citas.</li>
         </ul>
         <div class="notes">
           <strong>Importante:</strong> Si se modifica el horario de una médica y ya hay citas agendadas en esos bloques, las citas existentes NO se cancelan automáticamente. Se debe revisar la agenda y notificar a las pacientes afectadas manualmente.
@@ -267,6 +332,9 @@ flowchart TD
       </div>
       <div class="diagram-wrap">
         <h4>Diagrama de flujo</h4>
+        <div class="planned-banner">
+          ⚠️ <strong>Verificación pendiente</strong> — La UI independiente de edición de horarios post-alta está en revisión técnica. El sistema registra los turnos al dar de alta al colaborador. Si existe una pantalla separada de edición de horarios, esta sección se actualizará tras confirmar su implementación.
+        </div>
         <div class="mermaid">
 flowchart TD
     A([Inicio]) --> B[Abrir perfil\nde la médica]
@@ -277,8 +345,8 @@ flowchart TD
     F -- Sí --> G[❌ Sistema avisa\ntraslape detectado]
     G --> E
     F -- No --> H[Guardar horarios]
-    H --> I[🤖 Sistema genera\nslots en la agenda]
-    I --> J([✅ Agenda de\nla médica activa])
+    H --> I[🤖 Sistema registra\nbloques de turno]
+    I --> J([✅ Plantilla de\nturnos configurada])
     style A fill:#fac186,color:#5a3000,stroke:#a25cbf
     style B fill:#fac186,color:#5a3000,stroke:#a25cbf
     style C fill:#fac186,color:#5a3000,stroke:#a25cbf
@@ -301,8 +369,8 @@ flowchart TD
       <div>
         <h3>Ver perfil de un colaborador</h3>
         <div class="actors">
-          <span class="actor-badge" style="background:#fac186;color:#5a3000">Gerente de Sucursal</span>
-          <span class="actor-badge" style="background:#ed80a8;color:#fff">Admin Corporativo</span>
+          <span class="actor-badge" style="background:#fac186;color:#7a3a00">Gerente de Sucursal</span>
+          <span class="actor-badge" style="background:#ed80a8;color:#7a1a3a">Admin Corporativo</span>
         </div>
       </div>
     </div>
@@ -316,7 +384,7 @@ flowchart TD
           <li>El perfil muestra: nombre, correo, teléfono, rol asignado, sucursales donde trabaja y sus horarios configurados.</li>
           <li class="decision">🔀 ¿Es un Gerente de Sucursal quien consulta el perfil?</li>
           <li>Si es Gerente, solo puede ver perfiles de colaboradores asignados a su propia sucursal.</li>
-          <li>Si es Admin Corporativo, puede ver el perfil de cualquier colaborador del grupo.</li>
+          <li>Si es Admin Corporativo o Platform Admin, puede ver el perfil de cualquier colaborador del grupo.</li>
           <li class="success">✅ La información del colaborador se muestra completa y en tiempo real.</li>
         </ul>
       </div>
@@ -345,8 +413,8 @@ sequenceDiagram
       <div>
         <h3>Editar datos de un colaborador</h3>
         <div class="actors">
-          <span class="actor-badge" style="background:#fac186;color:#5a3000">Gerente de Sucursal</span>
-          <span class="actor-badge" style="background:#ed80a8;color:#fff">Admin Corporativo</span>
+          <span class="actor-badge" style="background:#fac186;color:#7a3a00">Gerente de Sucursal</span>
+          <span class="actor-badge" style="background:#ed80a8;color:#7a1a3a">Admin Corporativo</span>
         </div>
       </div>
     </div>
@@ -357,14 +425,14 @@ sequenceDiagram
           <li>Desde el perfil del colaborador, se hace clic en el botón "Editar".</li>
           <li class="decision">🔀 ¿Qué dato se quiere modificar?</li>
           <li><strong>Nombre y teléfono:</strong> pueden ser editados tanto por el Gerente de Sucursal como por el Admin Corporativo.</li>
-          <li><strong>Correo electrónico:</strong> solo lo puede cambiar el Admin Corporativo, ya que es el dato de acceso al sistema.</li>
-          <li><strong>Rol:</strong> solo lo puede cambiar el Admin Corporativo (ver Escenario 2).</li>
+          <li><strong>Correo electrónico:</strong> el correo de un colaborador <strong>no puede cambiarse desde la plataforma</strong>. Es el identificador en el directorio de identidad (Cognito). Si se necesita cambiar el correo, es una operación técnica que debe solicitar a Sistemas directamente en Cognito.</li>
+          <li><strong>Rol:</strong> solo lo puede cambiar un administrador autorizado (ver Escenario 2).</li>
           <li>Se realizan los cambios y se hace clic en "Guardar".</li>
-          <li class="system">🤖 El sistema guarda los nuevos datos y los refleja de inmediato en el perfil.</li>
-          <li class="success">✅ Los datos actualizados quedan registrados. Si se cambió el correo, el colaborador recibirá una notificación informándole del cambio.</li>
+          <li class="system">🤖 El sistema guarda los nuevos datos (nombre, teléfono) y los refleja de inmediato en el perfil.</li>
+          <li class="success">✅ Los datos actualizados quedan registrados.</li>
         </ul>
         <div class="notes">
-          <strong>Nota:</strong> Si se cambia el correo de acceso, el colaborador debe usar el nuevo correo para iniciar sesión desde ese momento. El acceso con el correo anterior queda invalidado.
+          <strong>Cambio de correo electrónico:</strong> Esta operación no está disponible en la interfaz de la plataforma. El correo es el identificador único del colaborador en el sistema de identidad. Para cambiar el correo de un colaborador, Sistemas debe realizar el cambio directamente en el directorio de identidad (Cognito) y actualizar también el registro en la base de datos. Contactar al área técnica para gestionarlo.
         </div>
       </div>
       <div class="diagram-wrap">
@@ -375,38 +443,36 @@ flowchart TD
     B --> C[Clic en Editar]
     C --> D{¿Qué dato\nse modifica?}
     D -- Nombre / Teléfono --> E[Gerente o Admin\npueden editar]
-    D -- Correo o Rol --> F[Solo Admin\nCorporativo puede editar]
-    E --> G[Guardar cambios]
-    F --> G
-    G --> H[🤖 Sistema actualiza\nlos datos]
-    H --> I{¿Se cambió\nel correo?}
-    I -- Sí --> J[🤖 Envía notificación\nal colaborador]
-    I -- No --> K([✅ Datos actualizados])
-    J --> K
+    D -- Correo --> F[❌ No disponible\nen la plataforma\nContactar a Sistemas]
+    D -- Rol --> G[Ver Escenario 2]
+    E --> H[Guardar cambios]
+    H --> I[🤖 Sistema actualiza\nnombre y teléfono]
+    I --> J([✅ Datos actualizados])
     style A fill:#fac186,color:#5a3000,stroke:#a25cbf
     style B fill:#fac186,color:#5a3000,stroke:#a25cbf
     style C fill:#fac186,color:#5a3000,stroke:#a25cbf
     style D fill:#fac186,color:#5a3000,stroke:#a25cbf
     style E fill:#fac186,color:#5a3000,stroke:#a25cbf
-    style F fill:#ed80a8,color:#fff,stroke:#a25cbf
+    style F fill:#ff3759,color:#fff,stroke:#a25cbf
     style G fill:#d9d8f5,color:#373644,stroke:#a25cbf
-    style H fill:#d6d9f3,color:#373644,stroke:#a25cbf
-    style I fill:#fac186,color:#5a3000,stroke:#a25cbf
-    style J fill:#d6d9f3,color:#373644,stroke:#a25cbf
-    style K fill:#afd393,color:#2d5a1b,stroke:#a25cbf
+    style H fill:#d9d8f5,color:#373644,stroke:#a25cbf
+    style I fill:#d6d9f3,color:#373644,stroke:#a25cbf
+    style J fill:#afd393,color:#2d5a1b,stroke:#a25cbf
         </div>
       </div>
     </div>
   </div>
 
-  <!-- ESCENARIO 7 -->
+  <!-- ESCENARIO 7A -->
   <div class="scenario-card">
     <div class="scenario-header">
-      <div class="scenario-number">7</div>
+      <div class="scenario-number">7A</div>
       <div>
-        <h3>Desactivar un colaborador que ya no trabaja en la empresa</h3>
+        <h3>Baja de colaborador — flujo estándar (con aprobación de RRHH)</h3>
         <div class="actors">
-          <span class="actor-badge" style="background:#ed80a8;color:#fff">Admin Corporativo</span>
+          <span class="actor-badge" style="background:#fac186;color:#7a3a00">Gerente de Sucursal</span>
+          <span class="actor-badge" style="background:#f0c060;color:#5a3a00">RRHH</span>
+          <span class="actor-badge" style="background:#d6d9f3;color:#373644">Sistema</span>
         </div>
       </div>
     </div>
@@ -414,28 +480,85 @@ flowchart TD
       <div class="steps">
         <h4>¿Cómo funciona?</h4>
         <ul class="step-list">
-          <li>El Admin Corporativo abre el perfil del colaborador que ya no forma parte de la empresa.</li>
-          <li>Hace clic en el botón "Desactivar colaborador" y confirma la acción en el cuadro de diálogo que aparece.</li>
-          <li class="system">🤖 El sistema bloquea el acceso del colaborador de forma inmediata. Si en ese momento tiene una sesión abierta, también se cierra automáticamente.</li>
-          <li class="system">🤖 El colaborador queda marcado como "Inactivo" en la lista de personal. Sus registros, citas atendidas e historial de actividad se conservan íntegros.</li>
-          <li class="decision">🔀 ¿El colaborador tenía citas pendientes en la agenda?</li>
-          <li>Si había citas futuras asignadas a ese colaborador, el sistema muestra una alerta para que el gerente o admin las reasigne antes de continuar.</li>
-          <li class="success">✅ El colaborador ya no puede ingresar al sistema. Su historial queda disponible para consulta interna.</li>
+          <li>El Gerente de Sucursal abre el perfil del colaborador que ya no forma parte de la empresa y levanta una <strong>solicitud de baja</strong>.</li>
+          <li class="system">🤖 La solicitud queda en estado <em>Solicitada</em> y se notifica al área de RRHH o al administrador corporativo.</li>
+          <li class="decision">🔀 RRHH o el administrador corporativo revisan la solicitud: ¿se aprueba la baja?</li>
+          <li class="error">❌ Si se rechaza, la solicitud se cierra y el colaborador sigue activo. El Gerente recibe la notificación del rechazo.</li>
+          <li>Si se aprueba, la solicitud pasa a estado <em>Aprobada</em>.</li>
+          <li>El ejecutor (RRHH, administrador corporativo u otro rol autorizado) ejecuta la baja formalmente.</li>
+          <li class="system">🤖 El sistema desactiva al colaborador en la base de datos (is_active = false) y en el directorio de identidad (Cognito). A partir de ese momento no puede hacer un nuevo inicio de sesión.</li>
+          <li class="system">🤖 Las citas futuras del colaborador se encolan automáticamente como pendientes de reasignación. La baja procede sin necesidad de esperar — las citas quedan marcadas para que el equipo las atienda después.</li>
+          <li class="success">✅ El colaborador queda en estado <em>Inactivo</em>. Sus registros, citas atendidas e historial se conservan íntegros.</li>
         </ul>
         <div class="notes">
-          <strong>Importante:</strong> La desactivación NO borra los datos del colaborador. Los expedientes, citas y registros en los que participó se conservan por integridad del historial médico y operativo de la empresa. Solo un Admin Corporativo puede reactivar a un colaborador desactivado.
+          <strong>Sobre las sesiones activas:</strong> Al ejecutar la baja, el colaborador no puede volver a iniciar sesión. Sin embargo, si tiene una sesión abierta en ese momento, seguirá activa hasta que expire el token de seguridad — máximo 1 hora. No hay cierre de sesión automático e inmediato. Si hay urgencia, contactar a Sistemas para una invalidación manual.<br><br>
+          <strong>Los datos NO se borran.</strong> Los expedientes, citas y registros en los que participó el colaborador se conservan por integridad del historial médico y operativo.
         </div>
       </div>
       <div class="diagram-wrap">
-        <h4>Diagrama de estado</h4>
+        <h4>Diagrama de estados (flujo con aprobación)</h4>
         <div class="mermaid">
 stateDiagram-v2
     [*] --> Activo : Alta en el sistema
-    Activo --> Inactivo : Admin desactiva
-    Inactivo --> Activo : Admin reactiva
-    Activo --> PendienteRevision : Tiene citas futuras\npendientes de reasignar
-    PendienteRevision --> Inactivo : Citas reasignadas\ny desactivación confirmada
+    Activo --> SolicitudPendiente : Gerente levanta\nsolicitud de baja
+    SolicitudPendiente --> Rechazada : RRHH / Admin\nrechaza la solicitud
+    Rechazada --> Activo : Colaborador\nsigue activo
+    SolicitudPendiente --> Aprobada : RRHH / Admin\naprueba la solicitud
+    Aprobada --> Inactivo : Ejecutor aplica\nla baja formal
+    Inactivo --> Activo : Admin autorizado\nreactiva al colaborador
     Inactivo --> [*] : Historial conservado
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ESCENARIO 7B -->
+  <div class="scenario-card">
+    <div class="scenario-header">
+      <div class="scenario-number">7B</div>
+      <div>
+        <h3>Baja directa de colaborador (Platform Admin o Admin Corporativo)</h3>
+        <div class="actors">
+          <span class="actor-badge" style="background:#a25cbf;color:#fff">Platform Admin</span>
+          <span class="actor-badge" style="background:#ed80a8;color:#7a1a3a">Admin Corporativo</span>
+          <span class="actor-badge" style="background:#d6d9f3;color:#373644">Sistema</span>
+        </div>
+      </div>
+    </div>
+    <div class="scenario-body">
+      <div class="steps">
+        <h4>¿Cómo funciona?</h4>
+        <ul class="step-list">
+          <li>El Platform Admin o Admin Corporativo abre el perfil del colaborador y hace clic en "Desactivar colaborador".</li>
+          <li>Confirma la acción en el cuadro de diálogo que aparece.</li>
+          <li class="system">🤖 El sistema desactiva al colaborador en la base de datos (is_active = false) y en el directorio de identidad (Cognito) en el mismo paso — sin necesidad de aprobación adicional.</li>
+          <li class="system">🤖 Las citas futuras del colaborador se encolan automáticamente como pendientes de reasignación. La baja procede sin necesidad de esperar — las citas quedan marcadas para que el equipo las atienda.</li>
+          <li class="success">✅ El colaborador queda en estado Inactivo. Sus registros, citas atendidas e historial se conservan íntegros.</li>
+        </ul>
+        <div class="notes">
+          <strong>Sobre las sesiones activas:</strong> El sistema bloquea la posibilidad de un nuevo inicio de sesión de forma inmediata. Sin embargo, si el colaborador tiene una sesión abierta en ese momento, seguirá activa hasta que expire el token de seguridad — máximo 1 hora. No hay cierre de sesión automático e inmediato. Si hay urgencia por razones de seguridad, contactar a Sistemas para invalidación manual.<br><br>
+          <strong>Los datos NO se borran.</strong> Los expedientes, citas y registros en los que participó el colaborador se conservan por integridad del historial médico y operativo. Solo un administrador autorizado puede reactivar a un colaborador desactivado.
+        </div>
+      </div>
+      <div class="diagram-wrap">
+        <h4>Diagrama de flujo (baja directa)</h4>
+        <div class="mermaid">
+flowchart TD
+    A([Inicio]) --> B[Admin abre perfil\ndel colaborador]
+    B --> C[Clic en Desactivar\ncolaborador]
+    C --> D[Confirma en\nel diálogo]
+    D --> E[🤖 Sistema desactiva\nen base de datos\nis_active = false]
+    E --> F[🤖 Sistema desactiva\nen directorio de identidad\nCognito DisableUser]
+    F --> G[🤖 Citas futuras\nencoladas para\nreasignación]
+    G --> H([✅ Colaborador Inactivo\nNo puede iniciar sesión\nSesión activa expira en máx. 1h])
+    style A fill:#ed80a8,color:#fff,stroke:#a25cbf
+    style B fill:#ed80a8,color:#fff,stroke:#a25cbf
+    style C fill:#ed80a8,color:#fff,stroke:#a25cbf
+    style D fill:#ed80a8,color:#fff,stroke:#a25cbf
+    style E fill:#d6d9f3,color:#373644,stroke:#a25cbf
+    style F fill:#d6d9f3,color:#373644,stroke:#a25cbf
+    style G fill:#d6d9f3,color:#373644,stroke:#a25cbf
+    style H fill:#afd393,color:#2d5a1b,stroke:#a25cbf
         </div>
       </div>
     </div>
@@ -446,9 +569,10 @@ stateDiagram-v2
     <div class="scenario-header">
       <div class="scenario-number">8</div>
       <div>
-        <h3>Admin Corporativo gestiona el personal de todas las sucursales</h3>
+        <h3>Admin Corporativo y Platform Admin — vista completa del personal</h3>
         <div class="actors">
-          <span class="actor-badge" style="background:#ed80a8;color:#fff">Admin Corporativo</span>
+          <span class="actor-badge" style="background:#a25cbf;color:#fff">Platform Admin</span>
+          <span class="actor-badge" style="background:#ed80a8;color:#7a1a3a">Admin Corporativo</span>
           <span class="actor-badge" style="background:#d6d9f3;color:#373644">Sistema</span>
         </div>
       </div>
@@ -457,27 +581,33 @@ stateDiagram-v2
       <div class="steps">
         <h4>¿Cómo funciona?</h4>
         <ul class="step-list">
-          <li>El Admin Corporativo ingresa al módulo "Personal y Staff". A diferencia del Gerente de Sucursal, ve el personal de <strong>todas las sucursales</strong> del grupo en una sola pantalla.</li>
-          <li>Puede filtrar la lista por sucursal, por rol o por estatus (Activo / Inactivo) para encontrar rápidamente a quien busca.</li>
-          <li class="system">🤖 El sistema muestra un resumen de cuántos colaboradores activos hay por sucursal y por rol, facilitando la supervisión operativa.</li>
-          <li>Desde esta vista centralizada, el Admin puede ejecutar cualquier acción: dar de alta, editar, asignar roles, configurar horarios o desactivar a cualquier colaborador del grupo.</li>
+          <li>El Admin Corporativo o Platform Admin ingresa al módulo "Personal y Staff". A diferencia del Gerente de Sucursal, <strong>no se le redirige a una sucursal específica</strong> — ve el personal de todas las sucursales del grupo en una sola pantalla.</li>
+          <li>El Gerente de Sucursal, al acceder al mismo módulo, es redirigido automáticamente a la vista de su propia sucursal.</li>
+          <li>Admin Corporativo y Platform Admin pueden filtrar la lista por sucursal, por rol o por estatus (Activo / Inactivo) para encontrar rápidamente a quien buscan.</li>
+          <li>Desde esta vista centralizada, pueden ejecutar cualquier acción: dar de alta, editar, asignar roles, configurar horarios o desactivar a cualquier colaborador del grupo.</li>
           <li class="decision">🔀 ¿Se requiere gestionar solo una sucursal específica?</li>
-          <li>El Admin puede filtrar por sucursal para trabajar de forma enfocada, igual que haría un Gerente de Sucursal pero con alcance ampliado.</li>
-          <li class="success">✅ Todas las acciones quedan registradas con la fecha, hora y el nombre del Admin que las realizó, para trazabilidad completa.</li>
+          <li>Pueden filtrar por sucursal para trabajar de forma enfocada, igual que haría un Gerente pero con alcance ampliado a todo el grupo.</li>
+          <li class="success">✅ Todas las acciones quedan registradas con la fecha, hora y el nombre del administrador que las realizó, para trazabilidad completa.</li>
         </ul>
         <div class="notes">
-          <strong>Diferencia clave con el Gerente de Sucursal:</strong> El Gerente solo ve y gestiona el personal de su sucursal. El Admin Corporativo ve y gestiona el personal de todas las sucursales del grupo desde una sola vista.
+          <strong>Diferencia clave entre roles:</strong><br>
+          <strong>Gerente de Sucursal</strong> — ve y gestiona únicamente el personal de su sucursal (redirigido automáticamente).<br>
+          <strong>Admin Corporativo</strong> — ve y gestiona el personal de todas las sucursales del grupo desde una sola vista, sin filtros de clínica en las consultas.<br>
+          <strong>Platform Admin</strong> — acceso irrestricto a todos los registros del sistema, incluyendo personal de todas las sucursales. Es el único rol que puede modificar a otro Platform Admin.
         </div>
       </div>
       <div class="diagram-wrap">
         <h4>Diagrama de flujo</h4>
         <div class="mermaid">
 sequenceDiagram
-    participant A as Admin Corporativo
+    participant A as Admin Corp / Platform Admin
+    participant G as Gerente de Sucursal
     participant S as Sistema
 
     A->>S: Accede a Personal y Staff
-    S-->>A: Vista centralizada con personal\nde todas las sucursales
+    S-->>A: Vista centralizada con personal\nde TODAS las sucursales
+    G->>S: Accede a Personal y Staff
+    S-->>G: Redirige a vista de\nsu propia sucursal
     A->>S: Aplica filtro por sucursal o rol
     S-->>A: Lista filtrada del personal
     A->>S: Selecciona acción (alta / editar\n/ desactivar / horarios)
