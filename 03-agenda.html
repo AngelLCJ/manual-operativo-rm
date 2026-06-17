@@ -65,6 +65,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
   <a href="07-notificaciones.html">🔔 Notificaciones</a>
   <a href="08-configuracion.html">⚙️ Configuración</a>
   <a href="09-procesos.html">⚡ Procesos</a>
+  <a href="hallazgos.html">🔍 Hallazgos</a>
 </nav>
 <main class="main">
 
@@ -120,15 +121,21 @@ stateDiagram-v2
     checked_in --> vitals : Enfermería inicia toma de signos vitales
     checked_in --> in_progress : Médica recibe a la paciente (sin paso por vitals)
     checked_in --> cancelled : Admin / Clinic Admin (requiere motivo de reversión)
+    checked_in --> confirmed : Admin regresa al estado anterior
     vitals --> in_progress : Enfermería finaliza signos vitales — notifica a médica
     vitals --> cancelled : Admin / Clinic Admin (requiere motivo de reversión)
+    vitals --> checked_in : Admin regresa al estado anterior
     in_progress --> completed : Médica marca consulta como terminada
     in_progress --> cancelled : Admin / Clinic Admin (requiere motivo de reversión)
+    in_progress --> vitals : Admin regresa al estado anterior
+    completed --> in_progress : Solo corp_manager / corp_admin / platform_admin
     completed --> [*]
+    cancelled --> scheduled : Admin revierte cancelación
     cancelled --> [*]
     rescheduled --> [*]
     no_show --> scheduled : Recepcionista revierte (motivo obligatorio)
     no_show --> [*]
+    confirmed --> scheduled : Admin regresa al estado anterior
         </div>
       </div>
     </div>
@@ -858,6 +865,58 @@ flowchart TD
     style J fill:#fac186,color:#5a3300,stroke:#a25cbf
     style K fill:#fac186,color:#5a3300,stroke:#a25cbf
     style L fill:#afd393,color:#2d5a1b,stroke:#2d5a1b
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ESCENARIO 14 -->
+  <div class="scenario-card" id="escenario-14">
+    <div class="scenario-header">
+      <div class="scenario-number">14</div>
+      <div>
+        <h3>Completar consulta — efectos automáticos al cerrar una cita</h3>
+        <div class="actors">
+          <span class="actor-badge" style="background:#c58fe8;color:#fff">Médica</span>
+          <span class="actor-badge" style="background:#d6d9f3;color:#373644">Sistema</span>
+        </div>
+      </div>
+    </div>
+    <div class="scenario-body">
+      <div class="steps">
+        <h4>¿Cómo funciona?</h4>
+        <ul class="step-list">
+          <li>La médica termina la consulta y marca la cita como completada desde su vista de Kanban.</li>
+          <li class="system">🤖 El sistema mueve la cita al estado <em>completed</em> y lanza automáticamente una serie de procesos encadenados.</li>
+          <li class="system">🤖 <strong>Proceso 1 — Verificar consejera asignada:</strong> el sistema confirma que la paciente tiene una consejera asignada. Si no la tiene, registra la alerta correspondiente.</li>
+          <li class="system">🤖 <strong>Proceso 2 — Detección de primera especialidad:</strong> si esta es la primera cita de la paciente en esa especialidad, el sistema registra la ruta clínica correspondiente.</li>
+          <li class="system">🤖 <strong>Proceso 3 — Auto-completar contrato:</strong> el sistema revisa si todas las citas del Plan (contrato) de la paciente han sido completadas. Si es así, cierra automáticamente el contrato.</li>
+          <li class="success">✅ La cita queda en estado <em>completed</em> de forma permanente. El Plan de la paciente refleja el consumo actualizado.</li>
+        </ul>
+        <div class="notes"><strong>Estado terminal:</strong> <em>completed</em> no tiene retorno para recepcionistas ni médicas. Solo roles corporativos (corp_manager, corp_admin, platform_admin) pueden revertir una cita de <em>completed</em> a <em>in_progress</em> en casos excepcionales.<br><br><strong>Plan y consumo:</strong> Solo las citas en estado <em>completed</em> consumen sesiones del Plan. Canceladas y no-shows no consumen.</div>
+      </div>
+      <div class="diagram-wrap">
+        <h4>Diagrama de flujo</h4>
+        <div class="mermaid">
+flowchart TD
+    A([Médica marca consulta como terminada]) --> B[Sistema mueve cita a completed]
+    B --> C[Proceso 1: Verificar consejera asignada]
+    C --> D[Proceso 2: Detectar primera especialidad]
+    D --> E[Proceso 3: Auto-completar contrato si todas las citas consumidas]
+    E --> F{¿Todas las citas del Plan completadas?}
+    F -- Sí --> G[Sistema cierra el contrato automáticamente]
+    F -- No --> H[Contrato sigue activo — quedan citas por consumir]
+    G --> I([Cita completada — Plan actualizado])
+    H --> I
+    style A fill:#c58fe8,color:#fff,stroke:#a25cbf
+    style B fill:#d6d9f3,color:#373644,stroke:#a25cbf
+    style C fill:#d6d9f3,color:#373644,stroke:#a25cbf
+    style D fill:#d6d9f3,color:#373644,stroke:#a25cbf
+    style E fill:#d6d9f3,color:#373644,stroke:#a25cbf
+    style F fill:#fac186,color:#5a3300,stroke:#a25cbf
+    style G fill:#afd393,color:#2d5a1b,stroke:#2d5a1b
+    style H fill:#d9d8f5,color:#373644,stroke:#a25cbf
+    style I fill:#afd393,color:#2d5a1b,stroke:#2d5a1b
         </div>
       </div>
     </div>

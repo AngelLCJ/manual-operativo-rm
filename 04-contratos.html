@@ -103,6 +103,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
           <li>Elige el tipo de plan médico (por ejemplo: Plan Maternidad, Plan Pediatría, Plan Piel).</li>
           <li>Selecciona los servicios incluidos en el plan: consultas, estudios y procedimientos.</li>
           <li>Indica la cantidad de citas pactadas para cada servicio.</li>
+          <li class="system">🤖 El sistema verifica que el tipo de plan elegido siga activo en el catálogo. Si el tipo fue desactivado entre que se abrió el formulario y se envió, la operación falla con un mensaje de error y no se crea nada.</li>
           <li class="decision">🔀 ¿Se requiere revisión del admin corporativo antes de activar?</li>
           <li class="system">🤖 El sistema guarda el contrato en estado <strong>Borrador</strong> y genera un número de contrato único.</li>
           <li class="success">✅ El contrato aparece en la lista de la paciente listo para ser revisado y activado (Escenario 2).</li>
@@ -120,7 +121,9 @@ flowchart TD
     PA -- Módulo Contratos --> B[Abrir sección Contratos]
     B --> C[Buscar y seleccionar paciente]
     C --> D[Elegir tipo de plan]
-    D --> E[Seleccionar servicios incluidos]
+    D --> DV{¿Tipo activo\nen catálogo?}
+    DV -- No --> DVE[❌ Error: tipo de plan\nno disponible]
+    DV -- Sí --> E[Seleccionar servicios incluidos]
     E --> F[Indicar cantidad de citas por servicio]
     F --> G{¿Requiere revisión?}
     G -- Sí --> H[Guardar como Borrador\npara revisión]
@@ -135,6 +138,8 @@ flowchart TD
     style B fill:#c58fe8,color:#fff,stroke:#a25cbf
     style C fill:#c58fe8,color:#fff,stroke:#a25cbf
     style D fill:#c58fe8,color:#fff,stroke:#a25cbf
+    style DV fill:#fac186,color:#7a4a00,stroke:#d97706
+    style DVE fill:#ff3759,color:#fff,stroke:#8b0000
     style E fill:#7eb8f7,color:#1a3a5c,stroke:#3a7bd5
     style F fill:#7eb8f7,color:#1a3a5c,stroke:#3a7bd5
     style G fill:#fac186,color:#7a4a00,stroke:#d97706
@@ -392,6 +397,7 @@ sequenceDiagram
           <li class="error">❌ <strong>Bloqueo importante:</strong> si el contrato está en estado <strong>Suspendido</strong> cuando se intenta marcar la última cita como completada, el sistema muestra un error y revierte la operación completa. La cita tampoco queda como completada. Para resolver esto: primero reactivar el contrato (Escenario 4), luego marcar la cita como completada.</li>
           <li class="success">✅ El contrato completado queda visible en el historial de la paciente como referencia.</li>
           <li class="success">✅ Si la paciente desea continuar recibiendo servicios, se puede crear un nuevo contrato desde cero.</li>
+          <li class="error">❌ <strong>Conflicto simultáneo:</strong> si dos operadores intentan marcar como completadas dos citas del mismo plan al mismo tiempo (situación poco frecuente), solo una operación tendrá éxito; la otra mostrará un error recuperable. El operador debe reintentar manualmente.</li>
         </ul>
         <div class="notes">
           <strong>Nota técnica:</strong> El cierre automático se dispara tanto desde el tablero Kanban de agenda como desde la vista de Agenda. El estado Completado es <em>exclusivamente automático</em>: ningún rol puede marcarlo manualmente, ni siquiera el administrador. Un plan sin servicios registrados (0 ítems) no se cierra automáticamente y requiere cancelación manual.
@@ -699,6 +705,7 @@ flowchart TD
             </ul>
           </li>
           <li class="system">🤖 El sistema registra automáticamente cada cambio, sin que el usuario tenga que hacer nada extra. Cuando el cierre es automático, el actor registrado es "Sistema".</li>
+          <li class="system">🤖 <strong>Registro de consumo:</strong> cuando el sistema cierra automáticamente un plan, genera dos entradas separadas: (a) el evento de cierre en el historial del contrato, donde el actor aparece como "Sistema"; y (b) un registro de consumo de servicio, donde el actor es el operador humano que marcó la última cita como completada. Esta distinción es relevante para reportes financieros y auditorías.</li>
           <li class="success">✅ El historial garantiza trazabilidad total: en caso de auditoría o disputa, siempre hay un registro claro de qué pasó y quién intervino.</li>
           <li>Este historial es de solo lectura: nadie puede editarlo ni eliminarlo.</li>
         </ul>

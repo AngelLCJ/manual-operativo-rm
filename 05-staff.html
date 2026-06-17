@@ -79,6 +79,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
         <h3>Dar de alta un nuevo colaborador</h3>
         <div class="actors">
           <span class="actor-badge" style="background:#a25cbf;color:#fff">Platform Admin</span>
+          <span class="actor-badge" style="background:#7b52ab;color:#fff">Sistemas (corp_systems)</span>
           <span class="actor-badge" style="background:#f0c060;color:#5a3a00">RRHH</span>
           <span class="actor-badge" style="background:#fac186;color:#7a3a00">Gerente de Sucursal</span>
           <span class="actor-badge" style="background:#d6d9f3;color:#373644">Sistema</span>
@@ -89,7 +90,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
       <div class="steps">
         <h4>¿Cómo funciona?</h4>
         <ul class="step-list">
-          <li>El administrador autorizado (Platform Admin, RRHH o Gerente de Sucursal) accede al módulo <strong>Personal y Staff</strong> y hace clic en "Agregar colaborador".</li>
+          <li>El administrador autorizado (Platform Admin, Sistemas, RRHH o Gerente de Sucursal) accede al módulo <strong>Personal y Staff</strong> y hace clic en "Agregar colaborador".</li>
           <li>Captura los datos del nuevo colaborador: nombre completo, correo electrónico institucional y teléfono.</li>
           <li>Selecciona el <strong>rol</strong> que tendrá (Recepcionista, Consejera, Médica, etc.) y la o las <strong>sucursales</strong> donde trabajará.</li>
           <li class="decision">🔀 Restricción de jerarquía: ¿el rol seleccionado tiene un nivel igual o mayor al del administrador que da de alta?</li>
@@ -106,6 +107,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
         <div class="notes">
           <strong>Quién puede dar de alta y con qué alcance:</strong><br>
           <strong>Platform Admin</strong> — puede crear staff con cualquier rol.<br>
+          <strong>Sistemas (corp_systems)</strong> — puede crear staff con cualquier rol.<br>
           <strong>RRHH (corp_hr)</strong> — puede crear staff con roles hasta su nivel.<br>
           <strong>Gerente de Sucursal (clinic_admin)</strong> — puede crear staff solo para su sucursal y solo con roles inferiores al suyo (no puede crear otro Gerente ni Admin Corporativo).<br><br>
           <strong>Nota técnica:</strong> El correo del colaborador es el identificador en el directorio de identidad. Si algo falla en el paso de base de datos interna después de que el directorio ya creó la cuenta, el área de Sistemas puede resolverlo; el colaborador no podrá iniciar sesión hasta que se complete el proceso.
@@ -253,7 +255,7 @@ flowchart TD
         <ul class="step-list">
           <li>Desde el perfil del colaborador, se accede a la sección "Sucursales asignadas".</li>
           <li class="decision">🔀 ¿Quién está haciendo el cambio?</li>
-          <li>Si es <strong>Gerente de Sucursal</strong>, solo puede agregar o quitar al colaborador de su propia sucursal. No puede asignarlo a sucursales de otros Gerentes ni moverlo entre sucursales.</li>
+          <li>Si es <strong>Gerente de Sucursal</strong>, tiene acceso a esta acción, aunque la restricción de que solo opere en su propia sucursal no está confirmada en el server action — puede aplicar solo a nivel de UI (no confirmado en código).</li>
           <li>Si es <strong>Admin Corporativo, RRHH o Platform Admin</strong>, puede agregar o quitar el colaborador de cualquier sucursal del grupo.</li>
           <li>Se seleccionan o deseleccionan las sucursales deseadas y se guarda el cambio.</li>
           <li class="decision">🔀 ¿Quedaron cero sucursales asignadas después del cambio?</li>
@@ -262,7 +264,7 @@ flowchart TD
           <li class="success">✅ El colaborador queda vinculado a las nuevas sucursales seleccionadas.</li>
         </ul>
         <div class="notes">
-          <strong>Nota sobre mover entre sucursales:</strong> Solo Admin Corporativo, RRHH y Platform Admin pueden trasladar a un colaborador de una sucursal a otra. El Gerente de Sucursal solo puede operar dentro de su propia sucursal.<br><br>
+          <strong>Nota sobre mover entre sucursales:</strong> La acción valida que el caller tenga un rol autorizado (Platform Admin, Admin Corporativo, RRHH o Gerente de Sucursal). No se confirmó en el código que el Gerente de Sucursal quede restringido exclusivamente a su propia sucursal en esta operación — la restricción puede existir a nivel de UI pero no se encontró en el server action. Para garantías de seguridad, consultar con el área de Sistemas antes de que un Gerente modifique sucursales ajenas.<br><br>
           <strong>Un colaborador puede estar en más de una sucursal</strong> simultáneamente (útil para médicas que rotan entre clínicas). El límite técnico del sistema es 13 sucursales por colaborador.
         </div>
       </div>
@@ -273,7 +275,7 @@ flowchart TD
     A([Inicio]) --> B[Abrir perfil\ndel colaborador]
     B --> C[Ir a sección\nSucursales asignadas]
     C --> D{¿Quién\nrealiza el cambio?}
-    D -- Gerente de Sucursal --> E[Solo puede modificar\nsu propia sucursal]
+    D -- Gerente de Sucursal --> E[Accede a la acción\nrestricc. de sede\nno confirmada en código]
     D -- Admin Corp / RRHH\n/ Platform Admin --> F[Puede modificar\ncualquier sucursal]
     E --> G[Seleccionar o\ndeseleccionar sucursales]
     F --> G

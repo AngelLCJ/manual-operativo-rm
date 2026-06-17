@@ -347,32 +347,38 @@ flowchart TD
           <li class="success">✅ Sí hay coincidencias: el panel muestra los pares de perfiles lado a lado para comparar.</li>
           <li>El Admin Corporativo revisa los dos perfiles y decide si son la misma persona.</li>
           <li class="success">✅ Son la misma: procede a unificar los perfiles (ver Escenario 7).</li>
+          <li class="error">❌ No son la misma: puede ocultarlos en la pantalla actual (solo en esa sesión). No existe una acción de "marcar como no duplicado" que persista en la base de datos — al recargar la página el par aparece nuevamente si el score es alto.</li>
         </ul>
-        <div class="notes"><strong>Acceso restringido:</strong> El panel de Duplicados solo está disponible para el Admin Corporativo y el Gerente de Sucursal. La recepcionista no tiene acceso a esta sección. El sistema califica las coincidencias con un score ponderado: CURP 40%, nombre 25%, fecha de nacimiento 20%, correo 10%, teléfono 5%.</div>
+        <div class="notes"><strong>Acceso restringido:</strong> El panel de Duplicados solo está disponible para el Admin Corporativo y el Gerente de Sucursal. La recepcionista no tiene acceso a esta sección. El sistema califica las coincidencias con un score ponderado: CURP 40%, nombre 25%, fecha de nacimiento 20%, correo 10%, teléfono 5%.<br><br><strong>Sin persistencia de descarte:</strong> Ocultar un par de duplicados en el panel es una acción de vista local (estado de sesión en el navegador). No se guarda en la base de datos.</div>
       </div>
       <div class="diagram-wrap">
         <h4>Diagrama de flujo</h4>
         <div class="mermaid">
 flowchart TD
-    A[Al registrar paciente nueva:\nel sistema calcula score\nde similitud con perfiles existentes] --> B{¿Score alto\nde coincidencia?}
-    B -- No --> C([Sin acción necesaria])
-    B -- Sí --> D[Marca par como\nposible duplicado]
-    D --> E[Admin Corporativo accede\nal panel de Duplicados]
-    E --> F[Revisa ambos\nperfiles lado a lado]
+    A[Al registrar paciente nueva:\nel sistema calcula score\nde similitud en el momento] --> B{¿Score alto\nde coincidencia?}
+    B -- No --> C([Sin acción: registro\ncontinúa normalmente])
+    B -- Sí --> D[Muestra alerta en pantalla\ncon los perfiles similares\nal usuario que registra]
+    D --> R{Recepcionista decide}
+    R -- Confirma que\nes persona nueva --> C2([Registro continúa\ncon confirmación])
+    R -- Abre perfil\nexistente --> C3([No se crea\nregistro nuevo])
+    A2([Admin ejecuta revisión\nbatch manual desde\npanel de Duplicados]) --> E
+    E[Panel muestra pares\ncon score alto\nen la sesión actual] --> F[Admin revisa ambos\nperfiles lado a lado]
     F --> G{¿Son la\nmisma paciente?}
     G -- Sí --> H([Procede a unificar\nver Escenario 7])
-    G -- No --> I([Admin descarta\nel par manualmente])
-    A2([Admin ejecuta revisión\nbatch manual desde\npanel de Duplicados]) --> E
+    G -- No --> I([Admin oculta el par\nen esta sesión\nno hay persistencia en BD])
     style A fill:#d6d9f3,color:#373644,stroke:#a25cbf
     style A2 fill:#ed80a8,color:#7a1a3a,stroke:#b85080
     style B fill:#fac186,color:#373644,stroke:#d48a50
     style C fill:#afd393,color:#2d5a1b,stroke:#6aa84f
+    style C2 fill:#afd393,color:#2d5a1b,stroke:#6aa84f
+    style C3 fill:#7eb8f7,color:#1a3a5c,stroke:#4a90d9
     style D fill:#fac186,color:#373644,stroke:#d48a50
+    style R fill:#fac186,color:#373644,stroke:#d48a50
     style E fill:#ed80a8,color:#7a1a3a,stroke:#b85080
     style F fill:#ed80a8,color:#7a1a3a,stroke:#b85080
     style G fill:#fac186,color:#373644,stroke:#d48a50
     style H fill:#afd393,color:#2d5a1b,stroke:#6aa84f
-    style I fill:#d6d9f3,color:#373644,stroke:#a25cbf
+    style I fill:#fac186,color:#7a3a00,stroke:#d48a50
         </div>
       </div>
     </div>

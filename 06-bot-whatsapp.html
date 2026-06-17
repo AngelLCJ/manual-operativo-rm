@@ -65,6 +65,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
   <a href="07-notificaciones.html">🔔 Notificaciones</a>
   <a href="08-configuracion.html">⚙️ Configuración</a>
   <a href="09-procesos.html">⚡ Procesos</a>
+  <a href="hallazgos.html">🔍 Hallazgos</a>
 </nav>
 <main class="main">
 
@@ -215,6 +216,7 @@ sequenceDiagram
           <li>La paciente <strong>debe elegir una médica específica</strong>. No existe la opción "cualquier disponible" — la selección de médica es obligatoria.</li>
           <li class="system">🤖 El sistema muestra hasta 8 horarios disponibles en los próximos días para esa médica.</li>
           <li>La paciente selecciona fecha y hora.</li>
+          <li class="decision">🔀 <strong>¿La cita es para ti o para otra persona?</strong> El bot pregunta mediante dos botones: "Para mí" o "Para otra persona". Si la cita es para otra persona adulta, el bot captura sus datos: nombre, apellido, fecha de nacimiento, sexo y número de celular antes de confirmar.</li>
           <li class="system">🤖 El sistema registra la cita y envía una confirmación con todos los detalles: servicio, sucursal, médica, fecha y hora.</li>
           <li class="success">✅ La cita queda agendada y aparece en la agenda de la sucursal.</li>
           <li class="error">❌ Si en algún paso no hay opciones disponibles, el bot lo notifica y ofrece escalar a recepción (ver Escenario 11).</li>
@@ -235,7 +237,10 @@ flowchart TD
     H --> I[Paciente elige\nmédica — obligatorio]
     I --> J[Bot muestra\nhorarios libres]
     J --> K[Paciente elige\nfecha y hora]
-    K --> L[Sistema registra\nla cita]
+    K --> FW{¿Para quién\nes la cita?}
+    FW -- Para mí --> L[Sistema registra\nla cita]
+    FW -- Para otra persona --> FWD[Bot captura datos del adulto:\nnombre · apellido · nacimiento · sexo · celular]
+    FWD --> L
     L --> M[Bot envía\nconfirmación]
     M --> N([Cita agendada ✅])
     style A fill:#afd393,color:#2d5a1b,stroke:#afd393
@@ -249,6 +254,8 @@ flowchart TD
     style I fill:#afd393,color:#2d5a1b,stroke:#afd393
     style J fill:#25D366,color:#fff,stroke:#1ea352
     style K fill:#afd393,color:#2d5a1b,stroke:#afd393
+    style FW fill:#d9d8f5,color:#373644,stroke:#a25cbf
+    style FWD fill:#25D366,color:#fff,stroke:#1ea352
     style L fill:#d6d9f3,color:#373644,stroke:#a25cbf
     style M fill:#25D366,color:#fff,stroke:#1ea352
     style N fill:#afd393,color:#2d5a1b,stroke:#afd393
@@ -515,10 +522,11 @@ sequenceDiagram
           <li>El bot la lleva directo al embudo de agendamiento: elige servicio → sucursal → médica → horario, exactamente igual que una paciente con cuenta (ver Escenario 3).</li>
           <li class="system">🤖 Después de que la paciente elige el horario, el sistema verifica si el número de WhatsApp ya está registrado.</li>
           <li class="decision">🔀 El número NO tiene cuenta. El registro ocurre en este momento — al final del embudo, no al principio.</li>
-          <li class="system">🤖 El bot solicita el <strong>nombre completo</strong> de la paciente.</li>
+          <li class="system">🤖 El bot solicita el <strong>nombre</strong> y el <strong>apellido</strong> de la paciente (en pasos separados).</li>
           <li class="system">🤖 El bot solicita la <strong>fecha de nacimiento</strong> y muestra una vista previa legible ("15 de marzo de 1990") para que la paciente confirme que es correcta.</li>
-          <li class="decision">🔀 ¿Los datos son correctos? Si la paciente necesita corregir la fecha, el bot la acepta nuevamente.</li>
-          <li class="system">🤖 El sistema crea el perfil de paciente con nombre completo, fecha de nacimiento y el número de WhatsApp como identificador. <strong>No se solicita correo electrónico.</strong></li>
+          <li class="decision">🔀 ¿La fecha es correcta? Si la paciente necesita corregir la fecha, el bot la acepta nuevamente (un solo reintento).</li>
+          <li class="system">🤖 El bot pregunta el <strong>sexo biológico</strong> mediante tres botones: Masculino / Femenino / Otro. Este dato es obligatorio por el expediente clínico (NOM-024).</li>
+          <li class="system">🤖 El sistema crea el perfil de paciente con nombre, apellido, fecha de nacimiento, sexo y el número de WhatsApp como identificador. <strong>No se solicita correo electrónico.</strong></li>
           <li class="success">✅ Con el perfil creado, el sistema confirma la cita que ya había seleccionado. La paciente queda registrada y su cita agendada en un solo flujo.</li>
         </ul>
         <div class="notes"><strong>Nota clave:</strong> El orden es intencional: la paciente primero elige lo que quiere (servicio, sucursal, médica, horario) y solo al final da sus datos. Esto reduce el abandono — no se piden datos antes de que la paciente vea que hay disponibilidad. El bot no solicita correo electrónico durante este proceso.</div>
@@ -531,12 +539,13 @@ flowchart TD
     B --> C[Paciente elige\nel horario]
     C --> D{¿El número WA\ntiene cuenta?}
     D -- Sí --> K([Confirma cita\nnormalmente ✅])
-    D -- No --> E[Bot solicita\nnombre completo]
+    D -- No --> E[Bot solicita\nnombre y apellido]
     E --> F[Bot solicita\nfecha de nacimiento]
     F --> G[Bot muestra vista previa\nde fecha en español]
-    G --> H{¿Datos\ncorrectos?}
-    H -- Corrige fecha --> F
-    H -- Correctos --> I[Sistema crea\nperfil de paciente\nnombre + nacimiento + tel WA]
+    G --> H{¿Fecha\ncorrecta?}
+    H -- Corrige --> F
+    H -- Correcta --> S[Bot pregunta sexo:\nMasculino / Femenino / Otro]
+    S --> I[Sistema crea\nperfil de paciente\nnombre + apellido + nacimiento\n+ sexo + tel WA]
     I --> J([Cita confirmada\ny perfil creado ✅])
     style A fill:#afd393,color:#2d5a1b,stroke:#afd393
     style B fill:#d6d9f3,color:#373644,stroke:#a25cbf
@@ -547,6 +556,7 @@ flowchart TD
     style F fill:#25D366,color:#fff,stroke:#1ea352
     style G fill:#25D366,color:#fff,stroke:#1ea352
     style H fill:#d9d8f5,color:#373644,stroke:#a25cbf
+    style S fill:#25D366,color:#fff,stroke:#1ea352
     style I fill:#d6d9f3,color:#373644,stroke:#a25cbf
     style J fill:#afd393,color:#2d5a1b,stroke:#afd393
         </div>
@@ -783,9 +793,10 @@ flowchart TD
           <li class="system">🤖 De forma inmediata, el bot envía un mensaje de confirmación con el resumen completo de lo que se hizo.</li>
           <li>El mensaje incluye siempre: qué se hizo (cita agendada / reagendada / cancelada), fecha y hora, nombre de la médica, nombre de la sucursal y dirección.</li>
           <li class="system">🤖 Para citas agendadas o reagendadas, el bot también recuerda que llegará un recordatorio automático antes de la cita.</li>
+          <li class="system">🤖 <strong>Confirmación asíncrona adicional:</strong> después de que la cita queda guardada en la base de datos, el sistema encola un trabajo de fondo que envía un segundo mensaje de confirmación por WhatsApp de forma asíncrona (fire-and-forget). La paciente puede recibir este segundo mensaje con un pequeño retraso después de la confirmación inmediata del bot.</li>
           <li class="success">✅ La paciente tiene en WhatsApp un comprobante claro de lo que se realizó, sin necesidad de llamar a confirmar.</li>
         </ul>
-        <div class="notes"><strong>Nota:</strong> Este mensaje de confirmación es el mismo formato en los tres tipos de acción. Lo que cambia es solo el verbo: "Tu cita fue agendada", "Tu cita fue reagendada", "Tu cita fue cancelada".</div>
+        <div class="notes"><strong>Nota:</strong> Este mensaje de confirmación es el mismo formato en los tres tipos de acción. Lo que cambia es solo el verbo: "Tu cita fue agendada", "Tu cita fue reagendada", "Tu cita fue cancelada". La confirmación asíncrona adicional aplica solo para el agendamiento (no para cancelación).</div>
       </div>
       <div class="diagram-wrap">
         <h4>Diagrama de confirmación</h4>
@@ -803,6 +814,8 @@ sequenceDiagram
     Note right of B: • Sucursal y dirección
     B-->>P: "¿Necesitas algo más?"
     P->>B: Elige siguiente acción o finaliza
+    Note over S,P: Para agendamiento: el sistema encola<br/>una confirmación WA adicional (asíncrona)
+    S-->>P: Segundo mensaje de confirmación<br/>(llega con pequeño retraso)
         </div>
       </div>
     </div>

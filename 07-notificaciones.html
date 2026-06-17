@@ -69,6 +69,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
   <a href="07-notificaciones.html" class="active">&#128276; Notificaciones</a>
   <a href="08-configuracion.html">&#9881;&#65039; Configuraci&oacute;n</a>
   <a href="09-procesos.html">&#9889; Procesos</a>
+  <a href="hallazgos.html">&#128269; Hallazgos</a>
 </nav>
 <main class="main">
 
@@ -80,7 +81,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
   </div>
 
   <!-- ESCENARIO 1 -->
-  <div class="scenario-card">
+  <div class="scenario-card" id="escenario-1">
     <div class="scenario-header">
       <div class="scenario-number">1</div>
       <div>
@@ -114,19 +115,19 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
               <td><strong>Correo electr&oacute;nico</strong></td>
               <td>AWS SES (en entorno de desarrollo: imprime en consola)</td>
               <td>Paciente tiene correo registrado. Preferencia de correo no desactivada.</td>
-              <td>Confirmaci&oacute;n de agendamiento &middot; Recordatorio multicanal (48h, 24h, 2h) &middot; Cita actualizada &middot; Alerta de cambio de correo (se env&iacute;a al correo anterior)</td>
+              <td>Confirmaci&oacute;n de agendamiento &middot; Recordatorio multicanal (48h, 24h, 2h) &middot; Cancelaci&oacute;n de cita (aviso gen&eacute;rico) &middot; Cita cancelada/reagendada por cambio de disponibilidad del m&eacute;dico &middot; Alerta de cambio de correo (se env&iacute;a al correo anterior)</td>
             </tr>
             <tr>
               <td><strong>SMS</strong></td>
               <td>AWS SNS o Twilio (seg&uacute;n variable de entorno <code>SMS_PROVIDER</code>)</td>
               <td>Paciente tiene tel&eacute;fono registrado. Preferencia de SMS no desactivada.</td>
-              <td>Confirmaci&oacute;n de agendamiento &middot; Recordatorio multicanal (48h, 24h, 2h) &middot; Alerta de cambio de tel&eacute;fono (se env&iacute;a al n&uacute;mero anterior)</td>
+              <td>Confirmaci&oacute;n de agendamiento &middot; Recordatorio multicanal (48h, 24h, 2h) &middot; Cancelaci&oacute;n de cita (aviso gen&eacute;rico) &middot; Cita cancelada/reagendada por cambio de disponibilidad del m&eacute;dico &middot; Alerta de cambio de tel&eacute;fono (se env&iacute;a al n&uacute;mero anterior)</td>
             </tr>
             <tr>
               <td><strong>In-app</strong></td>
               <td>Tabla interna <code>notification_log</code></td>
               <td>Siempre disponible para pacientes con cuenta en el portal.</td>
-              <td>Confirmaci&oacute;n de agendamiento &middot; Recordatorio multicanal &middot; Notificaci&oacute;n de cita cancelada/reagendada por cambio de disponibilidad</td>
+              <td>Confirmaci&oacute;n de agendamiento &middot; Recordatorio multicanal (48h, 24h, 2h)</td>
             </tr>
           </tbody>
         </table>
@@ -136,7 +137,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
   </div>
 
   <!-- ESCENARIO 2 -->
-  <div class="scenario-card">
+  <div class="scenario-card" id="escenario-2">
     <div class="scenario-header">
       <div class="scenario-number">2</div>
       <div>
@@ -190,7 +191,7 @@ flowchart TD
   </div>
 
   <!-- ESCENARIO 3 -->
-  <div class="scenario-card">
+  <div class="scenario-card" id="escenario-3">
     <div class="scenario-header">
       <div class="scenario-number">3</div>
       <div>
@@ -245,7 +246,7 @@ flowchart TD
   </div>
 
   <!-- ESCENARIO 4 -->
-  <div class="scenario-card">
+  <div class="scenario-card" id="escenario-4">
     <div class="scenario-header">
       <div class="scenario-number">4</div>
       <div>
@@ -266,13 +267,14 @@ flowchart TD
           <li class="decision">&#128260; Los canales usados dependen de las preferencias activas de la paciente. WhatsApp se incluye si hay consentimiento y adaptador activo.</li>
           <li class="success">&#9989; La paciente recibe el aviso de cancelaci&oacute;n.</li>
         </ul>
-        <div class="notes danger"><strong>Deuda t&eacute;cnica conocida:</strong> el mensaje de cancelaci&oacute;n es texto plano gen&eacute;rico porque el template de cancelaci&oacute;n a&uacute;n no est&aacute; implementado. No incluye datos de la cita ni invitaci&oacute;n a reagendar. Si la recepcionista necesita comunicar esos detalles a la paciente, debe hacerlo manualmente por WhatsApp.</div>
+        <div class="notes danger"><strong>Deuda t&eacute;cnica conocida:</strong> el mensaje de cancelaci&oacute;n iniciada por recepcionista o paciente es texto plano gen&eacute;rico porque el template de cancelaci&oacute;n a&uacute;n no est&aacute; implementado. No incluye datos de la cita ni invitaci&oacute;n a reagendar. Si la recepcionista necesita comunicar esos detalles a la paciente, debe hacerlo manualmente por WhatsApp.</div>
+        <div class="notes" style="margin-top:.75rem"><strong>Cancelaci&oacute;n por cambio de disponibilidad del m&eacute;dico (Phase 97):</strong> cuando el sistema cancela o reagenda citas en bloque por un bloqueo de disponibilidad del m&eacute;dico, la notificaci&oacute;n funciona diferente. El sistema env&iacute;a correo y SMS usando el template <code>appointment_updated</code> (un template HTML real). Para WhatsApp, usa el camino dedicado de Phase 87 (pg-boss + Kapso) con el template Meta correspondiente (<code>appt_cancellation_confirmation</code> o <code>appt_reschedule_confirmation</code>), solo si la paciente dio consentimiento expl&iacute;cito. Este camino NO es iniciado por la recepcionista sino por el sistema autom&aacute;ticamente al guardar la indisponibilidad del m&eacute;dico.</div>
       </div>
       <div class="diagram-wrap">
         <h4>Diagrama de flujo</h4>
         <div class="mermaid">
 flowchart TD
-    A([Recepcionista\ncancela cita]) --> B[Sistema envia aviso\nde cancelacion\ntexto plano generico]
+    A([Recepcionista\no paciente\ncancela cita]) --> B[Sistema envia aviso\nde cancelacion\ntexto plano generico]
     B --> C{Canales activos\nde la paciente}
     C --> D[Correo]
     C --> E[SMS]
@@ -295,7 +297,7 @@ flowchart TD
   </div>
 
   <!-- ESCENARIO 5 -->
-  <div class="scenario-card">
+  <div class="scenario-card" id="escenario-5">
     <div class="scenario-header">
       <div class="scenario-number">5</div>
       <div>
@@ -347,7 +349,7 @@ flowchart TD
   </div>
 
   <!-- ESCENARIO 6 -->
-  <div class="scenario-card">
+  <div class="scenario-card" id="escenario-6">
     <div class="scenario-header">
       <div class="scenario-number">6</div>
       <div>
@@ -388,7 +390,7 @@ sequenceDiagram
   </div>
 
   <!-- ESCENARIO 7: Planificado — preferencias editables desde la UI -->
-  <div class="scenario-card">
+  <div class="scenario-card" id="escenario-7">
     <div class="scenario-header">
       <div class="scenario-number">7</div>
       <div>
@@ -432,7 +434,7 @@ flowchart TD
   </div>
 
   <!-- ESCENARIO 8: Planificado — correo de bienvenida -->
-  <div class="scenario-card">
+  <div class="scenario-card" id="escenario-8">
     <div class="scenario-header">
       <div class="scenario-number">8</div>
       <div>
@@ -475,7 +477,7 @@ flowchart TD
   </div>
 
   <!-- ESCENARIO 9: Planificado — resumen matutino de agenda -->
-  <div class="scenario-card">
+  <div class="scenario-card" id="escenario-9">
     <div class="scenario-header">
       <div class="scenario-number">9</div>
       <div>
